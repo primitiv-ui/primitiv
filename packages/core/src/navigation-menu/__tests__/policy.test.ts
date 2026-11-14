@@ -3,6 +3,7 @@ import {
   navigationMenuIds,
   navigationMenuKeydown,
   navigationMenuOpenDelay,
+  navigationMenuPanelMotion,
   navigationMenuToggle,
   type NavigationMenuTravelState,
 } from "../policy";
@@ -139,5 +140,31 @@ describe("navigationMenuIds", () => {
 
     // Assert
     expect(ids).toEqual({ triggerId: "nav-trigger-docs", panelId: "nav-panel-docs" });
+  });
+});
+
+describe("navigationMenuPanelMotion", () => {
+  const values = ["docs", "blog", "pricing"];
+  const motion = (value: string, openValue: string, previousValue: string) =>
+    navigationMenuPanelMotion({ value, openValue, previousValue, values });
+
+  it.each([
+    ["blog", "blog", "docs", "from-end"],
+    ["docs", "docs", "blog", "from-start"],
+    ["docs", "blog", "docs", "to-start"],
+    ["blog", "docs", "blog", "to-end"],
+  ])("gives %s (open %s, was %s) the motion %s", (value, openValue, previousValue, expected) => {
+    // Arrange & Act & Assert
+    expect(motion(value, openValue, previousValue)).toBe(expected);
+  });
+
+  it.each([
+    ["a bystander", "pricing", "blog", "docs"],
+    ["the first open", "docs", "docs", ""],
+    ["the full close", "docs", "", "docs"],
+    ["an unregistered entry", "faq", "faq", "docs"],
+  ])("has no direction for %s", (_case, value, openValue, previousValue) => {
+    // Arrange & Act & Assert
+    expect(motion(value, openValue, previousValue)).toBeUndefined();
   });
 });

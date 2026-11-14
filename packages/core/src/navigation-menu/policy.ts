@@ -93,3 +93,49 @@ export function navigationMenuEntersPanel(
 export function navigationMenuIds(rootId: string, value: string): { triggerId: string; panelId: string } {
   return { triggerId: deriveId(rootId, "trigger", value), panelId: deriveId(rootId, "panel", value) };
 }
+
+/**
+ * Which way a panel is travelling as the open entry changes, so a stylesheet
+ * can slide panels in the pointer's direction rather than cross-fading every
+ * switch. `from-*` is an entering panel, `to-*` a leaving one, and the suffix
+ * is the side it moves from or toward.
+ */
+export type NavigationMenuPanelMotion = "from-start" | "from-end" | "to-start" | "to-end";
+
+/** What a panel's motion is derived from. */
+export type NavigationMenuMotionState = {
+  /** The panel's own entry value. */
+  value: string;
+  /** The entry open now, or `""`. */
+  openValue: string;
+  /** The entry open before the last change, or `""`. */
+  previousValue: string;
+  /** The disclosure entries' values, in DOM order. */
+  values: readonly string[];
+};
+
+/**
+ * A panel's motion, or `undefined` — "no direction, just fade" — for a panel
+ * neither entering nor leaving, the first open (nothing to travel from), the
+ * full close (nothing to travel to), and an entry missing from `values`, since
+ * a direction derived from an unknown position would be a guess.
+ */
+export function navigationMenuPanelMotion({
+  value,
+  openValue,
+  previousValue,
+  values,
+}: NavigationMenuMotionState): NavigationMenuPanelMotion | undefined {
+  const opening = value === openValue;
+  if (!opening && value !== previousValue) return undefined;
+  // "" is never an entry, so it is rejected by the lookups like any unknown value.
+  const self = values.indexOf(value);
+  const other = values.indexOf(opening ? previousValue : openValue);
+  if (self === -1 || other === -1) return undefined;
+  // The two indices are never equal: a previous value is recorded only when the
+  // open value changes, so `<` and `<=` agree on every reachable input.
+  // Stryker disable next-line EqualityOperator: equivalent — see above.
+  if (opening) return other < self ? "from-end" : "from-start";
+  // Stryker disable next-line EqualityOperator: equivalent — see above.
+  return other > self ? "to-start" : "to-end";
+}

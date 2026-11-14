@@ -153,6 +153,32 @@ fn dispatches_the_utilities_command_and_writes_the_file() {
 }
 
 #[test]
+fn dispatches_the_remove_command() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.lock"),
+        b"{ \"components\": [\"tabs\"], \"files\": {} }",
+    )
+    .unwrap();
+
+    run(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &InMemoryProcessRunner::new(),
+        &OsPrompt,
+        false,
+        &args(&["remove", "tabs"]),
+    )
+    .unwrap();
+
+    assert_eq!(
+        fs.read(Path::new("primitiv.lock")).unwrap(),
+        b"{\n  \"components\": [],\n  \"files\": {}\n}\n"
+    );
+}
+
+#[test]
 fn propagates_a_parse_error() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();

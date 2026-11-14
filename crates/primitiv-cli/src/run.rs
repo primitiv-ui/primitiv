@@ -5,6 +5,7 @@ use crate::commands::add::add;
 use crate::commands::dtcg::dtcg;
 use crate::commands::init::init;
 use crate::commands::list::list;
+use crate::commands::remove::remove;
 use crate::commands::theme::theme;
 use crate::commands::tokens::tokens;
 use crate::commands::utilities::utilities;
@@ -35,6 +36,7 @@ pub fn run(
     match parse(args)? {
         Command::Init(options) => init(fs, output, registry, prompt, interactive, &options),
         Command::Add(options) => add(fs, registry, output, runner, prompt, interactive, &options),
+        Command::Remove(options) => remove(fs, registry, output, &options),
         Command::List { json } => list(fs, registry, output, json),
         Command::Theme {
             seeds,

@@ -4,6 +4,7 @@ use pretty_assertions::assert_eq;
 use crate::cli::{Command, parse};
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
+use crate::commands::remove::RemoveOptions;
 use crate::commands::tokens::TokensOptions;
 use crate::config::Surface;
 use crate::error::CliError;
@@ -872,7 +873,7 @@ fn rejects_help_for_an_unknown_command() {
 
     assert_eq!(
         error.to_string(),
-        "unknown command 'frob'; expected: init, add, list, theme, tokens, utilities, dtcg"
+        "unknown command 'frob'; expected: init, add, remove, list, theme, tokens, utilities, dtcg"
     );
 }
 
@@ -956,4 +957,25 @@ fn rejects_utilities_out_with_no_value() {
     let error = parse(&args(&["utilities", "--out"])).unwrap_err();
 
     assert!(matches!(error, CliError::Usage(_)));
+}
+
+#[test]
+fn parses_remove_with_its_components_and_force() {
+    assert_eq!(
+        parse(&args(&["remove", "tooltip", "--force", "tabs"])).unwrap(),
+        Command::Remove(RemoveOptions {
+            components: vec!["tooltip".to_string(), "tabs".to_string()],
+            force: true,
+        })
+    );
+}
+
+#[test]
+fn rejects_remove_with_no_component_or_an_unknown_flag() {
+    for argv in [&["remove"][..], &["remove", "tabs", "--all"][..]] {
+        assert!(
+            matches!(parse(&args(argv)).unwrap_err(), CliError::Usage(_)),
+            "{argv:?}"
+        );
+    }
 }

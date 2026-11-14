@@ -488,7 +488,7 @@ fn unwrap_bare_spans(line: &str, bare: &mut Vec<bool>) -> String {
 /// The components directory `add` writes the React surface into when the project
 /// has no detectable import alias (RFC 0005 §3.3 fallback) — `src/components`,
 /// matching the layout convention of Vite, Next.js, and CRA projects.
-const DEFAULT_COMPONENTS_DIR: &str = "src/components";
+pub(crate) const DEFAULT_COMPONENTS_DIR: &str = "src/components";
 
 /// The GitHub `owner/repo` the version-pinned registry is fetched from (RFC 0005
 /// §6.4). Tracks the repo location; updates if/when the repo transfers.
@@ -770,7 +770,7 @@ struct StyleLinks {
 /// stylesheet the lock records under `styles_path` (`<name>/<file>`), sorted —
 /// so an elements page links one file however many runs added components. Like
 /// the barrel it is regenerated on every `add` rather than tracked in the lock.
-fn update_style_index(
+pub(crate) fn update_style_index(
     fs: &impl FileSystem,
     lock: &Lock,
     styles_path: &Path,
@@ -1295,7 +1295,7 @@ fn ensure_style_packages(
 /// The barrel is fully managed — regenerated from the lock on every `add` — so
 /// it is not itself tracked in the lock. Skips silently when no tsx wrappers
 /// are in the lock for this directory (CSS-only or headless-only installs).
-fn update_barrel(
+pub(crate) fn update_barrel(
     fs: &impl FileSystem,
     lock: &Lock,
     components_dir: &Path,

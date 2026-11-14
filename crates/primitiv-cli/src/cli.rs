@@ -4,6 +4,7 @@ use harmoni_core::api::DEFAULT_STEPS;
 
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
+use crate::commands::remove::RemoveOptions;
 use crate::commands::tokens::TokensOptions;
 use crate::config::Surface;
 use crate::error::CliError;
@@ -18,6 +19,8 @@ pub enum Command {
     Version,
     Init(InitOptions),
     Add(AddOptions),
+    /// Undo an `add`: delete the components' files and take them out of the lock.
+    Remove(RemoveOptions),
     List {
         json: bool,
     },
@@ -59,7 +62,7 @@ pub enum Command {
 }
 
 /// Every command, in the order usage messages list them.
-pub const COMMANDS: &[&str] = &["init", "add", "list", "theme", "tokens", "utilities", "dtcg"];
+pub const COMMANDS: &[&str] = &["init", "add", "remove", "list", "theme", "tokens", "utilities", "dtcg"];
 
 /// The palette families a `theme` seed can re-skin, in the order they are
 /// emitted. One list drives the `--<family>` flags, the `primitiv.json`
@@ -82,7 +85,7 @@ pub const RAMP_FAMILIES: &[&str] = &["brand", "danger", "warning", "success", "i
 pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
-        .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens, utilities, dtcg"))?;
+        .ok_or_else(|| usage("no command given; expected: init, add, remove, list, theme, tokens, utilities, dtcg"))?;
     if matches!(name.as_str(), "--version" | "-V") {
         return Ok(Command::Version);
     }
@@ -95,13 +98,14 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     match name.as_str() {
         "init" => parse_init(rest),
         "add" => parse_add(rest),
+        "remove" => parse_remove(rest),
         "list" => parse_list(rest),
         "theme" => parse_theme(rest),
         "tokens" => parse_tokens(rest),
         "utilities" => parse_utilities(rest),
         "dtcg" => parse_dtcg(rest),
         other => Err(usage(format!(
-            "unknown command '{other}'; expected: init, add, list, theme, tokens, utilities, dtcg"
+            "unknown command '{other}'; expected: init, add, remove, list, theme, tokens, utilities, dtcg"
         ))),
     }
 }
@@ -119,7 +123,7 @@ fn parse_help(args: &[String]) -> Result<Command, CliError> {
             command: Some(name.clone()),
         }),
         Some(other) => Err(usage(format!(
-            "unknown command '{other}'; expected: init, add, list, theme, tokens, utilities, dtcg"
+            "unknown command '{other}'; expected: init, add, remove, list, theme, tokens, utilities, dtcg"
         ))),
     }
 }
@@ -268,6 +272,26 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
         url,
         utilities,
     }))
+}
+
+/// Parse `remove <component...> [--force]` — at least one component name, in
+/// any order with the flag.
+fn parse_remove(args: &[String]) -> Result<Command, CliError> {
+    let mut components = Vec::new();
+    let mut force = false;
+    for arg in args {
+        match arg.as_str() {
+            "--force" => force = true,
+            flag if flag.starts_with("--") => {
+                return Err(usage(format!("unexpected argument '{flag}'")));
+            }
+            name => components.push(name.to_string()),
+        }
+    }
+    if components.is_empty() {
+        return Err(usage("remove needs at least one component, e.g. primitiv remove tooltip"));
+    }
+    Ok(Command::Remove(RemoveOptions { components, force }))
 }
 
 /// Parse `utilities [--out <path>]` — the one optional flag.

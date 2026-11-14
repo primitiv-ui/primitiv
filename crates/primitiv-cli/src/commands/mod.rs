@@ -2,6 +2,7 @@ pub mod add;
 pub mod dtcg;
 pub mod init;
 pub mod list;
+pub mod remove;
 pub mod theme;
 pub mod tokens;
 pub mod utilities;
@@ -18,6 +19,8 @@ mod init_elements_tests;
 mod init_tests;
 #[cfg(test)]
 mod list_tests;
+#[cfg(test)]
+mod remove_tests;
 #[cfg(test)]
 mod theme_tests;
 #[cfg(test)]

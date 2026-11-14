@@ -10,6 +10,7 @@ pub fn help_text(command: Option<&str>) -> &'static str {
     match command {
         Some("init") => INIT,
         Some("add") => ADD,
+        Some("remove") => REMOVE,
         Some("list") => LIST,
         Some("theme") => THEME,
         Some("tokens") => TOKENS,
@@ -25,6 +26,7 @@ Usage: primitiv <command> [options]
 Commands:
   init       Set up Primitiv in this project: writes primitiv.json and the token layer
   add        Copy styled components into the project, as code you own
+  remove     Delete components add copied, and take them out of primitiv.lock
   list       List the components the registry carries
   theme      Generate palette ramps from brand / status colours
   tokens     Emit the design-token layer as CSS, SCSS or Tailwind
@@ -94,6 +96,18 @@ package it installs is `primitiv --version`.
 
 Options:
   --json                         Print the list as JSON
+";
+
+const REMOVE: &str = "\
+Usage: primitiv remove <component...> [options]
+
+Deletes the files add copied for each component, takes them out of
+primitiv.lock, and updates the stylesheet index or components barrel. Refuses a
+component another installed one still uses. Dependencies installed alongside
+stay; remove them by name if nothing uses them.
+
+Options:
+  --force                        Delete files you have edited, too
 ";
 
 const THEME: &str = "\

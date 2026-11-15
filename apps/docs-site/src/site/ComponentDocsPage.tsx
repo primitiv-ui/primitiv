@@ -242,6 +242,7 @@ const ComponentDocsBody = ({
         <ComponentPageHeader
           docs={docs}
           notice={fallback ? "no-elements" : noBehaviour ? "no-behaviour" : undefined}
+          inElements={inElements}
           description={prose?.description}
         />
 

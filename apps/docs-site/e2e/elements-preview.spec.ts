@@ -161,6 +161,21 @@ test("the Stepper previews are defined <primitiv-stepper> elements, loaded from 
   await expect(root.locator("primitiv-stepper-list")).toHaveCSS("display", "grid");
 });
 
+test("the Registry-only notice is React's: Elements mode has a headless form, so it says nothing of the kind", async ({ page }) => {
+  await page.goto("/components/stepper/");
+  await expect(page.locator(".docs-elements-preview primitiv-stepper").first()).toBeAttached();
+  await expect(page.getByText("Registry-only", { exact: true })).toHaveCount(0);
+});
+
+test("React mode still says a registry-only component has no Headless mode", async ({ page }) => {
+  await page.addInitScript(
+    ([key]) => localStorage.setItem(key, JSON.stringify("react")),
+    [FRAMEWORK_KEY],
+  );
+  await page.goto("/components/stepper/");
+  await expect(page.getByText("Registry-only", { exact: true })).toBeVisible();
+});
+
 test("every Stepper preview fills its card, as the React demos do", async ({ page }) => {
   await page.goto("/components/stepper/");
   const roots = page.locator(".docs-elements-preview primitiv-stepper");

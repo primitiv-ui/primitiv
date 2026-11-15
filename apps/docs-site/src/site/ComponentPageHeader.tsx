@@ -50,6 +50,7 @@ const REPO = "https://github.com/primitiv-ui/primitiv";
 export const ComponentPageHeader = ({
   docs,
   notice,
+  inElements = false,
   description = docs.description,
 }: {
   docs: ComponentDocs;
@@ -61,6 +62,13 @@ export const ComponentPageHeader = ({
    * Headless Elements was chosen and it has no behaviour (`no-behaviour`).
    */
   notice?: "no-elements" | "no-behaviour";
+  /**
+   * The page is showing the Elements surface. The Registry-only notice is about
+   * React (no headless `@primitiv-ui/react` primitive), so it is React's alone:
+   * in Elements the headless form is the markup without its classes, and a
+   * component without one gets the `no-behaviour` notice instead.
+   */
+  inElements?: boolean;
 }) => (
   <Stack gap="sm">
     <Breadcrumb size="sm">
@@ -130,7 +138,7 @@ export const ComponentPageHeader = ({
         bespoke callout — it is exactly the styled surface for a page-level
         notice. Non-dismissible: `onDismiss` is omitted, so it is persistent
         context, not something to clear. */}
-    {docs.kind === "registry-only" && (
+    {docs.kind === "registry-only" && !inElements && (
       <Alert
         className="docs-registry-only-alert"
         tone="info"

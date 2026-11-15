@@ -76,3 +76,52 @@ export function treeTabStop(state: {
 export function treeToggle(expanded: readonly string[], value: string): string[] {
   return expanded.includes(value) ? expanded.filter((current) => current !== value) : [...expanded, value];
 }
+
+/** Whether one value or many can be selected. */
+export type TreeSelectionMode = "single" | "multiple";
+
+/** What a selection is decided from. */
+export type TreeSelectState = {
+  mode: TreeSelectionMode;
+  /** The selected values, in the order they were selected. */
+  selected: readonly string[];
+  /** The value a Shift range pins to — the last one selected without Shift — or `null`. */
+  anchor: string | null;
+  /** The visible order, which a Shift range spans. */
+  order: readonly string[];
+  disabled: ReadonlySet<string>;
+};
+
+/** The modifier keys held during a click. */
+export type TreeSelectModifiers = { shift?: boolean; ctrl?: boolean; meta?: boolean };
+
+/**
+ * The selection a click or key on `value` asks for, and the anchor afterwards,
+ * or `null` when it changes nothing (so no change is reported):
+ *
+ * - single mode selects `value`;
+ * - multiple mode: Shift selects the enabled visible range from the anchor (or
+ *   `value`) to `value`, keeping the anchor; Ctrl or Meta toggles `value`; a
+ *   plain click selects `value` alone. Both of the last two anchor at `value`.
+ */
+export function treeSelect(
+  state: TreeSelectState,
+  value: string,
+  modifiers: TreeSelectModifiers = {},
+): { selected: string[]; anchor: string | null } | null {
+  const { mode, selected, anchor, order, disabled } = state;
+  const already = selected.includes(value);
+  if (mode === "single") return already ? null : { selected: [value], anchor: value };
+  if (modifiers.shift) {
+    const from = order.indexOf(anchor ?? value);
+    const to = order.indexOf(value);
+    if (from === -1 || to === -1) return { selected: [value], anchor };
+    const range = order.slice(Math.min(from, to), Math.max(from, to) + 1);
+    return { selected: range.filter((candidate) => !disabled.has(candidate)), anchor };
+  }
+  if (modifiers.ctrl || modifiers.meta) {
+    return { selected: already ? selected.filter((current) => current !== value) : [...selected, value], anchor: value };
+  }
+  if (already && selected.length === 1) return null;
+  return { selected: [value], anchor: value };
+}

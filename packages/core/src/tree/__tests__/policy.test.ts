@@ -1,4 +1,4 @@
-import { treePath, treeTabStop, treeToggle, treeVisibleOrder, type TreeNode } from "../policy";
+import { treePath, treeSelect, treeTabStop, treeToggle, treeVisibleOrder, type TreeNode, type TreeSelectState } from "../policy";
 
 /** docs (branch: guides (branch: intro), api), blog — in registration order, children first. */
 const NODES: TreeNode[] = [
@@ -102,5 +102,61 @@ describe("treeToggle", () => {
   it("collapses an expanded branch, keeping the rest in order", () => {
     // Arrange & Act & Assert
     expect(treeToggle(["docs", "guides", "api"], "guides")).toEqual(["docs", "api"]);
+  });
+});
+
+describe("treeSelect", () => {
+  const order = ["docs", "guides", "intro", "api", "blog"];
+  const single: TreeSelectState = { mode: "single", selected: [], anchor: null, order, disabled: new Set() };
+  const multiple: TreeSelectState = { ...single, mode: "multiple" };
+
+  it("selects one value in single mode, anchoring there", () => {
+    // Arrange & Act & Assert
+    expect(treeSelect({ ...single, selected: ["docs"] }, "api")).toEqual({ selected: ["api"], anchor: "api" });
+  });
+
+  it("changes nothing when the value is already selected in single mode, modifiers or not", () => {
+    // Arrange & Act & Assert
+    expect(treeSelect({ ...single, selected: ["api"] }, "api", { shift: true })).toBeNull();
+  });
+
+  it("replaces a multiple selection on a plain click, and ignores a click on the sole selected value", () => {
+    // Arrange & Act & Assert
+    expect(treeSelect({ ...multiple, selected: ["docs", "api"] }, "api")).toEqual({ selected: ["api"], anchor: "api" });
+    expect(treeSelect({ ...multiple, selected: ["api"], anchor: "docs" }, "api")).toBeNull();
+  });
+
+  it.each([{ ctrl: true }, { meta: true }])("toggles one value with %o, anchoring there", (modifiers) => {
+    // Arrange & Act & Assert
+    expect(treeSelect({ ...multiple, selected: ["docs"] }, "api", modifiers)).toEqual({
+      selected: ["docs", "api"],
+      anchor: "api",
+    });
+    expect(treeSelect({ ...multiple, selected: ["docs", "api"] }, "docs", modifiers)).toEqual({
+      selected: ["api"],
+      anchor: "docs",
+    });
+  });
+
+  it("selects the enabled visible range from the anchor with Shift, either way, keeping the anchor", () => {
+    // Arrange
+    const state = { ...multiple, selected: ["guides"], anchor: "guides", disabled: new Set(["intro"]) };
+
+    // Act & Assert
+    expect(treeSelect(state, "api", { shift: true })).toEqual({ selected: ["guides", "api"], anchor: "guides" });
+    expect(treeSelect(state, "docs", { shift: true })).toEqual({ selected: ["docs", "guides"], anchor: "guides" });
+  });
+
+  it("ranges from the value itself with no anchor yet", () => {
+    // Arrange & Act & Assert
+    expect(treeSelect(multiple, "api", { shift: true })).toEqual({ selected: ["api"], anchor: null });
+  });
+
+  it("selects just the value when the anchor is no longer visible", () => {
+    // Arrange & Act & Assert
+    expect(treeSelect({ ...multiple, anchor: "hidden" }, "api", { shift: true })).toEqual({
+      selected: ["api"],
+      anchor: "hidden",
+    });
   });
 });

@@ -466,83 +466,88 @@
   },
   "elements": {
     "package": "@primitiv-ui/web",
-    "module": "tabs",
+    "module": "stepper",
     "element": "div",
     "wrapText": false,
-    "example": "<primitiv-tabs value=\"billing\" activation-mode=\"manual\" class=\"primitiv-stepper primitiv-stepper--md\">\n  <primitiv-tabs-list label=\"Sign-up progress\" class=\"primitiv-stepper__list\">\n    <!-- A step's progress is data-step-state on its button: upcoming, complete or error. The marker shows what that state calls for: the step number, a tick for a complete step, a warning glyph for an errored one. -->\n    <primitiv-tabs-trigger value=\"account\">\n      <button type=\"button\" class=\"primitiv-stepper__step\" data-step-state=\"complete\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-mark\"></span></span>\n        <span class=\"primitiv-stepper__label\">Account</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"billing\">\n      <button type=\"button\" class=\"primitiv-stepper__step\" data-step-state=\"upcoming\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-number\">2</span></span>\n        <span class=\"primitiv-stepper__label\">Billing</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"review\">\n      <button type=\"button\" class=\"primitiv-stepper__step\" data-step-state=\"upcoming\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-number\">3</span></span>\n        <span class=\"primitiv-stepper__label\">Review</span>\n      </button>\n    </primitiv-tabs-trigger>\n  </primitiv-tabs-list>\n  <primitiv-tabs-content value=\"account\" class=\"primitiv-stepper__panel\" hidden>Your account details.</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"billing\" class=\"primitiv-stepper__panel\">Where should we send the receipt?</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"review\" class=\"primitiv-stepper__panel\" hidden>Check everything before you submit.</primitiv-tabs-content>\n</primitiv-tabs>\n",
+    "example": "<primitiv-stepper value=\"billing\" class=\"primitiv-stepper primitiv-stepper--md\">\n  <primitiv-stepper-list label=\"Sign-up progress\" class=\"primitiv-stepper__list\">\n    <!-- A step's progress is its state attribute: upcoming (the default), complete or error. The marker shows what that state calls for: the step number, a tick for a complete step, a warning glyph for an errored one. -->\n    <primitiv-stepper-step value=\"account\" state=\"complete\">\n      <button type=\"button\" class=\"primitiv-stepper__step\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-mark\"></span></span>\n        <span class=\"primitiv-stepper__label\">Account</span>\n      </button>\n    </primitiv-stepper-step>\n    <primitiv-stepper-step value=\"billing\">\n      <button type=\"button\" class=\"primitiv-stepper__step\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-number\">2</span></span>\n        <span class=\"primitiv-stepper__label\">Billing</span>\n      </button>\n    </primitiv-stepper-step>\n    <primitiv-stepper-step value=\"review\">\n      <button type=\"button\" class=\"primitiv-stepper__step\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-number\">3</span></span>\n        <span class=\"primitiv-stepper__label\">Review</span>\n      </button>\n    </primitiv-stepper-step>\n  </primitiv-stepper-list>\n  <primitiv-stepper-panel value=\"account\" class=\"primitiv-stepper__panel\" hidden>Your account details.</primitiv-stepper-panel>\n  <primitiv-stepper-panel value=\"billing\" class=\"primitiv-stepper__panel\">Where should we send the receipt?</primitiv-stepper-panel>\n  <primitiv-stepper-panel value=\"review\" class=\"primitiv-stepper__panel\" hidden>Check everything before you submit.</primitiv-stepper-panel>\n</primitiv-stepper>\n",
     "api": [
       {
-        "tag": "primitiv-tabs",
-        "description": "`<primitiv-tabs>` — the state owner of a WAI-ARIA tab set.\n\nThe root finds its own parts, so a tab set nested in a panel keeps its own, and reconciles their ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s). `activation-mode` is read live at each key press, so a change to it needs no reconcile.",
+        "tag": "primitiv-stepper",
+        "description": "`<primitiv-stepper>` — a step rail for a multi-step form. The behaviour is a WAI-ARIA tab set's, exactly as React's registry Stepper composes Tabs: each step's `<button>` becomes a tab, so activation, `aria-selected`, the roving `tabindex`, Home / End and `disabled` are all Tabs'. What the stepper adds is its own names, `manual` activation by default (browsing the steps never changes step, so nothing half-typed in a panel is lost), and each step's progress written onto its button as `data-step-state`.",
         "attributes": [
           {
             "name": "value",
             "type": "string",
-            "description": "The active tab's value. Reflected: it moves as the user switches tabs, so a server re-render or a history snapshot sees the live selection."
+            "description": "The current step's value. Reflected: it moves as the user changes step, so a server re-render or a history snapshot sees the live step."
           },
           {
             "name": "orientation",
             "type": "\"horizontal\" | \"vertical\"",
-            "description": "Layout axis, which picks the arrow-key pair. Defaults to `horizontal`."
+            "description": "Which way the rail runs, which picks the arrow-key pair. Defaults to `horizontal`."
           },
           {
             "name": "activation-mode",
             "type": "\"automatic\" | \"manual\"",
-            "description": "`automatic` activates a tab as focus arrives; `manual` waits for Enter or Space. Defaults to `automatic`."
+            "description": "`manual` waits for Enter or Space; `automatic` changes step as focus arrives. Defaults to `manual`."
           }
         ],
         "events": [
           {
-            "name": "primitiv-tabs-change",
+            "name": "primitiv-stepper-change",
             "type": "CustomEvent<{ value: string; index: number }>",
-            "description": "Bubbles, cancelable, fired before a user-driven change is applied. Call `preventDefault()` to veto it."
+            "description": "Bubbles, cancelable, fired before a user-driven change of step is applied. Call `preventDefault()` to keep the user on the current step."
           }
         ]
       },
       {
-        "tag": "primitiv-tabs-list",
-        "description": "`<primitiv-tabs-list>` — the tablist. Structural: the root writes its ARIA.",
+        "tag": "primitiv-stepper-list",
+        "description": "`<primitiv-stepper-list>` — the rail, a tablist. Structural: the root writes its ARIA.",
         "attributes": [
           {
             "name": "label",
             "type": "string",
-            "description": "The tablist's accessible name. Give this or `aria-labelledby`."
+            "description": "The rail's accessible name. Give this or `aria-labelledby`."
           }
         ],
         "events": []
       },
       {
-        "tag": "primitiv-tabs-trigger",
-        "description": "`<primitiv-tabs-trigger>` — an interactive part. It decorates exactly one child the consumer writes (a `<button>`, an `<a href>`, a router link), which receives the tab role, so the rendered DOM matches React's `<button role=\"tab\">` (RFC 0033 D24).",
+        "tag": "primitiv-stepper-step",
+        "description": "`<primitiv-stepper-step>` — one step. It decorates exactly one child you write (a `<button>`), which becomes the tab and carries the step's marker, label and description.",
         "attributes": [
           {
             "name": "value",
             "type": "string",
-            "description": "The tab's value, pairing it with the panel of the same value."
+            "description": "The step's value, pairing it with the panel of the same value."
+          },
+          {
+            "name": "state",
+            "type": "\"upcoming\" | \"complete\" | \"error\"",
+            "description": "The progress the step carries in its own right, written on its button as `data-step-state`. Independent of which step is current, so an errored step keeps its error while the user stands on a later one. Defaults to `upcoming`."
           },
           {
             "name": "disabled",
             "type": "boolean",
-            "description": "Marks the tab disabled: arrow keys still land on it, but it never activates."
+            "description": "A step the user cannot reach yet: arrow keys still land on it, but it never activates."
           }
         ],
         "events": []
       },
       {
-        "tag": "primitiv-tabs-content",
-        "description": "`<primitiv-tabs-content>` — a tab panel. Structural: the root writes its ARIA.",
+        "tag": "primitiv-stepper-panel",
+        "description": "`<primitiv-stepper-panel>` — a step's body, a tab panel. Structural: the root writes its ARIA.",
         "attributes": [
           {
             "name": "value",
             "type": "string",
-            "description": "The panel's value, pairing it with the tab of the same value."
+            "description": "The panel's value, pairing it with the step of the same value."
           }
         ],
         "events": [
           {
-            "name": "primitiv-tabs-show",
+            "name": "primitiv-stepper-show",
             "type": "CustomEvent",
-            "description": "Bubbles from the panel as it becomes active (not on first render), so a lazy panel can fetch its content."
+            "description": "Bubbles from the panel as its step becomes current (not on first render), so a lazy panel can fetch its content."
           }
         ]
       }

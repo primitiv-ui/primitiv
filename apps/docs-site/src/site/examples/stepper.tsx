@@ -65,12 +65,12 @@ const stepLines = (indent = "    ") =>
   ].join("\n");
 
 /**
- * The same stepper as Elements markup (RFC 0033): the `<primitiv-tabs>`
- * elements wearing the stepper classes, in the shape `primitiv add stepper
- * --surface elements` prints. Stepper adds no element of its own — Tabs' script
- * defines everything — so a step's progress is a `data-step-state` attribute on
- * its `<button>`, and its marker holds what that state shows, as React's
- * `StepperMarker` renders it: the number, the tick span, or the warning glyph.
+ * The same stepper as Elements markup (RFC 0033): the `<primitiv-stepper>`
+ * elements, in the shape `primitiv add stepper --surface elements` prints. A
+ * step's progress is its `state` attribute, which the element writes onto the
+ * `<button>` as `data-step-state`; the marker holds what that state shows, as
+ * React's `StepperMarker` renders it: the number, the tick span, or the
+ * warning glyph. Activation is manual by default, so no attribute says so.
  */
 type ElementsStep = {
   readonly value: string;
@@ -115,29 +115,29 @@ const elementsTree = ({
 } = {}) => {
   const current = value ?? steps[0].value;
   return [
-    `<primitiv-tabs value="${current}" activation-mode="manual"${orientation === "vertical" ? ` orientation="vertical"` : ""} class="primitiv-stepper primitiv-stepper--${size}">`,
-    `  <primitiv-tabs-list label="${label}" class="primitiv-stepper__list${compact ? " primitiv-stepper__list--compact" : ""}">`,
+    `<primitiv-stepper value="${current}"${orientation === "vertical" ? ` orientation="vertical"` : ""} class="primitiv-stepper primitiv-stepper--${size}">`,
+    `  <primitiv-stepper-list label="${label}" class="primitiv-stepper__list${compact ? " primitiv-stepper__list--compact" : ""}">`,
     ...steps.flatMap((step, i) => {
       const state = step.state ?? "upcoming";
       return [
-        `    <primitiv-tabs-trigger value="${step.value}"${step.disabled ? " disabled" : ""}>`,
-        `      <button type="button" class="primitiv-stepper__step" data-step-state="${state}">`,
+        `    <primitiv-stepper-step value="${step.value}"${state === "upcoming" ? "" : ` state="${state}"`}${step.disabled ? " disabled" : ""}>`,
+        `      <button type="button" class="primitiv-stepper__step">`,
         `        <span class="primitiv-stepper__marker">${markerGlyph(state, i + 1)}</span>`,
         `        <span class="primitiv-stepper__label">${step.title}</span>`,
         ...(descriptions && step.description
           ? [`        <span class="primitiv-stepper__description">${step.description}</span>`]
           : []),
         `      </button>`,
-        `    </primitiv-tabs-trigger>`,
+        `    </primitiv-stepper-step>`,
       ];
     }),
-    `  </primitiv-tabs-list>`,
+    `  </primitiv-stepper-list>`,
     ...between.map((line) => `  ${line}`),
     ...steps.map(
       (step) =>
-        `  <primitiv-tabs-content value="${step.value}" class="primitiv-stepper__panel"${step.value === current ? "" : " hidden"}>${step.body}</primitiv-tabs-content>`,
+        `  <primitiv-stepper-panel value="${step.value}" class="primitiv-stepper__panel"${step.value === current ? "" : " hidden"}>${step.body}</primitiv-stepper-panel>`,
     ),
-    `</primitiv-tabs>`,
+    `</primitiv-stepper>`,
   ].join("\n");
 };
 
@@ -182,8 +182,8 @@ const wizardPreview = () =>
  */
 const WIZARD_SCRIPT = [
   `<script type="module">`,
-  `  const stepper = document.querySelector("primitiv-tabs");`,
-  `  const triggers = [...stepper.querySelectorAll("primitiv-tabs-trigger")];`,
+  `  const stepper = document.querySelector("primitiv-stepper");`,
+  `  const triggers = [...stepper.querySelectorAll("primitiv-stepper-step")];`,
   `  const back = document.querySelector("[data-back]");`,
   `  const next = document.querySelector("[data-continue]");`,
   `  const sync = () => {`,
@@ -197,11 +197,10 @@ const WIZARD_SCRIPT = [
   `    if (!target) return;`,
   `    if (by > 0) {`,
   `      // The step behind you is done; the one ahead is unlocked.`,
-  `      const step = triggers[i].querySelector("button");`,
-  `      step.dataset.stepState = "complete";`,
+  `      triggers[i].setAttribute("state", "complete");`,
   `      const tick = document.createElement("span");`,
   `      tick.className = "primitiv-stepper__marker-mark";`,
-  `      step.querySelector(".primitiv-stepper__marker")?.replaceChildren(tick);`,
+  `      triggers[i].querySelector(".primitiv-stepper__marker")?.replaceChildren(tick);`,
   `      target.removeAttribute("disabled");`,
   `    }`,
   `    stepper.value = target.getAttribute("value");`,
@@ -209,17 +208,17 @@ const WIZARD_SCRIPT = [
   `  };`,
   `  back.addEventListener("click", () => go(-1));`,
   `  next.addEventListener("click", () => go(1));`,
-  `  stepper.addEventListener("primitiv-tabs-change", () => queueMicrotask(sync));`,
+  `  stepper.addEventListener("primitiv-stepper-change", () => queueMicrotask(sync));`,
   `</script>`,
 ].join("\n");
 
 /** Runs `WIZARD_SCRIPT` against the preview, scoped to its root. */
 const wireWizard = (root: HTMLElement) => {
-  const stepper = root.querySelector<HTMLElement & { value: string }>("primitiv-tabs");
+  const stepper = root.querySelector<HTMLElement & { value: string }>("primitiv-stepper");
   const back = root.querySelector<HTMLButtonElement>("[data-back]");
   const next = root.querySelector<HTMLButtonElement>("[data-continue]");
   if (!stepper || !back || !next) return;
-  const triggers = [...stepper.querySelectorAll("primitiv-tabs-trigger")];
+  const triggers = [...stepper.querySelectorAll("primitiv-stepper-step")];
   const index = () => triggers.findIndex((t) => t.getAttribute("value") === stepper.getAttribute("value"));
   const sync = () => {
     back.disabled = index() === 0;
@@ -230,12 +229,9 @@ const wireWizard = (root: HTMLElement) => {
     const target = triggers[i + by];
     if (!target) return;
     if (by > 0) {
-      const step = triggers[i].querySelector("button");
-      if (step) {
-        step.dataset.stepState = "complete";
-        const marker = step.querySelector(".primitiv-stepper__marker");
-        if (marker) marker.innerHTML = `<span class="primitiv-stepper__marker-mark"></span>`;
-      }
+      triggers[i].setAttribute("state", "complete");
+      const marker = triggers[i].querySelector(".primitiv-stepper__marker");
+      if (marker) marker.innerHTML = `<span class="primitiv-stepper__marker-mark"></span>`;
       target.removeAttribute("disabled");
     }
     stepper.setAttribute("value", target.getAttribute("value") ?? "");
@@ -246,11 +242,11 @@ const wireWizard = (root: HTMLElement) => {
   const onChange = () => queueMicrotask(sync);
   back.addEventListener("click", onBack);
   next.addEventListener("click", onNext);
-  stepper.addEventListener("primitiv-tabs-change", onChange);
+  stepper.addEventListener("primitiv-stepper-change", onChange);
   return () => {
     back.removeEventListener("click", onBack);
     next.removeEventListener("click", onNext);
-    stepper.removeEventListener("primitiv-tabs-change", onChange);
+    stepper.removeEventListener("primitiv-stepper-change", onChange);
   };
 };
 
@@ -264,7 +260,7 @@ const compactPreview = () =>
 
 /** Keeps the "Step N of M" line on the current step, as the code tab's script does. */
 const wireCompact = (root: HTMLElement) => {
-  const stepper = root.querySelector("primitiv-tabs");
+  const stepper = root.querySelector("primitiv-stepper");
   const status = root.querySelector("[data-step-status]");
   if (!stepper || !status) return;
   const onChange = (event: Event) => {
@@ -272,8 +268,8 @@ const wireCompact = (root: HTMLElement) => {
     const i = STEPS.findIndex((step) => step.value === value);
     status.textContent = `Step ${i + 1} of ${STEPS.length} — ${STEPS[i].title}`;
   };
-  stepper.addEventListener("primitiv-tabs-change", onChange);
-  return () => stepper.removeEventListener("primitiv-tabs-change", onChange);
+  stepper.addEventListener("primitiv-stepper-change", onChange);
+  return () => stepper.removeEventListener("primitiv-stepper-change", onChange);
 };
 
 /**
@@ -466,18 +462,18 @@ export const stepperSpec: ComponentSpec = {
       code: (mode) =>
         mode === "elements"
           ? [
-              `<primitiv-tabs class="primitiv-stepper">`,
-              `  <primitiv-tabs-list class="primitiv-stepper__list">`,
-              `    <primitiv-tabs-trigger>`,
-              `      <button class="primitiv-stepper__step" data-step-state>`,
+              `<primitiv-stepper class="primitiv-stepper">`,
+              `  <primitiv-stepper-list class="primitiv-stepper__list">`,
+              `    <primitiv-stepper-step>`,
+              `      <button class="primitiv-stepper__step">`,
               `        <span class="primitiv-stepper__marker"></span>`,
               `        <span class="primitiv-stepper__label"></span>`,
               `        <span class="primitiv-stepper__description"></span>`,
               `      </button>`,
-              `    </primitiv-tabs-trigger>`,
-              `  </primitiv-tabs-list>`,
-              `  <primitiv-tabs-content class="primitiv-stepper__panel"></primitiv-tabs-content>`,
-              `</primitiv-tabs>`,
+              `    </primitiv-stepper-step>`,
+              `  </primitiv-stepper-list>`,
+              `  <primitiv-stepper-panel class="primitiv-stepper__panel"></primitiv-stepper-panel>`,
+              `</primitiv-stepper>`,
             ].join("\n")
           : [
           `<Stepper>`,
@@ -520,7 +516,7 @@ export const stepperSpec: ComponentSpec = {
         <InteractiveExample
           elementsPreview={wizardPreview}
           wire={wireWizard}
-          elementsCaption={"The current step **is** the `value` attribute on `<primitiv-tabs>`, so a wizard needs no state beyond that one string. Here Continue marks the step behind you `data-step-state=\"complete\"` (and swaps its number for the tick), removes `disabled` from the trigger ahead and sets `value`; steps you have not reached keep `disabled`, so they cannot be skipped. Listen for `primitiv-tabs-change` to follow a click on the rail — it is cancelable, so `preventDefault()` keeps the user on a step whose fields have not passed. Set `data-step-state=\"error\"` on one that fails."}
+          elementsCaption={"The current step **is** the `value` attribute on `<primitiv-stepper>`, so a wizard needs no state beyond that one string. Here Continue sets `state=\"complete\"` on the step behind you (and swaps its number for the tick), removes `disabled` from the step ahead and sets `value`; steps you have not reached keep `disabled`, so they cannot be skipped. Listen for `primitiv-stepper-change` to follow a click on the rail — it is cancelable, so `preventDefault()` keeps the user on a step whose fields have not passed. Set `state=\"error\"` on one that fails."}
           caption={"The canonical use: the current step **is** the Stepper value, so a wizard needs no state beyond that one string. Here `Continue` advances it and marks the step behind you `complete` (the marker becomes a tick); steps you have not reached are `disabled` so they cannot be skipped. Drive validation your way — commit a step only once its fields pass, and set `state=\"error\"` on one that fails."}
           code={(_density, mode) =>
             mode === "elements"
@@ -570,7 +566,7 @@ export const stepperSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           elementsPreview={(_density, code) => filling(code)}
-          elementsCaption={"`data-step-state` on a step's `<button>` is what it carries **in its own right**, independent of which step is current: `upcoming` keeps the number, `complete` the tick, `error` the warning glyph — write the glyph its state calls for into the marker. It is deliberately separate from `data-state=\"active\"`, which the Tabs elements write on the current step, so a step that failed validation keeps its error marker while you stand on a later one."}
+          elementsCaption={"`state` on a `<primitiv-stepper-step>` is what the step carries **in its own right**, independent of which step is current: `upcoming` (the default) keeps the number, `complete` the tick, `error` the warning glyph — write the glyph its state calls for into the marker. The element writes it onto the `<button>` as `data-step-state`, separately from the `data-state=\"active\"` it writes on the current step, so a step that failed validation keeps its error marker while you stand on a later one."}
           caption={"`state` is what a step carries **in its own right**, independent of which step is current: `complete` swaps the number for a tick, `error` for a warning glyph, `upcoming` keeps the number. It is deliberately separate from `data-state=\"active\"` (the current step, owned by Tabs) — so a step that failed validation keeps its error marker while you stand on a later one, which a single merged flag could not express."}
           code={(_density, mode) =>
             mode === "elements"
@@ -645,7 +641,7 @@ export const stepperSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           elementsPreview={(_density, code) => filling(code)}
-          elementsCaption={"`orientation=\"vertical\"` on `<primitiv-tabs>` runs the rail top-to-bottom and places the step bodies beside it. The arrow keys follow suit — `ArrowUp` / `ArrowDown` move between steps — and it is the shape to reach for when the labels are long or the container is tall and narrow."}
+          elementsCaption={"`orientation=\"vertical\"` on `<primitiv-stepper>` runs the rail top-to-bottom and places the step bodies beside it. The arrow keys follow suit — `ArrowUp` / `ArrowDown` move between steps — and it is the shape to reach for when the labels are long or the container is tall and narrow."}
           caption={"`orientation=\"vertical\"` runs the rail top-to-bottom and places the step bodies beside it. The arrow keys follow suit — `ArrowUp` / `ArrowDown` move between steps — and it is the shape to reach for when the labels are long or the container is tall and narrow."}
           code={(density, mode) =>
             mode === "elements"
@@ -678,7 +674,7 @@ export const stepperSpec: ComponentSpec = {
         <InteractiveExample
           elementsPreview={compactPreview}
           wire={wireCompact}
-          elementsCaption={"The `primitiv-stepper__list--compact` class on the list collapses the rail into a segmented progress bar — the **same** steps, with their markers and labels hidden, for a container too narrow for a labelled rail. Toggle it from a media or container query, or a script. The steps stay in the page, so every panel keeps its `aria-labelledby` pointing at a real tab; because the labels are hidden, write your own \"Step N of M\" line and keep it current from `primitiv-tabs-change`."}
+          elementsCaption={"The `primitiv-stepper__list--compact` class on the list collapses the rail into a segmented progress bar — the **same** steps, with their markers and labels hidden, for a container too narrow for a labelled rail. Toggle it from a media or container query, or a script. The steps stay in the page, so every panel keeps its `aria-labelledby` pointing at a real tab; because the labels are hidden, write your own \"Step N of M\" line and keep it current from `primitiv-stepper-change`."}
           caption={"`compact` on `StepperList` collapses the rail into a segmented progress bar — the **same** steps, with their markers and labels hidden, for a container too narrow for a labelled rail. Drive it from the consumer side (e.g. `useMediaQuery`). The steps stay in the DOM, so every panel keeps its `aria-labelledby` pointing at a real trigger; because the labels are hidden, pair it with your own \"Step N of M\" line — you already have the index."}
           code={(_density, mode) =>
             mode === "elements"
@@ -686,11 +682,11 @@ export const stepperSpec: ComponentSpec = {
                   compactMarkup(),
                   ``,
                   `<script type="module">`,
-                  `  const stepper = document.querySelector("primitiv-tabs");`,
+                  `  const stepper = document.querySelector("primitiv-stepper");`,
                   `  const status = document.querySelector("[data-step-status]");`,
                   `  const titles = ${JSON.stringify(STEPS.map((step) => step.title))};`,
                   `  const values = ${JSON.stringify(STEPS.map((step) => step.value))};`,
-                  `  stepper.addEventListener("primitiv-tabs-change", (event) => {`,
+                  `  stepper.addEventListener("primitiv-stepper-change", (event) => {`,
                   `    const i = values.indexOf(event.detail.value);`,
                   `    status.textContent = \`Step \${i + 1} of \${titles.length} — \${titles[i]}\`;`,
                   `  });`,
@@ -724,11 +720,11 @@ export const stepperSpec: ComponentSpec = {
 
   elements: {
     description:
-      "A step rail for a multi-step form — numbered markers joined by connectors. In plain markup it is the `<primitiv-tabs>` elements wearing the stepper classes, so it loads Tabs' script and adds no element of its own: each marker is a real tab, so activation, `aria-selected`, the roving `tabindex`, `Home` / `End` and `disabled` all come from Tabs, restyled as a circle. The current step is the `value` attribute; the progress a step carries is `data-step-state` on its `<button>`.",
+      "A step rail for a multi-step form — numbered markers joined by connectors. `<primitiv-stepper>` runs the Tabs behaviour under the stepper's own names: each step's `<button>` is a real tab, so `aria-selected`, the roving `tabindex`, `Home` / `End` and `disabled` all come from Tabs, restyled as a circle. Activation is manual by default. The current step is the `value` attribute; the progress a step carries is its `state` attribute.",
     anatomyMeta:
-      "No elements of its own: the Tabs elements, arranged. `<primitiv-tabs>` holds the current step in `value`; each `<primitiv-tabs-trigger>` wraps the `<button>` that becomes the tab, holding the marker, label and description spans; each `<primitiv-tabs-content>` is the step's body for the trigger of the same `value`. A step carries **two** independent state hooks: `data-state` (written by the elements) marks the *current* step, `data-step-state` (written by you) the progress it holds *in its own right*. Its attributes and events are Tabs', listed below.",
+      "Four elements. `<primitiv-stepper>` holds the current step in `value`; each `<primitiv-stepper-step>` wraps the `<button>` that becomes the tab, holding the marker, label and description spans; each `<primitiv-stepper-panel>` is the body of the step with the same `value`. A step's button carries **two** independent state hooks, both written by the element: `data-state` marks the *current* step, and `data-step-state`, from the step's `state` attribute, the progress it holds *in its own right*.",
     keyboardMeta:
-      "The rail is a tablist, so the steps share **one tab stop** and the arrows move between them. Write `activation-mode=\"manual\"` on `<primitiv-tabs>`, as the examples do: arrow keys then move focus along the rail and `Enter` / `Space` commits, so browsing the steps never changes step under you and discards what is half-typed in the current panel. A trigger with `disabled` is skipped.",
+      "The rail is a tablist, so the steps share **one tab stop** and the arrows move between them. Activation is manual by default: arrow keys move focus along the rail and `Enter` / `Space` commits, so browsing the steps never changes step under you and discards what is half-typed in the current panel. `activation-mode=\"automatic\"` changes step as focus arrives instead. A step with `disabled` is skipped.",
     keyboard: [
       {
         keys: ["ArrowRight", "ArrowLeft"],
@@ -744,9 +740,9 @@ export const stepperSpec: ComponentSpec = {
       { keys: ["Tab"], behaviour: "Leave the rail for the step panel — not move within it." },
     ],
     accessibility: [
-      "The rail is a real tablist and every step a tab: the Tabs elements write `role=\"tablist\"` on the list, `role=\"tab\"` with `aria-selected` and `aria-controls` on the `<button>` inside each trigger, and `role=\"tabpanel\"` with `aria-labelledby` on each content. Give `<primitiv-tabs-list>` a `label` or `aria-labelledby` — an unnamed tablist gives a screen-reader user no idea what the steps belong to.",
-      "Write `activation-mode=\"manual\"`. Arrow keys then move focus along the rail and `Enter` / `Space` commits, so browsing the steps with the keyboard never changes step under the user and discards what is half-typed in the current panel.",
-      "A step the user cannot reach yet is a trigger with `disabled`: its tab gets `aria-disabled` and `data-disabled`, stays discoverable, and is skipped by the arrows. Remove the attribute to unlock it.",
+      "The rail is a real tablist and every step a tab: the elements write `role=\"tablist\"` on the list, `role=\"tab\"` with `aria-selected` and `aria-controls` on the `<button>` inside each step, and `role=\"tabpanel\"` with `aria-labelledby` on each panel. Give `<primitiv-stepper-list>` a `label` or `aria-labelledby` — an unnamed tablist gives a screen-reader user no idea what the steps belong to.",
+      "Activation is manual by default. Arrow keys move focus along the rail and `Enter` / `Space` commits, so browsing the steps with the keyboard never changes step under the user and discards what is half-typed in the current panel.",
+      "A step the user cannot reach yet is a step with `disabled`: its tab gets `aria-disabled` and `data-disabled`, stays discoverable, and is skipped by the arrows. Remove the attribute to unlock it.",
       "The tick and warning glyphs are decoration — the marker does not announce a step's `complete` / `error` state. Surface a failed step where it can be acted on: `aria-invalid` and error text on the fields inside its panel, which is also where a screen-reader user is when they hit the problem.",
       "Inactive panels stay in the page with `hidden`, so a half-filled form keeps its values as the user moves around the rail. Render `hidden` on them in your own markup too, so the page is correct before the script loads.",
       "The compact class keeps the steps in the page (only the markers and labels are hidden with `display: none`), so each panel's `aria-labelledby` still points at a real tab. Swapping the rail out for a hand-rolled bar at narrow widths breaks that reference on exactly the viewport where it is least likely to be noticed.",

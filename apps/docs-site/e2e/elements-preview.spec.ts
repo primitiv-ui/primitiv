@@ -152,20 +152,18 @@ test("the ConfirmDialog previews are <primitiv-modal> elements, loaded from moda
   await expect(trigger).toBeFocused();
 });
 
-test("the Stepper previews are <primitiv-tabs> elements wearing the stepper classes, loaded from tabs.js", async ({ page }) => {
+test("the Stepper previews are defined <primitiv-stepper> elements, loaded from stepper.js", async ({ page }) => {
   await page.goto("/components/stepper/");
-  // Its markup is the Tabs elements: the script that defines them is tabs'.
-  await expect(page.getByText(/dist\/cdn\/tabs\.js/).first()).toBeVisible();
-  await expect(page.getByText("stepper.js")).toHaveCount(0);
-  const root = page.locator(".docs-elements-preview primitiv-tabs").first();
+  await expect(page.getByText(/dist\/cdn\/stepper\.js/).first()).toBeVisible();
+  const root = page.locator(".docs-elements-preview primitiv-stepper").first();
   await expect(root).toHaveClass(/primitiv-stepper/);
   await expect(root.locator("button").first()).toHaveAttribute("role", "tab");
-  await expect(root.locator("primitiv-tabs-list")).toHaveCSS("display", "grid");
+  await expect(root.locator("primitiv-stepper-list")).toHaveCSS("display", "grid");
 });
 
 test("every Stepper preview fills its card, as the React demos do", async ({ page }) => {
   await page.goto("/components/stepper/");
-  const roots = page.locator(".docs-elements-preview primitiv-tabs.primitiv-stepper");
+  const roots = page.locator(".docs-elements-preview primitiv-stepper");
   await expect(roots).toHaveCount(5);
   const widths = await roots.evaluateAll((all) => all.map((root) => root.getBoundingClientRect().width));
   // The playground's root fills its card; a shrunk example spanned half of that.

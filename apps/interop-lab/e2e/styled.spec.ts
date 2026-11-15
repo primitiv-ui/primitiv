@@ -25,7 +25,7 @@ test("add printed the links and the script a plain HTML site needs", () => {
 
 test("the copied stylesheets style the printed markup", async ({ page }) => {
   await expect(page.getByRole("tablist", { name: "Sections" })).toHaveCSS("display", "flex");
-  const padding = await page.getByRole("tabpanel").evaluate((panel) => getComputedStyle(panel).paddingBlockStart);
+  const padding = await page.locator("primitiv-tabs").getByRole("tabpanel").evaluate((panel) => getComputedStyle(panel).paddingBlockStart);
   expect(parseFloat(padding)).toBeGreaterThan(0);
 });
 
@@ -35,11 +35,11 @@ test("a trigger's wrapper takes no box, so its button lays out as React's does",
 
 test("the printed markup is a working tab set", async ({ page }) => {
   await expect(tab(page, "One")).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByRole("tabpanel")).toHaveText("First panel");
+  await expect(page.locator("primitiv-tabs").getByRole("tabpanel")).toHaveText("First panel");
   await tab(page, "One").focus();
   await page.keyboard.press("ArrowRight");
   await expect(tab(page, "Two")).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByRole("tabpanel")).toHaveText("Second panel");
+  await expect(page.locator("primitiv-tabs").getByRole("tabpanel")).toHaveText("Second panel");
 });
 
 const accordionTrigger = (page: import("@playwright/test").Page, name: string) =>
@@ -774,21 +774,21 @@ test("the printed tree indents each level, styles its path as a breadcrumb, and 
 });
 
 
-test("add stepper loads Tabs' script: a stepper is the Tabs elements", () => {
+test("add stepper printed the per-component script for its first release", () => {
   const output = readFileSync("styled-site/add-stepper-output.txt", "utf8");
-  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/tabs\.js/);
-  expect(output).not.toContain("stepper.js");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/stepper\.js/);
 });
 
-// Each step's <button> is the only child of its trigger wrapper, so a structural
-// rule written against React's flat list (`:first-child`, `+`) has to look past it.
+// Each step's <button> is the only child of its <primitiv-stepper-step>, so a
+// structural rule written against React's flat list (`:first-child`, `+`) has
+// to look past it.
 const stepper = (page: import("@playwright/test").Page) => page.getByRole("tablist", { name: "Sign-up progress" });
 const connector = (page: import("@playwright/test").Page, name: string, pseudo: "::before" | "::after", property: "content" | "transform") =>
   stepper(page)
     .getByRole("tab", { name, exact: false })
     .evaluate((step, [pseudo, property]) => getComputedStyle(step, pseudo).getPropertyValue(property), [pseudo, property] as const);
 
-test("the stepper's own stylesheet takes the trigger wrapper's box, so it works without Tabs' stylesheet", async ({ page }) => {
+test("the stepper's stylesheet takes the step wrapper's box", async ({ page }) => {
   // A page linking Stepper's sheet alone: `add stepper` does not install Tabs' styles.
   const markup = readFileSync("styled-site/stepper.example.html", "utf8");
   await page.route("**/stepper-only.html", (route) =>
@@ -798,8 +798,8 @@ test("the stepper's own stylesheet takes the trigger wrapper's box, so it works 
     }),
   );
   await page.goto("/stepper-only.html");
-  await expect(page.locator("primitiv-tabs-trigger").first()).toHaveCSS("display", "contents");
-  await expect(page.locator("primitiv-tabs-list")).toHaveCSS("display", "grid");
+  await expect(page.locator("primitiv-stepper-step").first()).toHaveCSS("display", "contents");
+  await expect(page.locator("primitiv-stepper-list")).toHaveCSS("display", "grid");
 });
 
 test("the printed stepper draws a connector into every step but the first, filled up to the current one", async ({ page }) => {
@@ -814,6 +814,8 @@ test("the printed stepper draws a connector into every step but the first, fille
 });
 
 test("the printed stepper activates manually: an arrow moves focus, Enter moves the step", async ({ page }) => {
+  // Manual is the element's own default, not something the markup has to say.
+  await expect(page.locator("primitiv-stepper")).not.toHaveAttribute("activation-mode", /.*/);
   const billing = stepper(page).getByRole("tab", { name: "Billing" });
   await billing.focus();
   await page.keyboard.press("ArrowRight");
@@ -827,7 +829,7 @@ test("the printed stepper activates manually: an arrow moves focus, Enter moves 
 });
 
 test("a vertical stepper runs each connector down out of its marker, and none out of the last", async ({ page }) => {
-  await page.locator("primitiv-tabs.primitiv-stepper").evaluate((root) => root.setAttribute("orientation", "vertical"));
+  await page.locator("primitiv-stepper").evaluate((root) => root.setAttribute("orientation", "vertical"));
   await expect(stepper(page)).toHaveAttribute("data-orientation", "vertical");
   expect(await connector(page, "Account", "::before", "content")).not.toBe("none");
   expect(await connector(page, "Billing", "::before", "content")).not.toBe("none");
@@ -837,13 +839,14 @@ test("a vertical stepper runs each connector down out of its marker, and none ou
 });
 
 test("a vertical stepper leaves the current step's outgoing connector empty until the step below is reached", async ({ page }) => {
-  await page.locator("primitiv-tabs.primitiv-stepper").evaluate((root) => root.setAttribute("orientation", "vertical"));
+  await page.locator("primitiv-stepper").evaluate((root) => root.setAttribute("orientation", "vertical"));
   await expect(stepper(page)).toHaveAttribute("data-orientation", "vertical");
   // Billing is current and Review upcoming, so the segment between them is unreached.
   await expect.poll(() => connector(page, "Billing", "::after", "transform")).toBe("matrix(1, 0, 0, 0, 0, 0)");
   // A complete step whose next step is upcoming leaves its segment empty too.
-  await page.locator('primitiv-tabs-trigger[value="review"] button').evaluate((step) => step.setAttribute("data-step-state", "upcoming"));
-  await page.locator('primitiv-tabs-trigger[value="billing"] button').evaluate((step) => step.setAttribute("data-step-state", "complete"));
-  await page.locator("primitiv-tabs.primitiv-stepper").evaluate((root) => root.setAttribute("value", "account"));
+  // A step's progress is its state attribute; the element writes it onto the button.
+  await page.locator('primitiv-stepper-step[value="billing"]').evaluate((step) => step.setAttribute("state", "complete"));
+  await expect(stepper(page).getByRole("tab", { name: "Billing" })).toHaveAttribute("data-step-state", "complete");
+  await page.locator("primitiv-stepper").evaluate((root) => root.setAttribute("value", "account"));
   await expect.poll(() => connector(page, "Billing", "::after", "transform")).toBe("matrix(1, 0, 0, 0, 0, 0)");
 });

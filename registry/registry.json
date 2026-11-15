@@ -2181,10 +2181,9 @@
         "packages": [
           {
             "name": "@primitiv-ui/web",
-            "version": "^0.1.43"
+            "version": "^0.2.12"
           }
         ],
-        "definedBy": "tabs",
         "example": "stepper.html",
         "handWritten": true
       }

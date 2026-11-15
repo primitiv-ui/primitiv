@@ -45,13 +45,12 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
-/* The elements surface (RFC 0033 §5.6.1): a step's <primitiv-tabs-trigger>
-   wrapper takes no box of its own, so the <button> inside is the rail's grid
-   item exactly as the React one is. Repeated from Tabs' sheet because Stepper
-   installs without it. Zero specificity, in the reset sublayer, so any consumer
-   rule wins. */
+/* The elements surface (RFC 0033 §5.6.1): a <primitiv-stepper-step> wrapper
+   takes no box of its own, so the <button> inside is the rail's grid item
+   exactly as the React one is. Zero specificity, in the reset sublayer, so any
+   consumer rule wins. */
 @layer primitiv.reset {
-  :where(primitiv-tabs-trigger) {
+  :where(primitiv-stepper-step) {
     display: contents;
   }
 }
@@ -557,13 +556,13 @@
 
      Every structural rule here is written twice. React's steps are the rail's
      own children; on the elements surface each step is the only child of its
-     <primitiv-tabs-trigger> wrapper, so a bare `.primitiv-stepper__step:first-child`
+     <primitiv-stepper-step> wrapper, so a bare `.primitiv-stepper__step:first-child`
      would match every step there. The second selector asks the same question
      of the wrapper. Both carry the same specificity. */
   .primitiv-stepper__list > .primitiv-stepper__step:first-child::before,
   .primitiv-stepper__list > .primitiv-stepper__step:first-child::after,
-  .primitiv-stepper__list > :where(primitiv-tabs-trigger):first-child > .primitiv-stepper__step::before,
-  .primitiv-stepper__list > :where(primitiv-tabs-trigger):first-child > .primitiv-stepper__step::after {
+  .primitiv-stepper__list > :where(primitiv-stepper-step):first-child > .primitiv-stepper__step::before,
+  .primitiv-stepper__list > :where(primitiv-stepper-step):first-child > .primitiv-stepper__step::after {
     content: none;
   }
 
@@ -581,10 +580,10 @@
   .primitiv-stepper__list[data-orientation="vertical"] > .primitiv-stepper__step:first-child::before,
   .primitiv-stepper__list[data-orientation="vertical"] > .primitiv-stepper__step:first-child::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > :where(primitiv-tabs-trigger):first-child
+    > :where(primitiv-stepper-step):first-child
     > .primitiv-stepper__step::before,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > :where(primitiv-tabs-trigger):first-child
+    > :where(primitiv-stepper-step):first-child
     > .primitiv-stepper__step::after {
     content: "";
   }
@@ -592,10 +591,10 @@
   .primitiv-stepper__list[data-orientation="vertical"] > .primitiv-stepper__step:last-child::before,
   .primitiv-stepper__list[data-orientation="vertical"] > .primitiv-stepper__step:last-child::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > :where(primitiv-tabs-trigger):last-child
+    > :where(primitiv-stepper-step):last-child
     > .primitiv-stepper__step::before,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > :where(primitiv-tabs-trigger):last-child
+    > :where(primitiv-stepper-step):last-child
     > .primitiv-stepper__step::after {
     content: none;
   }
@@ -621,13 +620,13 @@
   .primitiv-stepper__list[data-orientation="vertical"]
     .primitiv-stepper__step:has(+ .primitiv-stepper__step[data-step-state="error"])::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-state="active"])
+    > primitiv-stepper-step:has(+ primitiv-stepper-step > .primitiv-stepper__step[data-state="active"])
     > .primitiv-stepper__step::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-step-state="complete"])
+    > primitiv-stepper-step:has(+ primitiv-stepper-step > .primitiv-stepper__step[data-step-state="complete"])
     > .primitiv-stepper__step::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-step-state="error"])
+    > primitiv-stepper-step:has(+ primitiv-stepper-step > .primitiv-stepper__step[data-step-state="error"])
     > .primitiv-stepper__step::after {
     transform: scaleY(1);
   }

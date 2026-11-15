@@ -911,3 +911,27 @@ test("an item indicator on a leaf takes no box", async ({ page }) => {
   await expect(readme.locator(".primitiv-miller-columns__item-indicator")).toHaveAttribute("hidden", "");
   await expect(readme.locator(".primitiv-miller-columns__item-indicator")).toHaveCSS("display", "none");
 });
+
+test("add data-table printed the table's per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-data-table-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/table\.js/);
+});
+
+test("the printed data table collapses a closed detail row to nothing and opens it in place", async ({ page }) => {
+  const shell = page.locator(".primitiv-data-table");
+  await shell.scrollIntoViewIfNeeded();
+  const api = page.locator("#api-gateway-details");
+  const trigger = page.getByRole("button", { name: "Show details for api-gateway" });
+  // Force-mounted, so the row is rendered but out of the accessibility tree, and its panel takes no height.
+  await expect(api).toHaveAttribute("aria-hidden", "true");
+  await expect.poll(() => api.locator(".primitiv-data-table__detail-body").evaluate((el) => el.getBoundingClientRect().height)).toBe(0);
+  // The row the markup starts open shows its panel.
+  await expect(page.getByText("web-frontend · Preview")).toBeVisible();
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("data-state", "open");
+  await expect(api).not.toHaveAttribute("aria-hidden");
+  await expect(page.getByText("api-gateway · Production")).toBeVisible();
+  await expect.poll(() => api.locator(".primitiv-data-table__detail-body").evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(0);
+  // The chevron turns as the row opens.
+  await expect(trigger.locator(".primitiv-data-table__expand-icon")).not.toHaveCSS("transform", "none");
+});

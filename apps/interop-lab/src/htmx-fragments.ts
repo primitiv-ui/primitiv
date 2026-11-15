@@ -4,6 +4,7 @@
  */
 import { accordionHtml } from "./accordion-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
+import { tableHtml, tableRowHtml } from "./table-fixture.ts";
 import { modalHtml } from "./modal-fixture.ts";
 import { contextMenuHtml } from "./context-menu-fixture.ts";
 import { dropdownHtml } from "./dropdown-fixture.ts";
@@ -30,6 +31,8 @@ let accordionLazyLoads = 0;
 let accordionEchoes = 0;
 let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
+let tableLazyLoads = 0;
+let tableEchoes = 0;
 let stepperLazyLoads = 0;
 let stepperEchoes = 0;
 let millerLazyLoads = 0;
@@ -149,6 +152,16 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "stepper-lazy": () => `<p data-testid="stepper-lazy-content">Lazy review, load ${++stepperLazyLoads}</p>`,
   "stepper-echo": (url: string) =>
     `<span data-testid="stepper-echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++stepperEchoes})</span>`,
+  // The Table page's cases (table-htmx.html), named to match.
+  table: tableHtml({ expanded: ["Ada"] }, "swapped"),
+  "table-nested": tableHtml({}, "inner", ["Linus"]),
+  "table-rows": tableRowHtml("Linus", "grow"),
+  "table-oob-detail": `<template><tr id="oob-ada-details" hx-swap-oob="true"><td colspan="2">Fresh details</td></tr></template>`,
+  "table-oob-expanded": `<div hx-swap-oob="outerHTML:#rerendered">${tableHtml({ expanded: ["Ada"] }, "rerendered")}</div>`,
+  "table-preserve": `<div id="preserve-region"><p>Swapped region</p>${tableHtml({}, "preserved").replace("<table ", '<table hx-preserve="true" ')}</div>`,
+  "table-lazy": () => `<p data-testid="lazy-content">Lazy details, load ${++tableLazyLoads}</p>`,
+  "table-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("expanded")} (${++tableEchoes})</span>`,
   // The Collapsible page's cases (collapsible-htmx.html), named to match.
   collapsible: collapsibleHtml({ open: true }, "swapped"),
   "collapsible-nested": collapsibleHtml({}, "inner", { label: "Inner", panel: "Inner panel" }),

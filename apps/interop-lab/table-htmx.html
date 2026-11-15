@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Table, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-table" hx-get="/fragments/table" hx-target="#slot-1">Load table</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. A table swapped into another's detail row -->
+    <section id="outer-region"></section>
+    <button type="button" id="load-nested" hx-get="/fragments/table-nested" hx-target="#outer-ada-details > td">Load nested</button>
+
+    <!-- 3. Rows arriving in an existing body -->
+    <section id="grow-region"></section>
+    <button type="button" id="load-rows" hx-get="/fragments/table-rows" hx-target="#grow tbody" hx-swap="beforeend">Load more rows</button>
+
+    <!-- 4. A detail row re-rendered out of band -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/table-oob-detail" hx-swap="none">Refresh Ada's details</button>
+
+    <!-- 5. Server re-render, now expanded -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-expanded" hx-get="/fragments/table-oob-expanded" hx-swap="none">Expand Ada</button>
+
+    <!-- 6. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/table-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 7. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/table-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 8. Lazy detail row -->
+    <section id="lazy-region"></section>
+
+    <!-- 9. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <script type="module" src="/src/table-htmx.ts"></script>
+  </body>
+</html>

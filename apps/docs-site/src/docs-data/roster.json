@@ -501,6 +501,6 @@
     "category": "Collections & Selection",
     "description": "A hierarchical list of expandable branches and selectable leaves — the WAI-ARIA tree view, with connector guide lines and an optional breadcrumb of the selected node's ancestry.",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   }
 ]

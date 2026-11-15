@@ -63,6 +63,14 @@
  * token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): the root is the box a <div> would be.
+   Zero specificity, in the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(primitiv-tree) {
+    display: block;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-tree {
     /* Per-component API — the themable knobs, defaulting to the md size. The
@@ -267,6 +275,9 @@
      inline-start padding — are never clipped horizontally; only the block-axis
      collapse clips, which is the point. */
   .primitiv-tree__branch-content-inner {
+    /* A block box whatever element carries it: the elements' styled markup
+       writes it as a <span>, so the derived headless markup unwraps it. */
+    display: block;
     overflow: hidden;
     min-height: 0;
     visibility: hidden;

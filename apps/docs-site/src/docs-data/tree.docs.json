@@ -636,5 +636,120 @@
   "figma": {
     "componentSetKey": "1733:1790"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "tree",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-tree class=\"primitiv-tree primitiv-tree--md primitiv-tree--connectors-lines\" aria-label=\"Files\" expanded=\"src components\" value=\"button\">\n  <primitiv-tree-branch value=\"src\" label=\"src\" class=\"primitiv-tree__branch\">\n    <primitiv-tree-branch-control class=\"primitiv-tree__branch-control\"><primitiv-tree-branch-indicator class=\"primitiv-tree__branch-indicator\"><!-- Insert your SVG icon here: chevron-right --></primitiv-tree-branch-indicator><span class=\"primitiv-tree__branch-control-label\">src</span></primitiv-tree-branch-control>\n    <primitiv-tree-branch-content class=\"primitiv-tree__branch-content\">\n      <span class=\"primitiv-tree__branch-content-inner\"><span class=\"primitiv-tree__branch-content-body\">\n        <primitiv-tree-branch value=\"components\" label=\"components\" class=\"primitiv-tree__branch\">\n          <primitiv-tree-branch-control class=\"primitiv-tree__branch-control\"><primitiv-tree-branch-indicator class=\"primitiv-tree__branch-indicator\"><!-- Insert your SVG icon here: chevron-right --></primitiv-tree-branch-indicator><span class=\"primitiv-tree__branch-control-label\">components</span></primitiv-tree-branch-control>\n          <primitiv-tree-branch-content class=\"primitiv-tree__branch-content\">\n            <span class=\"primitiv-tree__branch-content-inner\"><span class=\"primitiv-tree__branch-content-body\">\n              <primitiv-tree-item value=\"button\" label=\"Button.tsx\" class=\"primitiv-tree__item\"><span class=\"primitiv-tree__item-spacer\"></span><span class=\"primitiv-tree__item-label\">Button.tsx</span></primitiv-tree-item>\n              <primitiv-tree-item value=\"input\" label=\"Input.tsx\" class=\"primitiv-tree__item\"><span class=\"primitiv-tree__item-spacer\"></span><span class=\"primitiv-tree__item-label\">Input.tsx</span></primitiv-tree-item>\n            </span></span>\n          </primitiv-tree-branch-content>\n        </primitiv-tree-branch>\n        <primitiv-tree-item value=\"index\" label=\"index.ts\" class=\"primitiv-tree__item\"><span class=\"primitiv-tree__item-spacer\"></span><span class=\"primitiv-tree__item-label\">index.ts</span></primitiv-tree-item>\n      </span></span>\n    </primitiv-tree-branch-content>\n  </primitiv-tree-branch>\n  <primitiv-tree-item value=\"readme\" label=\"README.md\" class=\"primitiv-tree__item\" disabled><span class=\"primitiv-tree__item-spacer\"></span><span class=\"primitiv-tree__item-label\">README.md</span></primitiv-tree-item>\n  <primitiv-tree-selection-path class=\"primitiv-tree__selection-path\">\n    <template>\n      <nav class=\"primitiv-breadcrumb primitiv-breadcrumb--sm\" aria-label=\"Breadcrumb\">\n        <ol class=\"primitiv-breadcrumb__list\">\n          <li class=\"primitiv-breadcrumb__item\"><span data-tree-selection-segment></span></li>\n          <li class=\"primitiv-breadcrumb__separator\" role=\"presentation\" aria-hidden=\"true\">/</li>\n          <li class=\"primitiv-breadcrumb__item\"><span class=\"primitiv-breadcrumb__page\" aria-current=\"page\" data-tree-selection-segment></span></li>\n        </ol>\n      </nav>\n    </template>\n  </primitiv-tree-selection-path>\n</primitiv-tree>\n",
+    "api": [
+      {
+        "tag": "primitiv-tree",
+        "description": "`<primitiv-tree>` — the state owner of a WAI-ARIA tree view: nested items and branches, one roving tab stop, branches expanded and collapsed, and single or multiple selection.\n\nThe root finds its own parts, so a tree nested inside another keeps its own, and reconciles them from its reflected attributes whenever a part arrives, leaves, or changes an attribute it reads (the lifecycle is `PrimitivRootElement`'s). Each item and branch gets its `aria-level`, `data-depth` and the `--primitiv-tree-depth` custom property a stylesheet indents by, from where it sits.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The selected values, space-separated, in the order they were selected. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection."
+          },
+          {
+            "name": "expanded",
+            "type": "string",
+            "description": "The expanded branches' values, space-separated. Reflected, like `value`."
+          },
+          {
+            "name": "selection-mode",
+            "type": "\"single\" | \"multiple\"",
+            "description": "`multiple` allows several values: Ctrl or Meta toggles one, Shift selects a range. Defaults to `single`."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-tree-change",
+            "type": "CustomEvent<{ value: string[] }>",
+            "description": "Bubbles, cancelable, fired before a user's selection applies, with the selection afterwards. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-tree-expanded-change",
+            "type": "CustomEvent<{ expanded: string[] }>",
+            "description": "Bubbles, cancelable, fired before a user expands or collapses a branch, with the expanded branches afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-tree-item",
+        "description": "`<primitiv-tree-item>` — a leaf. Structural: it *is* the treeitem, focusable with the roving tab stop, and a click selects it.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The item's value, unique in the tree."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The name a selection path shows for it. Defaults to its `value`."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Marks it disabled: it is skipped by the arrow keys and never selected."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tree-branch",
+        "description": "`<primitiv-tree-branch>` — a node with children. Structural: it *is* the treeitem, named by its row, and holds a `<primitiv-tree-branch-control>` (the row) and a `<primitiv-tree-branch-content>` (the children) as direct children.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The branch's value, unique in the tree."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The name a selection path shows for it. Defaults to its `value`."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Marks it disabled: it is skipped by the arrow keys, never selected and never toggled."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tree-branch-control",
+        "description": "`<primitiv-tree-branch-control>` — a branch's row. A click on it toggles the branch and selects it; it gets an id the branch is labelled by.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tree-branch-content",
+        "description": "`<primitiv-tree-branch-content>` — a branch's children. Structural: the root gives it `role=\"group\"`, `data-depth`, `data-state` and `hidden` while its branch is collapsed (write `hidden` in your markup too, so it is hidden before the script loads).",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep it rendered while collapsed (`aria-hidden` rather than `hidden`), so a stylesheet can animate it."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tree-branch-indicator",
+        "description": "`<primitiv-tree-branch-indicator>` — the glyph that shows whether its branch is open. Structural: the root gives it `aria-hidden` and `data-state`.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tree-selection-path",
+        "description": "`<primitiv-tree-selection-path>` — the selected items' ancestry, one breadcrumb trail per selected item, rebuilt as the selection changes. It renders React's headless Breadcrumb markup — a `<nav>` of an `<ol>` whose crumbs carry `data-tree-selection-segment`, the last `aria-current=\"page\"` — or, given a `<template>` child holding one `<nav>` with a crumb, a current crumb and a `role=\"presentation\"` separator, clones of yours. It carries `data-empty` while nothing is selected.",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

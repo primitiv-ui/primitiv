@@ -1,7 +1,5 @@
 "use client";
 
-import { Prism } from "prism-react-renderer";
-
 import { CodeBlock } from "@/components/code-block";
 import { importBlock } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
@@ -22,18 +20,12 @@ export function Save() {
 
 // ── Elements (RFC 0033) ──────────────────────────────────────────────────────
 
-/* The Elements form is the markup a server or build step writes: the code run
-   through Prism once (here, the same Prism the React block uses), in the
-   registry's classes, with `<primitiv-code-block-copy>` around the copy button.
-   Nothing highlights in the browser. */
+/* The Elements form is what a page writes: the code as plain text — escaped,
+   as a server template does — inside `<primitiv-code-block language="…">`,
+   which highlights it with Prism in the browser. The header and its copy
+   control are markup the page writes, as in the registry example. */
 
-const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-/** What a server's highlighter returns: Prism's token spans, or escaped text for a language it lacks. */
-const highlight = (code: string, language: string) => {
-  const grammar = Prism.languages[language];
-  return grammar ? Prism.highlight(code, grammar, language) : escapeHtml(code);
-};
+const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
 /* The copy button one step below the block, as the React block sizes it. */
 const COPY_SIZE: Record<Size, Size> = { xs: "xs", sm: "xs", md: "sm", lg: "md", xl: "lg" };
@@ -49,21 +41,9 @@ const copyControl = (size: Size) =>
     `</primitiv-code-block-copy>`,
   ];
 
-/** The `<pre>`: the highlighted code, or one span a line with an aria-hidden number, each keeping its newline. */
-function elementsPre(code: string, language: string, lineNumbers = false): string {
-  const html = highlight(code, language);
-  const body = lineNumbers
-    ? html
-        .split("\n")
-        .map(
-          (line, i) =>
-            `<span class="primitiv-code-block__line"><span class="primitiv-code-block__ln" aria-hidden="true">${i + 1}</span>` +
-            `<span class="primitiv-code-block__line-content">${line}\n</span></span>`,
-        )
-        .join("")
-    : html;
-  return `<pre class="primitiv-code-block__pre language-${language}"${lineNumbers ? " data-line-numbers" : ""}><code class="primitiv-code-block__code">${body}</code></pre>`;
-}
+/** The `<pre>`: the code as text, for the block to highlight. */
+const elementsPre = (code: string) =>
+  `<pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code">${escapeHtml(code)}</code></pre>`;
 
 type ElementsBlock = {
   code?: string;
@@ -71,23 +51,25 @@ type ElementsBlock = {
   size?: Size;
   wrap?: boolean;
   filename?: string;
-  /** The header with its copy control, with or without a filename. */
-  header?: boolean;
   lineNumbers?: boolean;
 };
 
-function elementsBlock({ code = SAMPLE, language = "tsx", size = "md", wrap = true, filename, header, lineNumbers }: ElementsBlock): string {
-  const root = ["primitiv-code-block", `primitiv-code-block--${size}`, wrap ? "" : "primitiv-code-block--nowrap"].filter(Boolean).join(" ");
-  const head =
-    header || filename
-      ? [
-          `  <div class="primitiv-code-block__header">`,
-          ...(filename ? [`    <span class="primitiv-code-block__filename">${filename}</span>`] : []),
-          ...copyControl(size).map((line) => `    ${line}`),
-          `  </div>`,
-        ]
-      : [];
-  return [`<div class="${root}">`, ...head, `  ${elementsPre(code, language, lineNumbers)}`, `</div>`].join("\n");
+function elementsBlock({ code = SAMPLE, language = "tsx", size = "md", wrap = true, filename, lineNumbers }: ElementsBlock): string {
+  const classes = ["primitiv-code-block", `primitiv-code-block--${size}`, wrap ? "" : "primitiv-code-block--nowrap"].filter(Boolean).join(" ");
+  const head = filename
+    ? [
+        `  <div class="primitiv-code-block__header">`,
+        `    <span class="primitiv-code-block__filename">${filename}</span>`,
+        ...copyControl(size).map((line) => `    ${line}`),
+        `  </div>`,
+      ]
+    : [];
+  return [
+    `<primitiv-code-block language="${language}"${lineNumbers ? " line-numbers" : ""} class="${classes}">`,
+    ...head,
+    `  ${elementsPre(code)}`,
+    `</primitiv-code-block>`,
+  ].join("\n");
 }
 
 const INSTALLS = [
@@ -96,9 +78,10 @@ const INSTALLS = [
   ["yarn", "yarn dlx primitiv add button"],
 ] as const;
 
-/** The tabbed form: the Tabs elements wearing the code block's classes, the copy control beside the list. */
+/** The tabbed form: the Tabs elements wearing the code block's classes, inside a block naming the language. */
 const elementsTabbed = () =>
   [
+    `<primitiv-code-block language="bash">`,
     `<primitiv-tabs value="npm" class="primitiv-code-block primitiv-code-block--md primitiv-tabs primitiv-tabs--md">`,
     `  <div class="primitiv-code-block__header">`,
     `    <primitiv-tabs-list label="Install with" class="primitiv-tabs__list">`,
@@ -111,9 +94,10 @@ const elementsTabbed = () =>
     `  </div>`,
     ...INSTALLS.map(
       ([name, command], i) =>
-        `  <primitiv-tabs-content value="${name}" class="primitiv-code-block__panel"${i === 0 ? "" : " hidden"}>${elementsPre(command, "bash")}</primitiv-tabs-content>`,
+        `  <primitiv-tabs-content value="${name}" class="primitiv-code-block__panel"${i === 0 ? "" : " hidden"}>${elementsPre(command)}</primitiv-tabs-content>`,
     ),
     `</primitiv-tabs>`,
+    `</primitiv-code-block>`,
   ].join("\n");
 
 const INLINE_SAMPLE = 'import { Button } from "@primitiv-ui/react"';
@@ -121,7 +105,7 @@ const elementsInline = () =>
   [
     `<div>`,
     `  Import it with`,
-    `  <div class="primitiv-code-block primitiv-code-block--inline primitiv-code-block--sm">${elementsPre(INLINE_SAMPLE, "tsx")}</div>.`,
+    `  <primitiv-code-block language="tsx" class="primitiv-code-block primitiv-code-block--inline primitiv-code-block--sm">${elementsPre(INLINE_SAMPLE)}</primitiv-code-block>.`,
     `</div>`,
   ].join("\n");
 
@@ -166,7 +150,7 @@ export const codeBlockSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="The default: a bordered, tinted surface with mono type and Prism syntax highlighting, driven by `code` and `language`. `wrap` decides whether long lines wrap or the block scrolls horizontally — scroll is the default, since wrapping code changes where the line breaks fall."
-          elementsCaption="The block as your server or build step writes it: the code run through Prism once, whose token classes the stylesheet colours with the `--primitiv-code-syntax-*` palette, inside a `<pre>` in the block's classes. Nothing highlights in the browser and no script is needed. `primitiv-code-block--nowrap` keeps long lines whole and scrolls the block instead."
+          elementsCaption="Write the code as the text of a `<pre><code>` — escaped, as any HTML text is, which a server template does for you — inside `<primitiv-code-block>`, and name its `language`. The element highlights it with Prism, loading only that language's grammar, and drops the indent it was pasted with; before the script loads, it reads as plain text. Code already highlighted at build time (holding Prism's token spans) is left as it is. `primitiv-code-block--nowrap` keeps long lines whole and scrolls the block instead."
           code={(_density, mode) =>
             mode === "elements" ? elementsBlock({}) : [imports(mode), ``, `<CodeBlock language="tsx" code={source} />`].join("\n")
           }
@@ -281,7 +265,7 @@ export const codeBlockSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption={"`variant=\"inline\"` is a single-line highlighted chip for code named mid-sentence when it needs syntax colour — an import path, a typed value. It is `InlineCode` with highlighting; reach for plain `InlineCode` when the fragment does not need a language."}
-          elementsCaption={"`primitiv-code-block--inline` is a single-line highlighted chip for code named mid-sentence — the same Prism markup, sized to its content and sitting on the baseline. It has no header or copy control. Reach for `inline-code` when the fragment needs no highlighting."}
+          elementsCaption={"`primitiv-code-block--inline` is a single-line highlighted chip for code named mid-sentence — the same element, sized to its content and sitting on the baseline. It has no header or copy control. Reach for `inline-code` when the fragment needs no highlighting."}
           code={(_density, mode) =>
             mode === "elements" ? elementsInline() :
             [
@@ -319,13 +303,13 @@ export const codeBlockSpec: ComponentSpec = {
       code: (mode) =>
         mode === "elements"
           ? [
-              `<div class="primitiv-code-block">`,
+              `<primitiv-code-block language="tsx" class="primitiv-code-block">`,
               `  <div class="primitiv-code-block__header">`,
               `    <span class="primitiv-code-block__filename">...</span>`,
               `    <primitiv-code-block-copy><button type="button" class="primitiv-code-block__copy">...</button></primitiv-code-block-copy>`,
               `  </div>`,
-              `  <pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code"><!-- highlighted --></code></pre>`,
-              `</div>`,
+              `  <pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code">{{ code }}</code></pre>`,
+              `</primitiv-code-block>`,
             ].join("\n")
           : "<CodeBlock code={...} language=\"tsx\" />",
     },
@@ -334,15 +318,17 @@ export const codeBlockSpec: ComponentSpec = {
       code: (mode) =>
         mode === "elements"
           ? [
-              `<primitiv-tabs class="primitiv-code-block primitiv-tabs">`,
-              `  <div class="primitiv-code-block__header">`,
-              `    <primitiv-tabs-list>`,
-              `      <primitiv-tabs-trigger>...</primitiv-tabs-trigger>`,
-              `    </primitiv-tabs-list>`,
-              `    <primitiv-code-block-copy>...</primitiv-code-block-copy>`,
-              `  </div>`,
-              `  <primitiv-tabs-content class="primitiv-code-block__panel"><pre>...</pre></primitiv-tabs-content>`,
-              `</primitiv-tabs>`,
+              `<primitiv-code-block language="bash">`,
+              `  <primitiv-tabs class="primitiv-code-block primitiv-tabs">`,
+              `    <div class="primitiv-code-block__header">`,
+              `      <primitiv-tabs-list>`,
+              `        <primitiv-tabs-trigger>...</primitiv-tabs-trigger>`,
+              `      </primitiv-tabs-list>`,
+              `      <primitiv-code-block-copy>...</primitiv-code-block-copy>`,
+              `    </div>`,
+              `    <primitiv-tabs-content class="primitiv-code-block__panel"><pre>...</pre></primitiv-tabs-content>`,
+              `  </primitiv-tabs>`,
+              `</primitiv-code-block>`,
             ].join("\n")
           : [
           "<CodeBlock.Tabs>",
@@ -360,12 +346,13 @@ export const codeBlockSpec: ComponentSpec = {
 
   elements: {
     description:
-      "A block of source code — a bordered, tinted surface with mono type, an optional filename and copy header, an optional line-number gutter, and syntax colour from Prism's token classes. The highlighting is your server's or your build step's: write the code Prism has already highlighted, and the one element, `<primitiv-code-block-copy>`, puts it on the clipboard.",
+      "A block of source code that highlights itself — a bordered, tinted surface with mono type, an optional filename and copy header, and an optional line-number gutter. Write the code as text inside `<primitiv-code-block>` and name its `language`: the element highlights it with Prism, loading only the grammars it needs. `<primitiv-code-block-copy>` puts it on the clipboard.",
     anatomyMeta:
-      "Two forms. The **block** is a `primitiv-code-block` `<div>` holding an optional `__header` (a `__filename` and the copy control) and the `<pre>` / `<code>`. The **tabbed** form is the Tabs elements wearing the block's classes: a header holding the `<primitiv-tabs-list>` and the copy control, then one `<primitiv-tabs-content>` per tab. `<primitiv-code-block-copy>` wraps the `<button>` you write.",
+      "Two forms. The **block** is `<primitiv-code-block>` holding an optional `__header` (a `__filename` and the copy control) and the `<pre>` / `<code>` whose text it highlights. The **tabbed** form wraps the Tabs elements, wearing the block's classes, in a `<primitiv-code-block>`: a header holding the `<primitiv-tabs-list>` and the copy control, then one `<primitiv-tabs-content>` per tab. `<primitiv-code-block-copy>` wraps the `<button>` you write.",
     accessibility: [
       "The copy control is a real `<button>` — give it an `aria-label` (`Copy code`). While copied, the element swaps that label to `Copied` (set `copied-label` to translate it) and back after two seconds, keeping the original in `data-label`, so a screen-reader user hears the same confirmation a sighted user sees.",
-      "What is copied is what is shown: the `<code>`'s text, without the `aria-hidden` line numbers. Keep each line's newline in the markup.",
+      "What is copied is what is shown: the `<code>`'s text, without the `aria-hidden` line numbers.",
+      "Before the script loads, the code reads as plain, uncoloured text — it is never hidden while it waits for highlighting.",
       "The tabbed form is the Tabs pattern: the triggers share one tab stop and the arrow keys move between them, with each panel wired to its trigger.",
       "Syntax colour is never the only signal — the code reads correctly with colour off, and the mono face plus the bordered surface carry the “this is code” distinction.",
     ],

@@ -378,6 +378,16 @@
   }
 }
 
+/* A bare `<primitiv-code-block>` — the tabbed form wraps its classed
+   `<primitiv-tabs>` in one, to name the language — draws no box, so the classed
+   root inside it lays out as React's does. The `.primitiv-code-block` class
+   overrides this with its own display wherever the element is the root. */
+@layer primitiv.base {
+  primitiv-code-block {
+    display: contents;
+  }
+}
+
 /* `<primitiv-code-block-copy>` wraps the copy button in the Elements markup.
    It draws no box of its own, so the button stays the header's flex item and its
    `margin-inline-start: auto` still pushes it to the end, as in the React block. */

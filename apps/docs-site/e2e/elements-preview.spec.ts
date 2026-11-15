@@ -832,6 +832,13 @@ test.describe("the Code Block previews", () => {
     expect(text.endsWith("}")).toBe(true);
   });
 
+  test("the tabbed preview fills its card like the plain block, its wrapping block drawing no box", async ({ page }) => {
+    await page.goto("/components/code-block/");
+    const width = (id: string) =>
+      cell(page, id).locator(".docs-elements-preview .primitiv-code-block").first().evaluate((el) => el.getBoundingClientRect().width);
+    await expect.poll(() => width("tabbed")).toBe(await width("block"));
+  });
+
   test("the tabbed preview copies the panel that is shown", async ({ page }) => {
     await page.goto("/components/code-block/");
     await page.waitForFunction(() => customElements.get("primitiv-code-block-copy"));

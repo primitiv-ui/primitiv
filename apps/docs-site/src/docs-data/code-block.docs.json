@@ -431,8 +431,31 @@
     "module": "code-block",
     "element": "div",
     "wrapText": false,
-    "example": "<div class=\"primitiv-code-block primitiv-code-block--md\">\n  <div class=\"primitiv-code-block__header\">\n    <span class=\"primitiv-code-block__filename\">greet.ts</span>\n    <primitiv-code-block-copy>\n      <button type=\"button\" class=\"primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy\" aria-label=\"Copy code\"><svg data-copy-state=\"idle\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.75 7.25v13.5H7.25V7.25zm-12 12h10.5V8.75H8.75z\" /><path d=\"M15.25 4.75H4.75v10.5h4v1.5h-5.5V3.25h13.5v5.5h-1.5z\" /></svg><svg data-copy-state=\"copied\" hidden viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946z\" /></svg></button>\n    </primitiv-code-block-copy>\n  </div>\n  <!-- Highlight on the server or at build time: the stylesheet colours Prism's token classes. The copy control copies the code's text as shown, so keep each line's newline in it. -->\n  <pre class=\"primitiv-code-block__pre language-ts\"><code class=\"primitiv-code-block__code\"><span class=\"token keyword\">export</span> <span class=\"token keyword\">function</span> <span class=\"token function\">greet</span><span class=\"token punctuation\">(</span>name<span class=\"token operator\">:</span> <span class=\"token builtin\">string</span><span class=\"token punctuation\">)</span> <span class=\"token punctuation\">{</span>\n  <span class=\"token keyword\">return</span> <span class=\"token template-string\"><span class=\"token template-punctuation string\">`</span><span class=\"token string\">Hello, </span><span class=\"token interpolation\"><span class=\"token interpolation-punctuation punctuation\">${</span>name<span class=\"token interpolation-punctuation punctuation\">}</span></span><span class=\"token template-punctuation string\">`</span></span><span class=\"token punctuation\">;</span>\n<span class=\"token punctuation\">}</span></code></pre>\n</div>\n",
+    "example": "<primitiv-code-block language=\"ts\" class=\"primitiv-code-block primitiv-code-block--md\">\n  <div class=\"primitiv-code-block__header\">\n    <span class=\"primitiv-code-block__filename\">greet.ts</span>\n    <primitiv-code-block-copy>\n      <button type=\"button\" class=\"primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy\" aria-label=\"Copy code\"><svg data-copy-state=\"idle\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.75 7.25v13.5H7.25V7.25zm-12 12h10.5V8.75H8.75z\" /><path d=\"M15.25 4.75H4.75v10.5h4v1.5h-5.5V3.25h13.5v5.5h-1.5z\" /></svg><svg data-copy-state=\"copied\" hidden viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946z\" /></svg></button>\n    </primitiv-code-block-copy>\n  </div>\n  <!-- The code as text, escaped as any HTML text is (a server template does it for you). The element highlights it in its language; add line-numbers to number it. -->\n  <pre class=\"primitiv-code-block__pre\"><code class=\"primitiv-code-block__code\">export function greet(name: string) {\n  return `Hello, ${name}`;\n}</code></pre>\n</primitiv-code-block>\n",
     "api": [
+      {
+        "tag": "primitiv-code-block",
+        "description": "`<primitiv-code-block>` — a block of source code that highlights itself. Write the code as the text of a `<pre><code>` inside it — escaped as any HTML text is, which a server template does for you — and name its language:\n\n```html <primitiv-code-block language=\"tsx\"> <pre><code>{{ code }}</code></pre> </primitiv-code-block> ```\n\nThe element highlights it with Prism, loading only the grammar that language needs, and drops the blank lines and shared indent it was pasted with. Before the script loads, the code reads as plain text. Code that already holds token spans — highlighted at build time or on the server — is left as it is, so both ways work with nothing to choose. Each `<code>` inside is its own, so a tabbed block highlights every panel, and Prism's `language-*` class on a `<code>` or `<pre>` names that one's language.\n\nWith `line-numbers`, each line becomes a `primitiv-code-block__line` with its number in an `aria-hidden` `primitiv-code-block__ln`, and the `<pre>` gets `data-line-numbers` — the same parts the React block renders.",
+        "attributes": [
+          {
+            "name": "language",
+            "type": "string",
+            "description": "The language to highlight as: `tsx`, `ts`, `js`, `jsx`, `html`, `css`, `scss`, `json`, `bash`, `yaml`, `markdown`, `python`, `sql`, `diff`, `rust`, `go` or `graphql`. Prism's `language-*` class on a `<code>` or `<pre>` names that one's language instead."
+          },
+          {
+            "name": "line-numbers",
+            "type": "boolean",
+            "description": "Number the lines."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-code-block-highlight",
+            "type": "CustomEvent<{ language: string | null }>",
+            "description": "Bubbles, after a `<code>` is (re)rendered — once its grammar has loaded."
+          }
+        ]
+      },
       {
         "tag": "primitiv-code-block-copy",
         "description": "`<primitiv-code-block-copy>` — a code block's copy control: it decorates the one `<button>` you write, and puts the block's code on the clipboard when it is pressed.\n\n**The highlighting is yours.** A block is the `<pre><code>` your server or build step wrote — Prism's token classes are what the registry stylesheet colours — so nothing here parses or highlights code.\n\nThe code it copies is the nearest one it can see: the first `<code>` in its closest ancestor that holds one, skipping any inside a `hidden` element (so in a tabbed block, the shown panel's), or the one `for` names. It copies the text as the reader sees it: `aria-hidden` parts such as line numbers are left out, so write each line's newline into the markup. While `copied`, the button carries `data-copied`, its `aria-label` (when it has one) reads `copied-label` with its own kept in `data-label`, and of its children marked `data-copy-state`, the `copied` ones show and the `idle` ones are `hidden`. `copied` is transient: an element that connects with it — from a history snapshot, or moved mid-copy — drops it.",

@@ -1,3 +1,4 @@
+/// <reference path="./prism-components.d.ts" />
 /**
  * Prism, loaded only when a block needs it, and each grammar only when a block
  * names its language — so a page showing only TSX downloads only TSX, and a

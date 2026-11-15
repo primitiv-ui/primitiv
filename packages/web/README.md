@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper, Miller Columns, Table's expandable rows and Code Block's copy control so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper, Miller Columns, Table's expandable rows and Code Block so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -35,7 +35,7 @@ React, Vue, Angular or any other framework.
 | Stepper | `primitiv-stepper`, `-list`, `-step`, `-panel` | `primitiv-stepper-change` | 0.2.12 |
 | Miller Columns | `primitiv-miller-columns`, `-tree`, `-column`, `-item`, `-item-indicator`, `-resize-handle`, `-preview-panel` | `primitiv-miller-columns-change` | 0.2.13 |
 | Table | `primitiv-table-expand-trigger` | `primitiv-table-expand-change` | 0.2.14 |
-| Code Block | `primitiv-code-block-copy` | `primitiv-code-block-copy` | 0.2.14 |
+| Code Block | `primitiv-code-block`, `-copy` | `primitiv-code-block-copy`, `-highlight` | 0.2.15 (copy: 0.2.14) |
 
 ## Use it
 
@@ -762,32 +762,41 @@ The elements write no `class` and no `style`. For the registry look, apply the
 - The registry's `data-table` styles this markup; its sorting, selection and
   paging stay your page's.
 
-### Code Block (copy control)
+### Code Block
 
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/code-block.js"></script>
 
-<div>
-  <primitiv-code-block-copy>
-    <button type="button" aria-label="Copy code">
-      <span data-copy-state="idle">Copy</span><span data-copy-state="copied" hidden>Copied</span>
-    </button>
-  </primitiv-code-block-copy>
-  <pre><code>npm install @primitiv-ui/web
-</code></pre>
-</div>
+<primitiv-code-block language="tsx" line-numbers>
+  <div>
+    <primitiv-code-block-copy>
+      <button type="button" aria-label="Copy code">
+        <span data-copy-state="idle">Copy</span><span data-copy-state="copied" hidden>Copied</span>
+      </button>
+    </primitiv-code-block-copy>
+  </div>
+  <pre><code>{{ code }}</code></pre>
+</primitiv-code-block>
 ```
 
-- **The highlighting is the server's.** Write code Prism has highlighted (or
-  plain code); nothing parses it in the browser.
-- **It copies what is shown**: the nearest `<code>` it can see — skipping any
-  inside a `hidden` element, so a tabbed block copies its shown panel — or the
-  one `for` names, without `aria-hidden` parts such as line numbers.
-- **`copied` lasts two seconds**, with `data-copied` on the button, its
+- **Write the code as text and name its `language`.** The element highlights it
+  with Prism, loading Prism's core and only that language's grammars on demand —
+  a page with no code block downloads none of it. Escape the text as any HTML
+  text (a server template does it); the element drops the blank lines and shared
+  indent it was pasted with, and before the script loads it reads as plain text.
+  Prism's `language-*` class on a `<code>` or `<pre>` works too.
+- **Highlighted already? Left alone.** Code holding Prism's token spans (from a
+  build step or the server) is not touched, and a page that already uses Prism
+  keeps its own `Prism`, which the block adds grammars to.
+- **`line-numbers`** splits the code into `primitiv-code-block__line` rows with
+  an `aria-hidden` number each. `primitiv-code-block-highlight` fires after a
+  `<code>` is (re)rendered.
+- **`<primitiv-code-block-copy>`** copies its block's shown `<code>` (the shown
+  panel's in a tabbed block), or the one `for` names, without `aria-hidden`
+  parts. `copied` lasts two seconds, with `data-copied` on the button, its
   `aria-label` swapped for `copied-label` (kept in `data-label`), and the
-  `data-copy-state` children shown and hidden to match. It is transient: an
-  element that connects with it (a history snapshot, a move) drops it.
-  `primitiv-code-block-copy` (`detail.text`) bubbles and is cancelable.
+  `data-copy-state` children shown and hidden to match; it is transient, dropped
+  on connect. `primitiv-code-block-copy` (`detail.text`) is cancelable.
 
 ## Layers
 

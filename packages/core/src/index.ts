@@ -105,19 +105,21 @@ export {
 } from "./popover/policy.ts";
 export { TOOLTIP_GRACE_MS, tooltipOpenDelay, type TooltipDelayState } from "./tooltip/policy.ts";
 export {
-  LISTBOX_TYPEAHEAD_RESET_MS,
   listboxKeydown,
   listboxSeed,
   listboxSelect,
-  listboxTypeahead,
   type ListboxKey,
   type ListboxKeyOutcome,
   type ListboxOrientation,
   type ListboxReadingDirection,
   type ListboxState,
+} from "./listbox/policy.ts";
+export {
+  LISTBOX_TYPEAHEAD_RESET_MS,
+  listboxTypeahead,
   type ListboxTypeaheadOutcome,
   type ListboxTypeaheadState,
-} from "./listbox/policy.ts";
+} from "./keyboard/typeahead.ts";
 export { SELECT_OPTION_SELECTOR, selectKeydown } from "./select/policy.ts";
 export {
   comboboxKeydown,

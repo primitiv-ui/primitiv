@@ -308,6 +308,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("data-table", "data-table.recipe.ts"),
     registry_file!("data-table", "data-table.tsx"),
     registry_file!("data-table", "contract.json"),
+    registry_file!("data-table", "data-table.html"),
     registry_file!("description-list", "styles.css"),
     registry_file!("description-list", "styles.scss"),
     registry_file!("description-list", "description-list.recipe.ts"),

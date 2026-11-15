@@ -241,6 +241,52 @@ would mean owning the column list. Compose it from `dropdown`.
   count as the whole table's.
 - Give the empty actions/expand header cells a visually-hidden name.
 
+## Elements (plain HTML)
+
+`primitiv add data-table --surface elements` prints the shell as plain table
+markup plus the one custom element it needs, `<primitiv-table-expand-trigger>`
+from `@primitiv-ui/web`, and loads its script (`dist/cdn/table.js` — the element
+belongs to Table, so the registry block names `definedBy: "table"`). Add
+`--styled` to copy this stylesheet and print the classed markup.
+
+```html
+<tr class="primitiv-table__row">
+  <td class="primitiv-table__cell primitiv-data-table__control-cell">
+    <primitiv-table-expand-trigger force-mount>
+      <button type="button" class="primitiv-button primitiv-button--ghost primitiv-button--xs primitiv-data-table__expand"
+        aria-controls="api-gateway-details" aria-label="Show details for api-gateway"><svg>...</svg></button>
+    </primitiv-table-expand-trigger>
+  </td>
+  <td class="primitiv-table__cell primitiv-table__cell--start">api-gateway</td>
+</tr>
+<tr id="api-gateway-details" class="primitiv-data-table__detail-row" aria-hidden="true">
+  <td></td>
+  <td colspan="1">
+    <div class="primitiv-data-table__detail-clip"><div class="primitiv-data-table__detail-body"><div class="primitiv-data-table__detail-content">...</div></div></div>
+  </td>
+</tr>
+```
+
+How the React parts map:
+
+- **The trigger sits in a cell, not around the rows.** The HTML parser moves
+  any element written between a table's rows out of the table, so nothing can
+  wrap a row and its detail row as `Table.Expandable` does. The button names its
+  detail row by id with `aria-controls`, and the detail row stays an ordinary
+  `<tr>` the element writes `hidden`, `aria-hidden` and `data-state` on.
+- **`expanded` is the state**, reflected as the user toggles; write it on a row
+  that starts open. `primitiv-table-expand-change` (`detail.expanded`) is
+  cancelable, and the detail row fires `primitiv-table-expand-show` as it opens,
+  so a server can send its content then.
+- **`force-mount` is what lets the panel animate**, as `forceMount` does: a
+  closed row stays rendered, only `aria-hidden`. Without it a closed row is
+  `hidden`.
+- **`gutter` is the empty leading `<td>`**: write it yourself, and give the
+  panel's cell the remaining `colspan`.
+- **Sorting, selection, filtering and pagination stay yours**, as they are in
+  React: the sort button, `aria-sort` and the sort classes are markup for your
+  script to move.
+
 ## Files
 
 | File | Purpose |

@@ -265,6 +265,20 @@ export function runTreeConformance(mount: TreeMount): void {
         expect(item("Guides").getAttribute("aria-expanded")).toBe("false");
       });
 
+      it("leaves a key a child does not handle to the child, not its branch", async () => {
+        // Arrange
+        const user = userEvent.setup();
+        await render({ expanded: ["docs"], disabled: ["api"] });
+        item("API").focus();
+
+        // Act
+        await user.keyboard("{ArrowRight}{ArrowLeft}");
+
+        // Assert
+        expect(document.activeElement).toBe(item("API"));
+        expect(item("Docs").getAttribute("aria-expanded")).toBe("true");
+      });
+
       it("selects with Enter and Space, a branch toggling as it is selected", async () => {
         // Arrange
         const user = userEvent.setup();

@@ -1,0 +1,26 @@
+<primitiv-tabs value="billing" activation-mode="manual" class="primitiv-stepper primitiv-stepper--md">
+  <primitiv-tabs-list label="Sign-up progress" class="primitiv-stepper__list">
+    <!-- A step's progress is data-step-state on its button: upcoming, complete or error. The marker shows what that state calls for: the step number, a tick for a complete step, a warning glyph for an errored one. -->
+    <primitiv-tabs-trigger value="account">
+      <button type="button" class="primitiv-stepper__step" data-step-state="complete">
+        <span class="primitiv-stepper__marker"><span class="primitiv-stepper__marker-mark"></span></span>
+        <span class="primitiv-stepper__label">Account</span>
+      </button>
+    </primitiv-tabs-trigger>
+    <primitiv-tabs-trigger value="billing">
+      <button type="button" class="primitiv-stepper__step" data-step-state="upcoming">
+        <span class="primitiv-stepper__marker"><span class="primitiv-stepper__marker-number">2</span></span>
+        <span class="primitiv-stepper__label">Billing</span>
+      </button>
+    </primitiv-tabs-trigger>
+    <primitiv-tabs-trigger value="review">
+      <button type="button" class="primitiv-stepper__step" data-step-state="upcoming">
+        <span class="primitiv-stepper__marker"><span class="primitiv-stepper__marker-number">3</span></span>
+        <span class="primitiv-stepper__label">Review</span>
+      </button>
+    </primitiv-tabs-trigger>
+  </primitiv-tabs-list>
+  <primitiv-tabs-content value="account" class="primitiv-stepper__panel" hidden>Your account details.</primitiv-tabs-content>
+  <primitiv-tabs-content value="billing" class="primitiv-stepper__panel">Where should we send the receipt?</primitiv-tabs-content>
+  <primitiv-tabs-content value="review" class="primitiv-stepper__panel" hidden>Check everything before you submit.</primitiv-tabs-content>
+</primitiv-tabs>

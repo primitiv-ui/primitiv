@@ -2176,7 +2176,18 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.43"
+          }
+        ],
+        "definedBy": "tabs",
+        "example": "stepper.html",
+        "handWritten": true
+      }
     },
     "switch": {
       "version": "0.1.0",

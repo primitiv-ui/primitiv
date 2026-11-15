@@ -212,16 +212,12 @@ export function TreeItem({
   ...rest
 }: TreeItemProps): ReactElement {
   const { depth, parentValue } = useTreeLevelContext();
-  const { isSelected, select, registerNode, tabStop, setActiveValue } =
+  const { isSelected, controller, registerNode, tabStop, setActiveValue } =
     useTreeContext();
   const selected = isSelected(value);
   const isTabStop = tabStop === value;
   const ref = useRef<HTMLDivElement>(null);
-  const handleRovingKeyDown = useTreeItemKeyboard(value, {
-    isBranch: false,
-    parentValue,
-    disabled,
-  });
+  const handleRovingKeyDown = useTreeItemKeyboard(value);
 
   useLayoutEffect(() => {
     registerNode(value, {
@@ -247,16 +243,14 @@ export function TreeItem({
     "data-selected": selected ? "" : undefined,
     "data-disabled": disabled ? "" : undefined,
     tabIndex: isTabStop ? 0 : -1,
-    onClick: composeEventHandlers(onClick, (event) => {
-      if (disabled) {
-        return;
-      }
-      select(value, {
+    // The controller ignores a click on a disabled item.
+    onClick: composeEventHandlers(onClick, (event) =>
+      controller.click(value, {
         meta: event.metaKey,
         ctrl: event.ctrlKey,
         shift: event.shiftKey,
-      });
-    }),
+      }),
+    ),
     onFocus: composeEventHandlers(onFocus, () => setActiveValue(value)),
     onKeyDown: composeEventHandlers(onKeyDown, handleRovingKeyDown),
     ...rest,
@@ -357,11 +351,7 @@ export function TreeBranch({
   const isTabStop = tabStop === value;
   const ref = useRef<HTMLDivElement>(null);
   const controlId = deriveId(rootId, "branch-control", value);
-  const handleRovingKeyDown = useTreeItemKeyboard(value, {
-    isBranch: true,
-    parentValue,
-    disabled,
-  });
+  const handleRovingKeyDown = useTreeItemKeyboard(value);
 
   useLayoutEffect(() => {
     registerNode(value, {
@@ -436,22 +426,19 @@ export function TreeBranchControl({
   onClick,
   ...rest
 }: TreeBranchControlProps): ReactElement {
-  const { value, disabled, controlId } = useTreeItemContext();
-  const { toggleExpanded, select } = useTreeContext();
+  const { value, controlId } = useTreeItemContext();
+  const { controller } = useTreeContext();
 
   const controlProps = {
     id: controlId,
-    onClick: composeEventHandlers(onClick, (event) => {
-      if (disabled) {
-        return;
-      }
-      toggleExpanded(value);
-      select(value, {
+    // Toggles and selects the branch; the controller ignores a disabled one.
+    onClick: composeEventHandlers(onClick, (event) =>
+      controller.toggleClick(value, {
         meta: event.metaKey,
         ctrl: event.ctrlKey,
         shift: event.shiftKey,
-      });
-    }),
+      }),
+    ),
     ...rest,
   } as const;
 

@@ -1,5 +1,8 @@
 import { useCallback, useId, useRef, useState } from "react";
 
+import { treePath } from "@primitiv-ui/core";
+import { TreeController } from "@primitiv-ui/web";
+
 import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 import type {
@@ -7,11 +10,7 @@ import type {
   TreeContextValue,
   TreeNodeMeta,
   TreePathSegment,
-  TreeSelectModifiers,
 } from "../types";
-
-/** Defensive cap to short-circuit a cycle in `parentValue` pointers. */
-const MAX_PATH_DEPTH = 64;
 
 export type UseTreeRootOptions = {
   expandedValues: string[] | undefined;
@@ -105,63 +104,29 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   );
 
   const getPath = useCallback(
-    (value: string): TreePathSegment[] => {
-      const segments: TreePathSegment[] = [];
-      let cursor: string | null = value;
-      let hops = 0;
-      while (cursor !== null && hops < MAX_PATH_DEPTH) {
-        const meta = pathMetaRef.current.get(cursor);
-        if (meta === undefined) {
-          return [];
-        }
-        segments.unshift({
-          value: meta.value,
-          label: meta.label,
-          isBranch: meta.isBranch,
-          disabled: meta.disabled,
-          depth: meta.depth,
-        });
-        cursor = meta.parentValue;
-        hops += 1;
-      }
-      return segments;
-    },
+    (value: string): TreePathSegment[] =>
+      treePath((candidate) => {
+        const meta = pathMetaRef.current.get(candidate);
+        return meta && { ...meta, parent: meta.parentValue };
+      }, value).map(({ value: segment, label, isBranch, disabled, depth }) => ({
+        value: segment,
+        label,
+        isBranch,
+        disabled,
+        depth,
+      })),
     // `pathMetaVersion` bumps whenever the persistent map mutates,
     // forcing context-value identity to change so consumers re-render
     // and re-evaluate `getPath`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [pathMetaVersion],
   );
 
-  const anchorRef = useRef<string | null>(null);
   const [activeValue, setActiveValue] = useState<string | null>(null);
-
-  const focusItem = useCallback(
-    (value: string) => {
-      itemsRef.current.get(value)?.element.focus();
-    },
-    [itemsRef],
-  );
-
-  const isNodeDisabled = useCallback(
-    (value: string) => itemsRef.current.get(value)?.disabled === true,
-    [itemsRef],
-  );
 
   const isExpanded = useCallback(
     (value: string) => expandedValues.includes(value),
     [expandedValues],
-  );
-
-  const toggleExpanded = useCallback(
-    (value: string) => {
-      const open = expandedValues.includes(value);
-      setExpandedValues(
-        open
-          ? expandedValues.filter((current) => current !== value)
-          : [...expandedValues, value],
-      );
-    },
-    [expandedValues, setExpandedValues],
   );
 
   const isSelected = useCallback(
@@ -169,110 +134,56 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     [selectedValues],
   );
 
-  const getVisibleOrder = useCallback((): string[] => {
-    const childrenByParent = new Map<string | null, string[]>();
-    for (const key of keys) {
-      const meta = itemsRef.current.get(key)!;
-      const bucket = childrenByParent.get(meta.parentValue) ?? [];
-      bucket.push(meta.value);
-      childrenByParent.set(meta.parentValue, bucket);
-    }
-
-    const result: string[] = [];
-    const visit = (parent: string | null): void => {
-      for (const value of childrenByParent.get(parent) ?? []) {
-        result.push(value);
-        const meta = itemsRef.current.get(value);
-        if (meta?.isBranch && expandedValues.includes(value)) {
-          visit(value);
-        }
-      }
-    };
-    visit(null);
-    return result;
-  }, [keys, itemsRef, expandedValues]);
-
-  const select = useCallback(
-    (value: string, modifiers?: TreeSelectModifiers) => {
-      if (options.selectionMode === "single") {
-        if (selectedValues[0] === value) {
-          return;
-        }
-        setSelectedValues([value]);
-        anchorRef.current = value;
-        return;
-      }
-
-      const shift = modifiers?.shift === true;
-      const additive = modifiers?.meta === true || modifiers?.ctrl === true;
-      const alreadySelected = selectedValues.includes(value);
-
-      if (shift) {
-        const anchor = anchorRef.current ?? value;
-        const order = getVisibleOrder();
-        const anchorIndex = order.indexOf(anchor);
-        const valueIndex = order.indexOf(value);
-        if (anchorIndex === -1 || valueIndex === -1) {
-          setSelectedValues([value]);
-          return;
-        }
-        const [start, end] =
-          anchorIndex <= valueIndex
-            ? [anchorIndex, valueIndex]
-            : [valueIndex, anchorIndex];
-        const range = order
-          .slice(start, end + 1)
-          .filter((candidate) => !isNodeDisabled(candidate));
-        setSelectedValues(range);
-        return;
-      }
-
-      if (additive) {
-        setSelectedValues(
-          alreadySelected
-            ? selectedValues.filter((current) => current !== value)
-            : [...selectedValues, value],
-        );
-        anchorRef.current = value;
-        return;
-      }
-
-      if (selectedValues.length === 1 && alreadySelected) {
-        return;
-      }
-      setSelectedValues([value]);
-      anchorRef.current = value;
-    },
-    [
-      options.selectionMode,
-      selectedValues,
-      setSelectedValues,
-      getVisibleOrder,
-      isNodeDisabled,
-    ],
-  );
-
-  const visibleOrder = getVisibleOrder();
-  const defaultTabStop =
-    visibleOrder.find((candidate) => !isNodeDisabled(candidate)) ?? null;
-  const tabStop =
-    activeValue !== null && visibleOrder.includes(activeValue)
-      ? activeValue
-      : defaultTabStop;
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // Selection (single, Shift ranges, Ctrl / Meta toggles), expanding and
+  // collapsing, and the keyboard run in the web implementation's
+  // TreeController, the same code the <primitiv-tree> elements run. React keeps
+  // wiring each treeitem's and row's events, composed with its consumers'
+  // handlers, and keeps the state; the controller reads it through `latest`.
+  const snapshot = {
+    mode: options.selectionMode,
+    selectedValues,
+    expandedValues,
+    keys,
+    setSelectedValues,
+    setExpandedValues,
+  };
+  const latest = useRef(snapshot);
+  latest.current = snapshot;
+  const controllerRef = useRef<TreeController | null>(null);
+  controllerRef.current ??= new TreeController({
+    state: () => ({
+      mode: latest.current.mode,
+      selected: latest.current.selectedValues,
+      expanded: latest.current.expandedValues,
+    }),
+    // Siblings in registration order, which is mount order — the order the
+    // tree has always walked them in.
+    nodes: () =>
+      latest.current.keys.map((key) => {
+        const meta = itemsRef.current.get(key)!;
+        return {
+          value: meta.value,
+          parent: meta.parentValue,
+          isBranch: meta.isBranch,
+          disabled: meta.disabled,
+        };
+      }),
+    element: (value) => itemsRef.current.get(value)!.element,
+    select: (next) => latest.current.setSelectedValues(next),
+    expand: (next) => latest.current.setExpandedValues(next),
+  });
+  const controller = controllerRef.current;
 
   return {
     rootId,
     selectionMode: options.selectionMode,
     isExpanded,
-    toggleExpanded,
     isSelected,
-    select,
+    controller,
     registerNode,
-    getVisibleOrder,
-    isNodeDisabled,
-    tabStop,
+    tabStop: controller.tabStop(activeValue),
     setActiveValue,
-    focusItem,
     getPath,
     selectedOrder: selectedValues,
   };

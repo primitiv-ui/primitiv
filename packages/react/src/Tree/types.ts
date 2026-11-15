@@ -1,3 +1,4 @@
+import type { TreeController } from "@primitiv-ui/web";
 import type { ComponentProps, ReactNode } from "react";
 
 /** Mode-independent props shared by every `Tree.Root` variant. */
@@ -263,16 +264,14 @@ export type TreeContextValue = {
   rootId: string;
   selectionMode: SelectionMode;
   isExpanded: (value: string) => boolean;
-  toggleExpanded: (value: string) => void;
   isSelected: (value: string) => boolean;
-  select: (value: string, modifiers?: TreeSelectModifiers) => void;
+  /** The shared `@primitiv-ui/web` controller that owns selection, expansion
+   * and the keyboard, which each part's handlers call into. */
+  controller: TreeController;
   registerNode: (value: string, meta: TreeNodeMeta | null) => void;
-  getVisibleOrder: () => string[];
-  isNodeDisabled: (value: string) => boolean;
   /** Value of the treeitem currently holding the single roving tabstop. */
   tabStop: string | null;
   setActiveValue: (value: string) => void;
-  focusItem: (value: string) => void;
   /**
    * Returns the root-to-leaf chain of segments for the given value, or
    * an empty array if the value has never been registered. Walks the

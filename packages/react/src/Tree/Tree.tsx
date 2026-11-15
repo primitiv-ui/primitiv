@@ -145,6 +145,10 @@ export function TreeRoot(props: TreeRootProps): ReactElement {
 }
 
 /** @internal */
+// Runtime-dead: the compound alias below is the same object, so it overwrites
+// this with "Tree" at load and the value is never observable. It stays because
+// it declares `displayName` on `typeof TreeRoot`.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 TreeRoot.displayName = "TreeRoot";
 
 /**
@@ -480,7 +484,8 @@ TreeBranchControl.displayName = "TreeBranchControl";
  */
 export function TreeBranchContent({
   children,
-  forceMount = false,
+  // No default: only `true` keeps a collapsed group rendered (see TreeBranch).
+  forceMount,
   ...rest
 }: TreeBranchContentProps): ReactElement {
   const { depth } = useTreeLevelContext();
@@ -635,7 +640,8 @@ export function TreeSelectionPath({
     )({
       paths,
     });
-  } else if (!empty) {
+  } else {
+    // Nothing selected maps to nothing rendered.
     content = paths.map((path, pathIndex) => (
       <Breadcrumb.Root key={pathIndex}>
         <Breadcrumb.List>

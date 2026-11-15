@@ -133,6 +133,16 @@ defaults to the first enabled visible item.
 Arrow keys skip disabled items. Home / End and direct focus still land
 on them so they remain discoverable.
 
+A key belongs to the item it was pressed on: a key a nested item leaves
+alone (`ArrowRight` on a leaf) is not handled again by the branch around
+it.
+
+**One behaviour, two surfaces.** Selection, expansion and the keyboard run
+in `@primitiv-ui/web`'s `TreeController` — the same code the
+`<primitiv-tree>` custom elements run (RFC 0033 §3.4). Each part still
+composes your handler first, so `event.preventDefault()` in an `onClick` or
+`onKeyDown` skips the built-in behaviour as before.
+
 ## ARIA
 
 - The root is `role="tree"` with `aria-multiselectable="true"` in

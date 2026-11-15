@@ -90,37 +90,34 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   // ancestor branch has collapsed without `forceMount` and its
   // descendants have unmounted.
   const pathMetaRef = useRef<Map<string, TreeNodeMeta>>(new Map());
-  const [pathMetaVersion, setPathMetaVersion] = useState(0);
+  // A fresh object on every registration re-renders the root, so consumers
+  // read `getPath` again once the map has changed.
+  const [, bumpPathMeta] = useState<object>({});
 
   const registerNode = useCallback(
     (value: string, meta: TreeNodeMeta | null) => {
       if (meta !== null) {
         pathMetaRef.current.set(value, meta);
-        setPathMetaVersion((current) => current + 1);
+        bumpPathMeta({});
       }
       registerCollectionNode(value, meta);
     },
     [registerCollectionNode],
   );
 
-  const getPath = useCallback(
-    (value: string): TreePathSegment[] =>
-      treePath((candidate) => {
-        const meta = pathMetaRef.current.get(candidate);
-        return meta && { ...meta, parent: meta.parentValue };
-      }, value).map(({ value: segment, label, isBranch, disabled, depth }) => ({
-        value: segment,
-        label,
-        isBranch,
-        disabled,
-        depth,
-      })),
-    // `pathMetaVersion` bumps whenever the persistent map mutates,
-    // forcing context-value identity to change so consumers re-render
-    // and re-evaluate `getPath`.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pathMetaVersion],
-  );
+  // Reads the map at call time, so it needs no memoising: the root re-renders
+  // on every registration (above), and the context value is fresh each render.
+  const getPath = (value: string): TreePathSegment[] =>
+    treePath((candidate) => {
+      const meta = pathMetaRef.current.get(candidate);
+      return meta && { ...meta, parent: meta.parentValue };
+    }, value).map(({ value: segment, label, isBranch, disabled, depth }) => ({
+      value: segment,
+      label,
+      isBranch,
+      disabled,
+      depth,
+    }));
 
   const [activeValue, setActiveValue] = useState<string | null>(null);
 

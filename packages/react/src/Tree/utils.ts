@@ -30,7 +30,8 @@ export type TreePartName = "branch-control" | "branch-content";
 
 /** Read a component's {@link TREE_PART} marker, if it declares one. */
 function treePartOf(type: unknown): TreePartName | undefined {
-  return (type as Record<string, TreePartName | undefined> | null)?.[TREE_PART];
+  // Only ever called with a valid element's type, which is never null.
+  return (type as Record<string, TreePartName | undefined>)[TREE_PART];
 }
 
 /**

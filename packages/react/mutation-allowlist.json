@@ -37,5 +37,6 @@
   "Listbox",
   "Table",
   "Slider",
-  "Combobox"
+  "Combobox",
+  "Tree"
 ]

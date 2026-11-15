@@ -50,6 +50,10 @@
       "types": "./src/table/index.ts",
       "default": "./src/table/index.ts"
     },
+    "./code-block": {
+      "types": "./src/code-block/index.ts",
+      "default": "./src/code-block/index.ts"
+    },
     "./miller-columns": {
       "types": "./src/miller-columns/index.ts",
       "default": "./src/miller-columns/index.ts"
@@ -141,6 +145,10 @@
     "./define/table": {
       "types": "./src/define/table.ts",
       "default": "./src/define/table.ts"
+    },
+    "./define/code-block": {
+      "types": "./src/define/code-block.ts",
+      "default": "./src/define/code-block.ts"
     },
     "./define/miller-columns": {
       "types": "./src/define/miller-columns.ts",
@@ -301,6 +309,10 @@
         "types": "./dist/table/index.d.ts",
         "default": "./dist/table/index.js"
       },
+      "./code-block": {
+        "types": "./dist/code-block/index.d.ts",
+        "default": "./dist/code-block/index.js"
+      },
       "./miller-columns": {
         "types": "./dist/miller-columns/index.d.ts",
         "default": "./dist/miller-columns/index.js"
@@ -392,6 +404,10 @@
       "./define/table": {
         "types": "./dist/define/table.d.ts",
         "default": "./dist/define/table.js"
+      },
+      "./define/code-block": {
+        "types": "./dist/define/code-block.d.ts",
+        "default": "./dist/define/code-block.js"
       },
       "./define/miller-columns": {
         "types": "./dist/define/miller-columns.d.ts",

@@ -22,6 +22,7 @@ export * from "./popover/index.ts";
 export * from "./tree/index.ts";
 export * from "./miller-columns/index.ts";
 export * from "./table/index.ts";
+export * from "./code-block/index.ts";
 export * from "./stepper/index.ts";
 export * from "./tabs/index.ts";
 export * from "./tooltip/index.ts";

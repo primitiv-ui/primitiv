@@ -24,3 +24,4 @@ import "./tooltip.ts";
 import "./stepper.ts";
 import "./miller-columns.ts";
 import "./table.ts";
+import "./code-block.ts";

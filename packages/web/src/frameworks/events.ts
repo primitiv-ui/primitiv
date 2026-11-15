@@ -12,6 +12,9 @@ export type PrimitivMillerColumnsChangeEvent = CustomEvent<{ value: string[] }>;
 /** The `primitiv-table-expand-change` event: bubbles, cancelable, fired before a toggle applies, with the expanded state afterwards. */
 export type PrimitivTableExpandChangeEvent = CustomEvent<{ expanded: boolean }>;
 
+/** The `primitiv-code-block-copy` event: bubbles, cancelable, fired before the text is written, with the text. */
+export type PrimitivCodeBlockCopyEvent = CustomEvent<{ text: string }>;
+
 /** The `primitiv-stepper-change` event: bubbles, cancelable, fired before the change of step applies. */
 export type PrimitivStepperChangeEvent = CustomEvent<{ value: string; index: number }>;
 

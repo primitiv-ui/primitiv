@@ -110,6 +110,7 @@ import type {
   PrimitivMillerColumnsTreeElement,
 } from "../miller-columns/elements.ts";
 import type { PrimitivTableExpandTriggerElement } from "../table/elements.ts";
+import type { PrimitivCodeBlockCopyElement } from "../code-block/elements.ts";
 import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
@@ -191,6 +192,7 @@ import type {
   PrimitivMillerColumnsChangeEvent,
   PrimitivStepperChangeEvent,
   PrimitivTableExpandChangeEvent,
+  PrimitivCodeBlockCopyEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -455,6 +457,12 @@ declare module "react" {
         disabled?: boolean;
         "force-mount"?: boolean;
         "onprimitiv-table-expand-change"?: (event: PrimitivTableExpandChangeEvent) => void;
+      };
+      "primitiv-code-block-copy": ElementProps<PrimitivCodeBlockCopyElement> & {
+        for?: string;
+        copied?: boolean;
+        "copied-label"?: string;
+        "onprimitiv-code-block-copy"?: (event: PrimitivCodeBlockCopyEvent) => void;
       };
       "primitiv-stepper": ElementProps<PrimitivStepperElement> & {
         value?: string;

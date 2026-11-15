@@ -63,6 +63,7 @@ import type {
   PrimitivMillerColumnsTreeElement,
   PrimitivStepperElement,
   PrimitivTableExpandTriggerElement,
+  PrimitivCodeBlockCopyElement,
   PrimitivStepperListElement,
   PrimitivStepperPanelElement,
   PrimitivStepperStepElement,
@@ -100,6 +101,10 @@ it("types every Miller Columns tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-miller-columns-item-indicator")).toEqualTypeOf<PrimitivMillerColumnsItemIndicatorElement>();
   expectTypeOf(document.createElement("primitiv-miller-columns-resize-handle")).toEqualTypeOf<PrimitivMillerColumnsResizeHandleElement>();
   expectTypeOf(document.createElement("primitiv-miller-columns-preview-panel")).toEqualTypeOf<PrimitivMillerColumnsPreviewPanelElement>();
+});
+
+it("types the Code Block tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-code-block-copy")).toEqualTypeOf<PrimitivCodeBlockCopyElement | null>();
 });
 
 it("types the Table tag in HTMLElementTagNameMap", () => {

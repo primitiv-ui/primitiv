@@ -9,6 +9,22 @@ test("every expand trigger's chevron keeps its size", async ({ page }) => {
   await page.goto("/components/data-table/");
   const triggers = page.getByRole("button", { name: /^Show details for / });
   await expect(triggers.first()).toBeVisible();
+  // Logged so a WebKit run says what it computed, pass or fail.
+  console.log(
+    JSON.stringify(
+      await triggers.first().evaluate((button) => {
+        const svg = button.querySelector("svg")!;
+        const b = getComputedStyle(button);
+        const s = getComputedStyle(svg);
+        return {
+          button: button.getBoundingClientRect().toJSON(),
+          svg: svg.getBoundingClientRect().toJSON(),
+          buttonCss: { display: b.display, inlineSize: b.inlineSize, minInlineSize: b.minInlineSize, color: b.color, opacity: b.opacity },
+          svgCss: { display: s.display, width: s.width, height: s.height, flex: s.flex, color: s.color, stroke: s.stroke, visibility: s.visibility, transform: s.transform },
+        };
+      }),
+    ),
+  );
   const sizes = await triggers.evaluateAll((buttons) =>
     buttons.map((button) => {
       const box = button.querySelector("svg")!.getBoundingClientRect();

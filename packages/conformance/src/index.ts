@@ -93,3 +93,9 @@ export {
   type NavigationMenuMounted,
 } from "./navigation-menu.ts";
 export { runTreeConformance, TREE, type TreeConformanceFixture, type TreeMount } from "./tree.ts";
+export {
+  MILLER_COLUMNS,
+  runMillerColumnsConformance,
+  type MillerColumnsConformanceFixture,
+  type MillerColumnsMount,
+} from "./miller-columns.ts";

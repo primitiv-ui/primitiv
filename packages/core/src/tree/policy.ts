@@ -33,3 +33,26 @@ export function treeVisibleOrder(nodes: readonly TreeNode[], expanded: readonly 
   visit(null);
   return order;
 }
+
+/** The most parent links a path follows, so a parent cycle cannot loop forever. */
+const MAX_PATH_DEPTH = 64;
+
+/**
+ * The root-to-leaf chain of nodes ending at `value`, read through `nodeOf`.
+ * Empty when `value` or any ancestor is unknown, since a partial chain would
+ * misplace it; a parent cycle stops after 64 hops.
+ */
+export function treePath<N extends Pick<TreeNode, "value" | "parent">>(
+  nodeOf: (value: string) => N | undefined,
+  value: string,
+): N[] {
+  const path: N[] = [];
+  let cursor: string | null = value;
+  while (cursor !== null && path.length < MAX_PATH_DEPTH) {
+    const node = nodeOf(cursor);
+    if (!node) return [];
+    path.unshift(node);
+    cursor = node.parent;
+  }
+  return path;
+}

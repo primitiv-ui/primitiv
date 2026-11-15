@@ -1,4 +1,4 @@
-import { treeVisibleOrder, type TreeNode } from "../policy";
+import { treePath, treeVisibleOrder, type TreeNode } from "../policy";
 
 /** docs (branch: guides (branch: intro), api), blog — in registration order, children first. */
 const NODES: TreeNode[] = [
@@ -34,5 +34,41 @@ describe("treeVisibleOrder", () => {
 
     // Act & Assert
     expect(treeVisibleOrder(nodes, ["leaf"])).toEqual(["leaf"]);
+  });
+});
+
+describe("treePath", () => {
+  const byValue = new Map(NODES.map((node) => [node.value, node]));
+  const lookup = (value: string) => byValue.get(value);
+
+  it("walks from the root down to the value", () => {
+    // Arrange & Act & Assert
+    expect(treePath(lookup, "intro").map((node) => node.value)).toEqual(["docs", "guides", "intro"]);
+  });
+
+  it("is just the value at the top level", () => {
+    // Arrange & Act & Assert
+    expect(treePath(lookup, "blog")).toEqual([byValue.get("blog")]);
+  });
+
+  it("is empty when the value, or any ancestor, is unknown", () => {
+    // Arrange
+    const orphan = (value: string) =>
+      value === "child" ? { value, parent: "gone", isBranch: false, disabled: false } : undefined;
+
+    // Act & Assert
+    expect(treePath(lookup, "missing")).toEqual([]);
+    expect(treePath(orphan, "child")).toEqual([]);
+  });
+
+  it("stops after 64 hops rather than looping on a parent cycle", () => {
+    // Arrange
+    const cycle = (value: string) => ({ value, parent: value === "a" ? "b" : "a", isBranch: true, disabled: false });
+
+    // Act
+    const path = treePath(cycle, "a");
+
+    // Assert
+    expect(path).toHaveLength(64);
   });
 });

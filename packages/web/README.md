@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree and Stepper so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper and Miller Columns so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -33,6 +33,7 @@ React, Vue, Angular or any other framework.
 | Navigation Menu | `primitiv-navigation-menu`, `-list`, `-item`, `-trigger`, `-content`, `-viewport`, `-indicator`, `-link` | `primitiv-navigation-menu-change` | 0.2.10 |
 | Tree | `primitiv-tree`, `-item`, `-branch`, `-branch-control`, `-branch-content`, `-branch-indicator`, `-selection-path` | `primitiv-tree-change`, `primitiv-tree-expanded-change` | 0.2.11 |
 | Stepper | `primitiv-stepper`, `-list`, `-step`, `-panel` | `primitiv-stepper-change` | 0.2.12 |
+| Miller Columns | `primitiv-miller-columns`, `-tree`, `-column`, `-item`, `-item-indicator`, `-resize-handle`, `-preview-panel` | `primitiv-miller-columns-change` | 0.2.13 |
 
 ## Use it
 
@@ -72,7 +73,7 @@ The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
 `defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` /
-`defineNavigationMenu(registry?)` / `defineTree(registry?)` / `defineStepper(registry?)` with **no side
+`defineNavigationMenu(registry?)` / `defineTree(registry?)` / `defineStepper(registry?)` / `defineMillerColumns(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -690,6 +691,42 @@ The elements write no `class` and no `style`. For the registry look, apply the
   `data-state` that marks the current step.
 - `primitiv-stepper-change` (`detail.value`, `detail.index`) bubbles and is
   cancelable; a panel fires `primitiv-stepper-show` as its step becomes current.
+
+### Miller Columns
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/miller-columns.js"></script>
+
+<primitiv-miller-columns value="docs">
+  <primitiv-miller-columns-tree aria-label="Files">
+    <primitiv-miller-columns-column>
+      <primitiv-miller-columns-resize-handle aria-label="Resize column" min-width="160"></primitiv-miller-columns-resize-handle>
+      <primitiv-miller-columns-item value="docs">Docs<primitiv-miller-columns-item-indicator>▸</primitiv-miller-columns-item-indicator></primitiv-miller-columns-item>
+      <primitiv-miller-columns-item value="readme">README.md</primitiv-miller-columns-item>
+    </primitiv-miller-columns-column>
+    <primitiv-miller-columns-column parent="docs">
+      <primitiv-miller-columns-item value="guides">Guides</primitiv-miller-columns-item>
+    </primitiv-miller-columns-column>
+  </primitiv-miller-columns-tree>
+  <primitiv-miller-columns-preview-panel hidden>…</primitiv-miller-columns-preview-panel>
+</primitiv-miller-columns>
+```
+
+- **Columns are siblings, not nested.** Each column after the first names the
+  item it lists the children of with `parent`; an item is a branch while some
+  column names it. The root shows the columns on the path and sets `hidden` on
+  the rest, so it never moves a node — a server can send the whole tree, only
+  the open columns, or a column when it opens (`primitiv-miller-columns-show`).
+- **The path is `value`**, space-separated, root first.
+  `primitiv-miller-columns-change` (`detail.value`) bubbles and is cancelable.
+- **The WAI-ARIA tree model** on `<primitiv-miller-columns-tree>`: one tab
+  stop, the vertical arrows, Home and End within a column, the step-in arrow
+  (Right, or Left right to left) into a branch's column and the step-out arrow
+  back, Enter or Space to select, and typeahead within the column.
+- **`<primitiv-miller-columns-resize-handle>`** is a window splitter
+  (`min-width`, `max-width`, `step`); a resized width belongs to its depth.
+- **`<primitiv-miller-columns-preview-panel>`** shows while the path ends on a
+  leaf (or always, with `force-mount`); its content is yours.
 
 ## Layers
 

@@ -196,48 +196,48 @@ break the rail's even cells.
 ## Elements (plain HTML)
 
 `primitiv add stepper --surface elements` prints the stepper as the
-`<primitiv-tabs>` custom elements wearing the stepper classes, and loads **Tabs'**
-script (`dist/cdn/tabs.js`): Stepper has no behaviour beyond Tabs', so it adds no
-element of its own (the registry block's `definedBy: "tabs"`). Add `--styled` to
-copy the stylesheet and print the classed markup.
+`<primitiv-stepper>` custom elements from `@primitiv-ui/web` and loads their
+script (`dist/cdn/stepper.js`). They run the Tabs behaviour under the stepper's
+own names, as this React wrapper composes `Tabs`. Add `--styled` to copy the
+stylesheet and print the classed markup.
 
 ```html
-<primitiv-tabs value="billing" activation-mode="manual" class="primitiv-stepper primitiv-stepper--md">
-  <primitiv-tabs-list label="Sign-up progress" class="primitiv-stepper__list">
-    <primitiv-tabs-trigger value="account">
-      <button type="button" class="primitiv-stepper__step" data-step-state="complete">
+<primitiv-stepper value="billing" class="primitiv-stepper primitiv-stepper--md">
+  <primitiv-stepper-list label="Sign-up progress" class="primitiv-stepper__list">
+    <primitiv-stepper-step value="account" state="complete">
+      <button type="button" class="primitiv-stepper__step">
         <span class="primitiv-stepper__marker"><span class="primitiv-stepper__marker-mark"></span></span>
         <span class="primitiv-stepper__label">Account</span>
       </button>
-    </primitiv-tabs-trigger>
-    <!-- ... one trigger per step ... -->
-  </primitiv-tabs-list>
-  <primitiv-tabs-content value="billing" class="primitiv-stepper__panel">...</primitiv-tabs-content>
-  <!-- ... one content per step, `hidden` unless current ... -->
-</primitiv-tabs>
+    </primitiv-stepper-step>
+    <!-- ... one step per step ... -->
+  </primitiv-stepper-list>
+  <primitiv-stepper-panel value="billing" class="primitiv-stepper__panel">...</primitiv-stepper-panel>
+  <!-- ... one panel per step, `hidden` unless current ... -->
+</primitiv-stepper>
 ```
 
-What the React parts do for you, the markup says itself:
+How the React parts map:
 
-- **Write `activation-mode="manual"`.** The React `Stepper` defaults to it; the
-  `<primitiv-tabs>` element defaults to `automatic`, as Tabs does.
-- **A step's progress is `data-step-state` on its `<button>`** — `upcoming`,
-  `complete` or `error`. The current step is still the root's `value`, and the
-  elements write `data-state` for it.
+- **Activation is `manual` by default**, as `Stepper`'s is.
+- **`state` on a `<primitiv-stepper-step>`** is `StepperStep`'s `state` prop
+  (`upcoming`, `complete` or `error`); the element writes it onto the button as
+  `data-step-state`. The current step is still the root's `value`.
 - **The marker holds the glyph its state calls for**, as `StepperMarker`
   renders it: the number in a `primitiv-stepper__marker-number` span, the
   `primitiv-stepper__marker-mark` span for a tick, or the warning SVG
-  (`primitiv-stepper__marker-error`). Changing a step's state means changing
-  both the attribute and the glyph.
-- **Lock a step with `disabled` on its `<primitiv-tabs-trigger>`.**
+  (`primitiv-stepper__marker-error`). Changing a step's state means setting the
+  attribute and swapping the glyph.
+- **Lock a step with `disabled` on its `<primitiv-stepper-step>`.**
 - **Compact** is the `primitiv-stepper__list--compact` class on the list.
+- `primitiv-stepper-change` is cancelable, so a listener can keep the user on a
+  step whose fields have not passed.
 
 The stylesheet is written for both DOMs. Each step's `<button>` is the only
-child of its trigger wrapper, which takes no box (`display: contents`, repeated
-here because Stepper installs without Tabs' stylesheet), so every structural
-rule — the first step's missing connector, the vertical rail's last step and
-its look-ahead fill — has a second selector that asks the question of the
-wrapper.
+child of its `<primitiv-stepper-step>`, which takes no box (`display:
+contents`), so every structural rule (the first step's missing connector, the
+vertical rail's last step and its look-ahead fill) has a second selector that
+asks the question of the wrapper.
 
 ## Files
 

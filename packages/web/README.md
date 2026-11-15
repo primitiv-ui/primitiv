@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu and Tree so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree and Stepper so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -32,6 +32,7 @@ React, Vue, Angular or any other framework.
 | Combobox | `primitiv-combobox`, `-input`, `-content`, `-item`, `-empty` | `primitiv-combobox-change`, `-open-change`, `-query-change` | 0.2.1 |
 | Navigation Menu | `primitiv-navigation-menu`, `-list`, `-item`, `-trigger`, `-content`, `-viewport`, `-indicator`, `-link` | `primitiv-navigation-menu-change` | 0.2.10 |
 | Tree | `primitiv-tree`, `-item`, `-branch`, `-branch-control`, `-branch-content`, `-branch-indicator`, `-selection-path` | `primitiv-tree-change`, `primitiv-tree-expanded-change` | 0.2.11 |
+| Stepper | `primitiv-stepper`, `-list`, `-step`, `-panel` | `primitiv-stepper-change` | 0.2.12 |
 
 ## Use it
 
@@ -71,7 +72,7 @@ The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
 `defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` /
-`defineNavigationMenu(registry?)` / `defineTree(registry?)` with **no side
+`defineNavigationMenu(registry?)` / `defineTree(registry?)` / `defineStepper(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -659,6 +660,36 @@ The elements write no `class` and no `style`. For the registry look, apply the
 - **`<primitiv-tree-selection-path>`** stamps the Breadcrumb markup in its
   `<template>` once per selected node: the first `[data-tree-selection-segment]`
   once per ancestor and the last for the node. It reads each node's `label`.
+
+### Stepper
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/stepper.js"></script>
+
+<primitiv-stepper value="billing">
+  <primitiv-stepper-list label="Sign-up progress">
+    <primitiv-stepper-step value="account" state="complete"><button type="button">Account</button></primitiv-stepper-step>
+    <primitiv-stepper-step value="billing"><button type="button">Billing</button></primitiv-stepper-step>
+    <primitiv-stepper-step value="review" disabled><button type="button">Review</button></primitiv-stepper-step>
+  </primitiv-stepper-list>
+  <primitiv-stepper-panel value="account" hidden>…</primitiv-stepper-panel>
+  <primitiv-stepper-panel value="billing">…</primitiv-stepper-panel>
+  <primitiv-stepper-panel value="review" hidden>…</primitiv-stepper-panel>
+</primitiv-stepper>
+```
+
+- **The Tabs behaviour under the stepper's own names.** `<primitiv-stepper>`
+  extends the Tabs root, so the rail is a `tablist`, each step's `<button>` a
+  `tab` and each panel a `tabpanel`, with Tabs' keys, `orientation`, RTL and
+  `disabled`. It passes Tabs' own conformance suite.
+- **Activation is `manual` by default**, unlike Tabs: the arrows move focus and
+  Enter or Space changes step, so browsing the rail never discards what is
+  half-typed in a panel. `activation-mode="automatic"` opts out.
+- **A step's `state`** (`upcoming`, the default, `complete` or `error`) is
+  written onto its button as `data-step-state`, separately from the
+  `data-state` that marks the current step.
+- `primitiv-stepper-change` (`detail.value`, `detail.index`) bubbles and is
+  cancelable; a panel fires `primitiv-stepper-show` as its step becomes current.
 
 ## Layers
 

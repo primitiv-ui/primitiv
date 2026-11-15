@@ -100,3 +100,71 @@ describe("Table.ExpandTrigger activation", () => {
     expect(screen.getByText("Detail panel")).toBeVisible();
   });
 });
+
+describe("Table.ExpandTrigger keyboard", () => {
+  it("should toggle a non-button control on Enter and Space, as a disclosure does", async () => {
+    // Arrange — asChild onto an element with no native button activation
+    const user = userEvent.setup();
+    render(
+      <table>
+        <tbody>
+          <Table.Expandable>
+            <Table.Row>
+              <Table.Cell>
+                <Table.ExpandTrigger asChild>
+                  <span role="button" tabIndex={0}>
+                    Show details for Ada
+                  </span>
+                </Table.ExpandTrigger>
+              </Table.Cell>
+            </Table.Row>
+            <Table.DetailRow colSpan={1}>Panel</Table.DetailRow>
+          </Table.Expandable>
+        </tbody>
+      </table>,
+    );
+    const trigger = screen.getByRole("button");
+    trigger.focus();
+
+    // Act
+    await user.keyboard("{Enter}");
+
+    // Assert
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    // Act
+    await user.keyboard(" ");
+
+    // Assert
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
+describe("Table.ExpandTrigger lifecycle", () => {
+  it("should stop listening once it unmounts, so a stray click reports nothing", () => {
+    // Arrange
+    const onExpandedChange = vi.fn();
+    const { unmount } = render(
+      <table>
+        <tbody>
+          <Table.Expandable onExpandedChange={onExpandedChange}>
+            <Table.Row>
+              <Table.Cell>
+                <Table.ExpandTrigger>Show details for Ada</Table.ExpandTrigger>
+              </Table.Cell>
+            </Table.Row>
+            <Table.DetailRow colSpan={1}>Panel</Table.DetailRow>
+          </Table.Expandable>
+        </tbody>
+      </table>,
+    );
+    const trigger = screen.getByRole("button");
+
+    // Act
+    unmount();
+    trigger.click();
+
+    // Assert
+    expect(onExpandedChange).not.toHaveBeenCalled();
+  });
+});

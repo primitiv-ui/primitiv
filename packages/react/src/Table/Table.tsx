@@ -1,6 +1,8 @@
-import { useId, useMemo, type MouseEvent, type ReactElement } from "react";
+import { useId, useMemo, type ReactElement } from "react";
 
-import { useControllableState } from "../hooks/index.ts";
+import { CollapsibleController } from "@primitiv-ui/web";
+
+import { useControllableState, useHostedController } from "../hooks/index.ts";
 import { Slot } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 import {
@@ -394,7 +396,7 @@ export function TableExpandable({
       // equally valid id.
       // Stryker disable next-line StringLiteral: equivalent — see above.
       detailId: deriveId(reactId, "detail", "row"),
-      toggle: () => setExpanded(!expanded),
+      setExpanded,
     }),
     [expanded, reactId, setExpanded],
   );
@@ -408,6 +410,9 @@ export function TableExpandable({
 
 /** @internal */
 TableExpandable.displayName = "TableExpandable";
+
+/** The trigger registers itself, so the hosted controller is given no collection. */
+const NO_COLLECTION = { itemsRef: { current: new Map() }, keys: [] } as const;
 
 /**
  * The disclosure control for an expandable row — renders a `<button>` inside
@@ -423,25 +428,51 @@ TableExpandable.displayName = "TableExpandable";
  * "Expand" is the same defect as a column of checkboxes all called "Select":
  * obvious on screen, useless in a screen reader's element list.
  *
+ * A click, Enter or Space toggles it once, through `CollapsibleController` from
+ * `@primitiv-ui/web` — the code `<primitiv-table-expand-trigger>` runs — so an
+ * `asChild` control that isn't a native button still answers the keyboard.
+ *
  * @extends HTMLButtonElement
  */
 export function TableExpandTrigger({
   children,
   asChild = false,
-  onClick,
   ...rest
 }: TableExpandTriggerProps): ReactElement {
-  const { expanded, detailId, toggle } = useTableExpandableContext();
+  const { expanded, detailId, setExpanded } = useTableExpandableContext();
+
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // Toggling — on click, Enter and Space — runs in the web implementation's
+  // CollapsibleController, the same code <primitiv-table-expand-trigger> runs.
+  // Table.Expandable renders no DOM, so the trigger is the controller's root
+  // and its one trigger. Its native listener runs before React's delegated
+  // one, so a consumer `onClick` is just a prop and runs after the toggle.
+  const rootRef = useHostedController<
+    { expanded: boolean; setExpanded: (next: boolean) => void },
+    HTMLButtonElement
+  >(
+    { expanded, setExpanded },
+    (root, latest) => {
+      const controller = new CollapsibleController(root, {
+        state: () => ({ open: latest().expanded }),
+        change: (next) => latest().setExpanded(next),
+      });
+      return {
+        connect: () => controller.connect(),
+        disconnect: () => controller.disconnect(),
+        // Stryker disable next-line StringLiteral: equivalent — a row has one trigger, so its value is never read.
+        setTriggers: () => controller.setTriggers([{ value: "trigger", element: root }]),
+      };
+    },
+    NO_COLLECTION,
+  );
 
   const wiring = {
     "aria-expanded": expanded,
     "aria-controls": detailId,
     "data-state": expanded ? "open" : "closed",
-    onClick: (event: MouseEvent<HTMLButtonElement>) => {
-      onClick?.(event);
-      toggle();
-    },
     ...rest,
+    ref: rootRef,
   };
 
   // `type` is set only on the native button: a Slot child may not be a

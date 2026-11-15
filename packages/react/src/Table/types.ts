@@ -101,8 +101,8 @@ export type TableExpandableContextValue = {
   expanded: boolean;
   /** The id wired to the detail row's `<tr>` and the trigger's `aria-controls`. */
   detailId: string;
-  /** Flips `expanded` and notifies `onExpandedChange`. */
-  toggle: () => void;
+  /** Sets `expanded` and notifies `onExpandedChange`. */
+  setExpanded: (next: boolean) => void;
 };
 
 /**

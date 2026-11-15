@@ -241,6 +241,11 @@ untouched.
 Controlled via `expanded` + `onExpandedChange` (what an external table engine
 drives), or uncontrolled with `defaultExpanded`.
 
+A click, Enter or Space toggles the row once — on an `asChild` control too, even
+one that isn't a native `<button>`. That toggling runs in `CollapsibleController`
+from `@primitiv-ui/web`, the same code `<primitiv-table-expand-trigger>` runs, so
+the two surfaces behave alike. A consumer `onClick` runs after the toggle.
+
 ### Why the state is on the button
 
 `role="row"` does list `aria-expanded` among its supported properties, but a

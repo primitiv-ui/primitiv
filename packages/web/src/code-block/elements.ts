@@ -25,21 +25,19 @@ const COPY = "primitiv-code-block-copy";
  * text as the reader sees it: `aria-hidden` parts such as line numbers are left
  * out, so write each line's newline into the markup. While `copied`, the button
  * carries `data-copied`, its `aria-label` (when it has one) reads
- * `copied-label`, and of its children marked `data-copy-state`, the `copied`
- * ones show and the `idle` ones are `hidden`.
+ * `copied-label` with its own kept in `data-label`, and of its children marked
+ * `data-copy-state`, the `copied` ones show and the `idle` ones are `hidden`.
+ * `copied` is transient: an element that connects with it — from a history
+ * snapshot, or moved mid-copy — drops it.
  *
  * @customElement primitiv-code-block-copy
  * @summary A code block's copy-to-clipboard control.
  * @attr {string} for - The id of the block (or `<code>`) to copy, when it is not the nearest one.
- * @attr {boolean} copied - Set for two seconds after a copy. Reflected, so a stylesheet can key off it.
+ * @attr {boolean} copied - Set for two seconds after a copy. Reflected, so a stylesheet can key off it; dropped on connect.
  * @attr {string} copied-label - The button's `aria-label` while copied. Defaults to "Copied".
  * @fires {CustomEvent<{ text: string }>} primitiv-code-block-copy - Bubbles, cancelable, fired before the text is written. Call `preventDefault()` to copy nothing.
  */
 export class PrimitivCodeBlockCopyElement extends PrimitivRootElement {
-  /** The button's own label, read while the copied one is not on it, so it can be restored. */
-  #label: string | null = null;
-  /** Whether the last reconcile showed the copied state; unset before the first. */
-  #shown: boolean | undefined;
   #timer: ReturnType<typeof setTimeout> | undefined;
   protected readonly controller: CodeBlockCopyController = new CodeBlockCopyController(this, { copy: () => this.#copy() });
   protected readonly reconcileOn: readonly string[] = ["copied", "copied-label"];
@@ -51,6 +49,13 @@ export class PrimitivCodeBlockCopyElement extends PrimitivRootElement {
 
   set copied(next: boolean) {
     this.toggleAttribute("copied", next);
+  }
+
+  connectedCallback(): void {
+    // Copied is transient: it arrives on a connect only from a snapshot (htmx
+    // history) or a move, either of which has lost the timer that would end it.
+    if (this.copied) this.removeAttribute("copied");
+    super.connectedCallback();
   }
 
   disconnectedCallback(): void {
@@ -99,18 +104,20 @@ export class PrimitivCodeBlockCopyElement extends PrimitivRootElement {
     const copied = this.copied;
     const button = this.#button();
     if (button) {
-      // Whenever the copied label is not on it yet — including just before a copy
-      // writes it — the button's label is the consumer's own; reverting is not.
-      if (!this.#shown) this.#label = button.getAttribute("aria-label");
       write(button, "data-copied", copied ? "" : null);
-      if (this.#label !== null) write(button, "aria-label", copied ? (this.getAttribute("copied-label") ?? "Copied") : this.#label);
+      // The button's own label waits in `data-label` while the copied one is on
+      // it — in the markup, so a snapshot taken mid-copy can still restore it.
+      const own = button.getAttribute("data-label") ?? button.getAttribute("aria-label");
+      if (own !== null) {
+        write(button, "data-label", copied ? own : null);
+        write(button, "aria-label", copied ? (this.getAttribute("copied-label") ?? "Copied") : own);
+      }
       for (const part of button.querySelectorAll("[data-copy-state]")) {
         write(part as HTMLElement, "hidden", (part.getAttribute("data-copy-state") === "copied") === copied ? null : "");
       }
     }
     // Stryker disable next-line StringLiteral: equivalent — a control has one trigger, so its value is never read.
     this.controller.setTriggers(button ? [{ value: "copy", element: button }] : []);
-    this.#shown = copied;
   }
 }
 

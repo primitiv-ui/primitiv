@@ -157,6 +157,37 @@ describe("<primitiv-code-block-copy>", () => {
     expect(button().getAttribute("aria-label")).toBe("Copy snippet");
   });
 
+  it("comes back idle, with the button's own label, from a snapshot taken while copied", async () => {
+    // Arrange & Act — what an htmx history snapshot holds mid-copy
+    await mount(
+      BLOCK.replace("<primitiv-code-block-copy>", "<primitiv-code-block-copy copied>").replace(
+        'aria-label="Copy code"',
+        'aria-label="Copied" data-copied="" data-label="Copy code"',
+      ),
+    );
+
+    // Assert
+    expect(element().hasAttribute("copied")).toBe(false);
+    expect(button().getAttribute("aria-label")).toBe("Copy code");
+    expect(button().hasAttribute("data-label")).toBe(false);
+    expect(button().hasAttribute("data-copied")).toBe(false);
+  });
+
+  it("ends the copied state when it is moved, rather than holding it with no timer", async () => {
+    // Arrange
+    await mount(BLOCK + `<section id="elsewhere"></section>`);
+    button().click();
+    await settle();
+
+    // Act
+    document.getElementById("elsewhere")!.append(element());
+    await settle();
+
+    // Assert
+    expect(element().hasAttribute("copied")).toBe(false);
+    expect(button().getAttribute("aria-label")).toBe("Copy code");
+  });
+
   it("leaves a text button's name to its visible text", async () => {
     // Arrange
     await mount(

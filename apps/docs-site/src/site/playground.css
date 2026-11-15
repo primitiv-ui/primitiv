@@ -206,13 +206,17 @@
   max-inline-size: 100%;
 }
 
-/* Never a popover, though: it paints in the top layer, sized against its anchor
-   rather than the preview, and this unlayered rule would outrank the registry's
-   layered `min-inline-size: anchor-size(width)` — Combobox's panel shrank to its
-   longest row under a 358px field. */
-.docs-example-row *:not([popover]),
-.docs-example-stack *:not([popover]) {
-  min-inline-size: 0;
+/* In the LOWEST layer, so it replaces only the automatic floor: a component that
+   states its own minimum keeps it. Unlayered, it outranked every registry rule —
+   Combobox's panel shrank to its longest row under its field, and the Data
+   Table's icon-only expand Button lost its square, which in Safari left a button
+   sized to an attribute-less SVG: nothing, so the chevron vanished. Popovers stay
+   excluded all the same: they are sized against their anchor, not the preview. */
+@layer primitiv.reset {
+  .docs-example-row *:not([popover]),
+  .docs-example-stack *:not([popover]) {
+    min-inline-size: 0;
+  }
 }
 
 /*
@@ -277,22 +281,26 @@
  * around them — it wraps — or, for a single control whose options sit in one
  * row, the control scrolls inside itself.
  */
-.docs-playground-preview .primitiv-tabs__list > *,
-.docs-playground-preview .primitiv-segmented-control > *,
-.docs-example-row .primitiv-tabs__list > *,
-.docs-example-row .primitiv-segmented-control > *,
-.docs-example-stack .primitiv-tabs__list > *,
-.docs-example-stack .primitiv-segmented-control > *,
-.docs-playground-preview .primitiv-toggle-group > *,
-.docs-example-row .primitiv-toggle-group > *,
-.docs-example-stack .primitiv-toggle-group > *,
-.docs-example-row .primitiv-button,
-.docs-example-row .primitiv-button *,
-.docs-example-stack .primitiv-button,
-.docs-example-stack .primitiv-button *,
-.docs-playground-preview .primitiv-button,
-.docs-playground-preview .primitiv-button * {
-  min-inline-size: auto;
+/* Same lowest layer as the release above, so it out-ranks only that: a control
+   with its own minimum (an icon Button's square) keeps it. */
+@layer primitiv.reset {
+  .docs-playground-preview .primitiv-tabs__list > *,
+  .docs-playground-preview .primitiv-segmented-control > *,
+  .docs-example-row .primitiv-tabs__list > *,
+  .docs-example-row .primitiv-segmented-control > *,
+  .docs-example-stack .primitiv-tabs__list > *,
+  .docs-example-stack .primitiv-segmented-control > *,
+  .docs-playground-preview .primitiv-toggle-group > *,
+  .docs-example-row .primitiv-toggle-group > *,
+  .docs-example-stack .primitiv-toggle-group > *,
+  .docs-example-row .primitiv-button,
+  .docs-example-row .primitiv-button *,
+  .docs-example-stack .primitiv-button,
+  .docs-example-stack .primitiv-button *,
+  .docs-playground-preview .primitiv-button,
+  .docs-playground-preview .primitiv-button * {
+    min-inline-size: auto;
+  }
 }
 
 /*

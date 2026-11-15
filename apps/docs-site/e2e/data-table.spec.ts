@@ -32,6 +32,10 @@ test("every expand trigger's chevron keeps its size", async ({ page }) => {
     }),
   );
   expect(sizes.length).toBeGreaterThan(0);
+  // The button keeps its square too: the preview's min-content release must not
+  // cancel a component's own minimum, which is what collapsed it in Safari.
+  const buttons = await triggers.evaluateAll((all) => all.map((b) => [Math.round(b.getBoundingClientRect().width), Math.round(b.getBoundingClientRect().height)]));
+  for (const [width, height] of buttons) expect(width).toBe(height);
   for (const [width, height] of sizes) {
     expect(width).toBeGreaterThan(0);
     expect(width).toBe(height);

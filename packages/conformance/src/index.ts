@@ -99,3 +99,9 @@ export {
   type MillerColumnsConformanceFixture,
   type MillerColumnsMount,
 } from "./miller-columns.ts";
+export {
+  runTableExpandConformance,
+  TABLE_EXPAND_ROWS,
+  type TableExpandConformanceFixture,
+  type TableExpandMount,
+} from "./table-expand.ts";

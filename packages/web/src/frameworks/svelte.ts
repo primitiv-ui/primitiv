@@ -91,6 +91,15 @@ import type {
   PrimitivNavigationMenuViewportElement,
 } from "../navigation-menu/elements.ts";
 import type {
+  PrimitivTreeBranchContentElement,
+  PrimitivTreeBranchControlElement,
+  PrimitivTreeBranchElement,
+  PrimitivTreeBranchIndicatorElement,
+  PrimitivTreeElement,
+  PrimitivTreeItemElement,
+  PrimitivTreeSelectionPathElement,
+} from "../tree/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -160,6 +169,8 @@ import type {
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
+  PrimitivTreeChangeEvent,
+  PrimitivTreeExpandedChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -332,6 +343,19 @@ declare module "svelte/elements" {
     "primitiv-navigation-menu-viewport": Attributes<PrimitivNavigationMenuViewportElement> & { "force-mount"?: boolean };
     "primitiv-navigation-menu-indicator": Attributes<PrimitivNavigationMenuIndicatorElement> & { "force-mount"?: boolean };
     "primitiv-navigation-menu-link": Attributes<PrimitivNavigationMenuLinkElement> & { active?: boolean };
+    "primitiv-tree": Attributes<PrimitivTreeElement> & {
+      value?: string;
+      expanded?: string;
+      "selection-mode"?: "single" | "multiple";
+      "onprimitiv-tree-change"?: (event: PrimitivTreeChangeEvent) => void;
+      "onprimitiv-tree-expanded-change"?: (event: PrimitivTreeExpandedChangeEvent) => void;
+    };
+    "primitiv-tree-item": Attributes<PrimitivTreeItemElement> & { value?: string; label?: string; disabled?: boolean };
+    "primitiv-tree-branch": Attributes<PrimitivTreeBranchElement> & { value?: string; label?: string; disabled?: boolean };
+    "primitiv-tree-branch-control": Attributes<PrimitivTreeBranchControlElement>;
+    "primitiv-tree-branch-content": Attributes<PrimitivTreeBranchContentElement> & { "force-mount"?: boolean };
+    "primitiv-tree-branch-indicator": Attributes<PrimitivTreeBranchIndicatorElement>;
+    "primitiv-tree-selection-path": Attributes<PrimitivTreeSelectionPathElement>;
     "primitiv-tabs": Attributes<PrimitivTabsElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

@@ -92,6 +92,15 @@ import type {
   PrimitivNavigationMenuViewportElement,
 } from "../navigation-menu/elements.ts";
 import type {
+  PrimitivTreeBranchContentElement,
+  PrimitivTreeBranchControlElement,
+  PrimitivTreeBranchElement,
+  PrimitivTreeBranchIndicatorElement,
+  PrimitivTreeElement,
+  PrimitivTreeItemElement,
+  PrimitivTreeSelectionPathElement,
+} from "../tree/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -161,6 +170,8 @@ import type {
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
+  PrimitivTreeChangeEvent,
+  PrimitivTreeExpandedChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -198,6 +209,8 @@ export type {
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
+  PrimitivTreeChangeEvent,
+  PrimitivTreeExpandedChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -363,6 +376,19 @@ declare module "react" {
       "primitiv-navigation-menu-viewport": ElementProps<PrimitivNavigationMenuViewportElement> & { "force-mount"?: boolean };
       "primitiv-navigation-menu-indicator": ElementProps<PrimitivNavigationMenuIndicatorElement> & { "force-mount"?: boolean };
       "primitiv-navigation-menu-link": ElementProps<PrimitivNavigationMenuLinkElement> & { active?: boolean };
+      "primitiv-tree": ElementProps<PrimitivTreeElement> & {
+        value?: string;
+        expanded?: string;
+        "selection-mode"?: "single" | "multiple";
+        "onprimitiv-tree-change"?: (event: PrimitivTreeChangeEvent) => void;
+        "onprimitiv-tree-expanded-change"?: (event: PrimitivTreeExpandedChangeEvent) => void;
+      };
+      "primitiv-tree-item": ElementProps<PrimitivTreeItemElement> & { value?: string; label?: string; disabled?: boolean };
+      "primitiv-tree-branch": ElementProps<PrimitivTreeBranchElement> & { value?: string; label?: string; disabled?: boolean };
+      "primitiv-tree-branch-control": ElementProps<PrimitivTreeBranchControlElement>;
+      "primitiv-tree-branch-content": ElementProps<PrimitivTreeBranchContentElement> & { "force-mount"?: boolean };
+      "primitiv-tree-branch-indicator": ElementProps<PrimitivTreeBranchIndicatorElement>;
+      "primitiv-tree-selection-path": ElementProps<PrimitivTreeSelectionPathElement>;
       "primitiv-popover-content": ElementProps<PrimitivPopoverContentElement> & {
         popover?: "auto" | "manual" | "";
       };

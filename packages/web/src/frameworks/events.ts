@@ -18,6 +18,12 @@ export type PrimitivModalChangeEvent = CustomEvent<{ open: boolean }>;
 /** The `primitiv-navigation-menu-change` event: bubbles, cancelable, fired before the change applies, with the open entry afterwards (`""` for none). */
 export type PrimitivNavigationMenuChangeEvent = CustomEvent<{ value: string }>;
 
+/** The `primitiv-tree-change` event: bubbles, cancelable, fired before a selection applies, with the selected values afterwards. */
+export type PrimitivTreeChangeEvent = CustomEvent<{ value: string[] }>;
+
+/** The `primitiv-tree-expanded-change` event: bubbles, cancelable, fired before a branch expands or collapses, with the expanded branches afterwards. */
+export type PrimitivTreeExpandedChangeEvent = CustomEvent<{ expanded: string[] }>;
+
 /** The `primitiv-popover-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivPopoverChangeEvent = CustomEvent<{ open: boolean }>;
 

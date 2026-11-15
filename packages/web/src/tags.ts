@@ -85,6 +85,15 @@ import type {
   PrimitivNavigationMenuViewportElement,
 } from "./navigation-menu/elements.ts";
 import type {
+  PrimitivTreeBranchContentElement,
+  PrimitivTreeBranchControlElement,
+  PrimitivTreeBranchElement,
+  PrimitivTreeBranchIndicatorElement,
+  PrimitivTreeElement,
+  PrimitivTreeItemElement,
+  PrimitivTreeSelectionPathElement,
+} from "./tree/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -171,6 +180,13 @@ declare global {
     "primitiv-navigation-menu-viewport": PrimitivNavigationMenuViewportElement;
     "primitiv-navigation-menu-indicator": PrimitivNavigationMenuIndicatorElement;
     "primitiv-navigation-menu-link": PrimitivNavigationMenuLinkElement;
+    "primitiv-tree": PrimitivTreeElement;
+    "primitiv-tree-item": PrimitivTreeItemElement;
+    "primitiv-tree-branch": PrimitivTreeBranchElement;
+    "primitiv-tree-branch-control": PrimitivTreeBranchControlElement;
+    "primitiv-tree-branch-content": PrimitivTreeBranchContentElement;
+    "primitiv-tree-branch-indicator": PrimitivTreeBranchIndicatorElement;
+    "primitiv-tree-selection-path": PrimitivTreeSelectionPathElement;
     "primitiv-tabs": PrimitivTabsElement;
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;

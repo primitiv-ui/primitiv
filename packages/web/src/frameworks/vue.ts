@@ -36,6 +36,8 @@ import type {
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
+  PrimitivTreeChangeEvent,
+  PrimitivTreeExpandedChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -155,6 +157,19 @@ declare module "vue" {
     "primitiv-navigation-menu-viewport": Tag<{ forceMount?: boolean | "" }>;
     "primitiv-navigation-menu-indicator": Tag<{ forceMount?: boolean | "" }>;
     "primitiv-navigation-menu-link": Tag<{ active?: boolean | "" }>;
+    "primitiv-tree": Tag<
+      { value?: string; expanded?: string; selectionMode?: "single" | "multiple" },
+      {
+        "primitiv-tree-change": (event: PrimitivTreeChangeEvent) => void;
+        "primitiv-tree-expanded-change": (event: PrimitivTreeExpandedChangeEvent) => void;
+      }
+    >;
+    "primitiv-tree-item": Tag<{ value?: string; label?: string; disabled?: boolean | "" }>;
+    "primitiv-tree-branch": Tag<{ value?: string; label?: string; disabled?: boolean | "" }>;
+    "primitiv-tree-branch-control": Tag<Record<never, never>>;
+    "primitiv-tree-branch-content": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-tree-branch-indicator": Tag<Record<never, never>>;
+    "primitiv-tree-selection-path": Tag<Record<never, never>>;
     "primitiv-tabs": Tag<
       {
         value?: string;

@@ -10,6 +10,7 @@ import "./dropdown.ts";
 import "./modal.ts";
 import "./navigation-menu.ts";
 import "./popover.ts";
+import "./tree.ts";
 import "./radio-card.ts";
 import "./segmented-control.ts";
 import "./slider.ts";

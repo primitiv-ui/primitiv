@@ -109,6 +109,24 @@ it("defines the Navigation Menu elements when define/navigation-menu is imported
   }
 });
 
+it("defines the Tree elements when define/tree is imported", async () => {
+  // Arrange & Act
+  await import("../tree");
+
+  // Assert
+  for (const name of [
+    "primitiv-tree",
+    "primitiv-tree-item",
+    "primitiv-tree-branch",
+    "primitiv-tree-branch-control",
+    "primitiv-tree-branch-content",
+    "primitiv-tree-branch-indicator",
+    "primitiv-tree-selection-path",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines the Context Menu elements when define/context-menu is imported", async () => {
   // Arrange & Act
   await import("../context-menu");
@@ -256,4 +274,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-slider")).toBeDefined();
   expect(customElements.get("primitiv-split-button")).toBeDefined();
   expect(customElements.get("primitiv-navigation-menu")).toBeDefined();
+  expect(customElements.get("primitiv-tree")).toBeDefined();
 });

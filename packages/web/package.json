@@ -38,6 +38,10 @@
       "types": "./src/navigation-menu/index.ts",
       "default": "./src/navigation-menu/index.ts"
     },
+    "./tree": {
+      "types": "./src/tree/index.ts",
+      "default": "./src/tree/index.ts"
+    },
     "./popover": {
       "types": "./src/popover/index.ts",
       "default": "./src/popover/index.ts"
@@ -113,6 +117,10 @@
     "./define/navigation-menu": {
       "types": "./src/define/navigation-menu.ts",
       "default": "./src/define/navigation-menu.ts"
+    },
+    "./define/tree": {
+      "types": "./src/define/tree.ts",
+      "default": "./src/define/tree.ts"
     },
     "./define/popover": {
       "types": "./src/define/popover.ts",
@@ -257,6 +265,10 @@
         "types": "./dist/navigation-menu/index.d.ts",
         "default": "./dist/navigation-menu/index.js"
       },
+      "./tree": {
+        "types": "./dist/tree/index.d.ts",
+        "default": "./dist/tree/index.js"
+      },
       "./popover": {
         "types": "./dist/popover/index.d.ts",
         "default": "./dist/popover/index.js"
@@ -332,6 +344,10 @@
       "./define/navigation-menu": {
         "types": "./dist/define/navigation-menu.d.ts",
         "default": "./dist/define/navigation-menu.js"
+      },
+      "./define/tree": {
+        "types": "./dist/define/tree.d.ts",
+        "default": "./dist/define/tree.js"
       },
       "./define/popover": {
         "types": "./dist/define/popover.d.ts",

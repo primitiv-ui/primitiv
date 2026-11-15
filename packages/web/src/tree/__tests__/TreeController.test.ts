@@ -3,7 +3,7 @@ import type { TreeNode } from "@primitiv-ui/core";
 import { TreeController, type TreeControllerHost } from "../TreeController";
 
 type State = ReturnType<TreeControllerHost["state"]>;
-type Recorded = TreeControllerHost & { selections: string[][]; expansions: string[][]; current: State };
+type Recorded = TreeControllerHost & { selections: string[][]; expansions: string[][]; asked: string[]; current: State };
 
 /** docs (guides (intro), api), blog — each value a focusable element. */
 const NODES: TreeNode[] = [
@@ -19,10 +19,14 @@ function hostWith(current: Partial<State> = {}, disabled: string[] = []): Record
   const host: Recorded = {
     selections: [],
     expansions: [],
+    asked: [],
     current: { mode: "single", selected: [], expanded: [], ...current },
     state: () => host.current,
     nodes: () => NODES.map((node) => ({ ...node, disabled: disabled.includes(node.value) })),
-    element: (value) => document.getElementById(value),
+    element: (value) => {
+      host.asked.push(value);
+      return document.getElementById(value);
+    },
     select(next) {
       host.selections.push(next);
       host.current = { ...host.current, selected: next };
@@ -135,6 +139,7 @@ describe("TreeController", () => {
       // Assert
       expect(document.activeElement?.id).toBe("guides");
       expect(event.defaultPrevented).toBe(true);
+      expect(host.expansions).toEqual([]);
     });
 
     it("expands with ArrowRight", () => {
@@ -160,6 +165,7 @@ describe("TreeController", () => {
       // Assert
       expect(host.expansions).toEqual([[]]);
       expect(host.selections).toEqual([["docs"]]);
+      expect(host.asked).toEqual([]);
     });
 
     it("claims Enter on a disabled item without acting", () => {
@@ -201,6 +207,16 @@ describe("TreeController", () => {
       // Assert
       expect(host.selections.at(-1)).toEqual(["api", "blog"]);
     });
+  });
+
+  it("moves nowhere when the item to focus has no element", () => {
+    // Arrange
+    const host = hostWith({ expanded: ["docs"] });
+    host.element = () => null;
+    const controller = new TreeController(host);
+
+    // Act & Assert
+    expect(() => controller.keydown("docs", key("ArrowDown"))).not.toThrow();
   });
 
   it("reports the visible order and the tab stop", () => {

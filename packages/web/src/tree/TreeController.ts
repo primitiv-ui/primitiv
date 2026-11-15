@@ -115,6 +115,6 @@ export class TreeController {
   }
 
   #disabled(nodes: readonly TreeNode[] = this.#host.nodes()): Set<string> {
-    return new Set(nodes.flatMap((node) => (node.disabled ? [node.value] : [])));
+    return new Set(nodes.filter((node) => node.disabled).map((node) => node.value));
   }
 }

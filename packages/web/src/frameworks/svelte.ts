@@ -100,6 +100,15 @@ import type {
   PrimitivTreeSelectionPathElement,
 } from "../tree/elements.ts";
 import type {
+  PrimitivMillerColumnsColumnElement,
+  PrimitivMillerColumnsElement,
+  PrimitivMillerColumnsItemElement,
+  PrimitivMillerColumnsItemIndicatorElement,
+  PrimitivMillerColumnsPreviewPanelElement,
+  PrimitivMillerColumnsResizeHandleElement,
+  PrimitivMillerColumnsTreeElement,
+} from "../miller-columns/elements.ts";
+import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
   PrimitivStepperPanelElement,
@@ -177,6 +186,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTreeChangeEvent,
   PrimitivTreeExpandedChangeEvent,
+  PrimitivMillerColumnsChangeEvent,
   PrimitivStepperChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
@@ -379,6 +389,28 @@ declare module "svelte/elements" {
     "primitiv-tabs-content": Attributes<PrimitivTabsContentElement> & {
       value: string;
       "onprimitiv-tabs-show"?: (event: CustomEvent) => void;
+    };
+    "primitiv-miller-columns": Attributes<PrimitivMillerColumnsElement> & {
+      value?: string;
+      "onprimitiv-miller-columns-change"?: (event: PrimitivMillerColumnsChangeEvent) => void;
+    };
+    "primitiv-miller-columns-tree": Attributes<PrimitivMillerColumnsTreeElement>;
+    "primitiv-miller-columns-column": Attributes<PrimitivMillerColumnsColumnElement> & {
+      parent?: string;
+      "onprimitiv-miller-columns-show"?: (event: CustomEvent) => void;
+    };
+    "primitiv-miller-columns-item": Attributes<PrimitivMillerColumnsItemElement> & {
+      value: string;
+      disabled?: boolean;
+    };
+    "primitiv-miller-columns-item-indicator": Attributes<PrimitivMillerColumnsItemIndicatorElement>;
+    "primitiv-miller-columns-resize-handle": Attributes<PrimitivMillerColumnsResizeHandleElement> & {
+      "min-width"?: number | string;
+      "max-width"?: number | string;
+      step?: number | string;
+    };
+    "primitiv-miller-columns-preview-panel": Attributes<PrimitivMillerColumnsPreviewPanelElement> & {
+      "force-mount"?: boolean;
     };
     "primitiv-stepper": Attributes<PrimitivStepperElement> & {
       value?: string;

@@ -263,6 +263,24 @@ it("defines the Stepper elements when define/stepper is imported", async () => {
   }
 });
 
+it("defines the Miller Columns elements when define/miller-columns is imported", async () => {
+  // Arrange & Act
+  await import("../miller-columns");
+
+  // Assert
+  for (const name of [
+    "primitiv-miller-columns",
+    "primitiv-miller-columns-tree",
+    "primitiv-miller-columns-column",
+    "primitiv-miller-columns-item",
+    "primitiv-miller-columns-item-indicator",
+    "primitiv-miller-columns-resize-handle",
+    "primitiv-miller-columns-preview-panel",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -286,4 +304,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-navigation-menu")).toBeDefined();
   expect(customElements.get("primitiv-tree")).toBeDefined();
   expect(customElements.get("primitiv-stepper")).toBeDefined();
+  expect(customElements.get("primitiv-miller-columns")).toBeDefined();
 });

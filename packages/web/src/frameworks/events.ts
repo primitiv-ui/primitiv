@@ -6,6 +6,9 @@
 /** The `primitiv-tabs-change` event: bubbles, cancelable, fired before the change applies. */
 export type PrimitivTabsChangeEvent = CustomEvent<{ value: string; index: number }>;
 
+/** The `primitiv-miller-columns-change` event: bubbles, cancelable, fired before a selection applies, with the path afterwards. */
+export type PrimitivMillerColumnsChangeEvent = CustomEvent<{ value: string[] }>;
+
 /** The `primitiv-stepper-change` event: bubbles, cancelable, fired before the change of step applies. */
 export type PrimitivStepperChangeEvent = CustomEvent<{ value: string; index: number }>;
 

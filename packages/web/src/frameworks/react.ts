@@ -101,6 +101,15 @@ import type {
   PrimitivTreeSelectionPathElement,
 } from "../tree/elements.ts";
 import type {
+  PrimitivMillerColumnsColumnElement,
+  PrimitivMillerColumnsElement,
+  PrimitivMillerColumnsItemElement,
+  PrimitivMillerColumnsItemIndicatorElement,
+  PrimitivMillerColumnsPreviewPanelElement,
+  PrimitivMillerColumnsResizeHandleElement,
+  PrimitivMillerColumnsTreeElement,
+} from "../miller-columns/elements.ts";
+import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
   PrimitivStepperPanelElement,
@@ -178,6 +187,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTreeChangeEvent,
   PrimitivTreeExpandedChangeEvent,
+  PrimitivMillerColumnsChangeEvent,
   PrimitivStepperChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
@@ -415,6 +425,28 @@ declare module "react" {
       "primitiv-tabs-content": ElementProps<PrimitivTabsContentElement> & {
         value: string;
         "onprimitiv-tabs-show"?: (event: CustomEvent) => void;
+      };
+      "primitiv-miller-columns": ElementProps<PrimitivMillerColumnsElement> & {
+        value?: string;
+        "onprimitiv-miller-columns-change"?: (event: PrimitivMillerColumnsChangeEvent) => void;
+      };
+      "primitiv-miller-columns-tree": ElementProps<PrimitivMillerColumnsTreeElement>;
+      "primitiv-miller-columns-column": ElementProps<PrimitivMillerColumnsColumnElement> & {
+        parent?: string;
+        "onprimitiv-miller-columns-show"?: (event: CustomEvent) => void;
+      };
+      "primitiv-miller-columns-item": ElementProps<PrimitivMillerColumnsItemElement> & {
+        value: string;
+        disabled?: boolean;
+      };
+      "primitiv-miller-columns-item-indicator": ElementProps<PrimitivMillerColumnsItemIndicatorElement>;
+      "primitiv-miller-columns-resize-handle": ElementProps<PrimitivMillerColumnsResizeHandleElement> & {
+        "min-width"?: number | string;
+        "max-width"?: number | string;
+        step?: number | string;
+      };
+      "primitiv-miller-columns-preview-panel": ElementProps<PrimitivMillerColumnsPreviewPanelElement> & {
+        "force-mount"?: boolean;
       };
       "primitiv-stepper": ElementProps<PrimitivStepperElement> & {
         value?: string;

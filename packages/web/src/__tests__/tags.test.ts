@@ -54,6 +54,13 @@ import type {
   PrimitivPopoverElement,
   PrimitivPopoverTitleElement,
   PrimitivPopoverTriggerElement,
+  PrimitivMillerColumnsColumnElement,
+  PrimitivMillerColumnsElement,
+  PrimitivMillerColumnsItemElement,
+  PrimitivMillerColumnsItemIndicatorElement,
+  PrimitivMillerColumnsPreviewPanelElement,
+  PrimitivMillerColumnsResizeHandleElement,
+  PrimitivMillerColumnsTreeElement,
   PrimitivStepperElement,
   PrimitivStepperListElement,
   PrimitivStepperPanelElement,
@@ -83,6 +90,16 @@ import type {
   PrimitivToggleGroupElement,
   PrimitivToggleGroupItemElement,
 } from "../index";
+
+it("types every Miller Columns tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-miller-columns")).toEqualTypeOf<PrimitivMillerColumnsElement | null>();
+  expectTypeOf(document.createElement("primitiv-miller-columns-tree")).toEqualTypeOf<PrimitivMillerColumnsTreeElement>();
+  expectTypeOf(document.createElement("primitiv-miller-columns-column")).toEqualTypeOf<PrimitivMillerColumnsColumnElement>();
+  expectTypeOf(document.createElement("primitiv-miller-columns-item")).toEqualTypeOf<PrimitivMillerColumnsItemElement>();
+  expectTypeOf(document.createElement("primitiv-miller-columns-item-indicator")).toEqualTypeOf<PrimitivMillerColumnsItemIndicatorElement>();
+  expectTypeOf(document.createElement("primitiv-miller-columns-resize-handle")).toEqualTypeOf<PrimitivMillerColumnsResizeHandleElement>();
+  expectTypeOf(document.createElement("primitiv-miller-columns-preview-panel")).toEqualTypeOf<PrimitivMillerColumnsPreviewPanelElement>();
+});
 
 it("types every Stepper tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.querySelector("primitiv-stepper")).toEqualTypeOf<PrimitivStepperElement | null>();

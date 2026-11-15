@@ -38,6 +38,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTreeChangeEvent,
   PrimitivTreeExpandedChangeEvent,
+  PrimitivMillerColumnsChangeEvent,
   PrimitivStepperChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
@@ -182,6 +183,16 @@ declare module "vue" {
     "primitiv-tabs-list": Tag<{ label?: string }>;
     "primitiv-tabs-trigger": Tag<{ value: string; disabled?: boolean | "" }>;
     "primitiv-tabs-content": Tag<{ value: string }, { "primitiv-tabs-show": (event: CustomEvent) => void }>;
+    "primitiv-miller-columns": Tag<
+      { value?: string },
+      { "primitiv-miller-columns-change": (event: PrimitivMillerColumnsChangeEvent) => void }
+    >;
+    "primitiv-miller-columns-tree": Tag<Record<never, never>>;
+    "primitiv-miller-columns-column": Tag<{ parent?: string }, { "primitiv-miller-columns-show": (event: CustomEvent) => void }>;
+    "primitiv-miller-columns-item": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-miller-columns-item-indicator": Tag<Record<never, never>>;
+    "primitiv-miller-columns-resize-handle": Tag<{ minWidth?: number | string; maxWidth?: number | string; step?: number | string }>;
+    "primitiv-miller-columns-preview-panel": Tag<{ forceMount?: boolean | "" }>;
     "primitiv-stepper": Tag<
       {
         value?: string;

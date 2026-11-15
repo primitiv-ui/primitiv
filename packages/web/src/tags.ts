@@ -100,6 +100,15 @@ import type {
   PrimitivTabsTriggerElement,
 } from "./tabs/elements.ts";
 import type {
+  PrimitivMillerColumnsColumnElement,
+  PrimitivMillerColumnsElement,
+  PrimitivMillerColumnsItemElement,
+  PrimitivMillerColumnsItemIndicatorElement,
+  PrimitivMillerColumnsPreviewPanelElement,
+  PrimitivMillerColumnsResizeHandleElement,
+  PrimitivMillerColumnsTreeElement,
+} from "./miller-columns/elements.ts";
+import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
   PrimitivStepperPanelElement,
@@ -197,6 +206,13 @@ declare global {
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;
     "primitiv-tabs-content": PrimitivTabsContentElement;
+    "primitiv-miller-columns": PrimitivMillerColumnsElement;
+    "primitiv-miller-columns-tree": PrimitivMillerColumnsTreeElement;
+    "primitiv-miller-columns-column": PrimitivMillerColumnsColumnElement;
+    "primitiv-miller-columns-item": PrimitivMillerColumnsItemElement;
+    "primitiv-miller-columns-item-indicator": PrimitivMillerColumnsItemIndicatorElement;
+    "primitiv-miller-columns-resize-handle": PrimitivMillerColumnsResizeHandleElement;
+    "primitiv-miller-columns-preview-panel": PrimitivMillerColumnsPreviewPanelElement;
     "primitiv-stepper": PrimitivStepperElement;
     "primitiv-stepper-list": PrimitivStepperListElement;
     "primitiv-stepper-step": PrimitivStepperStepElement;

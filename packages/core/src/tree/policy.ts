@@ -71,3 +71,8 @@ export function treeTabStop(state: {
   if (active !== null && order.includes(active)) return active;
   return order.find((value) => !disabled.has(value)) ?? null;
 }
+
+/** The expanded values after toggling the branch `value`. */
+export function treeToggle(expanded: readonly string[], value: string): string[] {
+  return expanded.includes(value) ? expanded.filter((current) => current !== value) : [...expanded, value];
+}

@@ -1,4 +1,4 @@
-import { treePath, treeTabStop, treeVisibleOrder, type TreeNode } from "../policy";
+import { treePath, treeTabStop, treeToggle, treeVisibleOrder, type TreeNode } from "../policy";
 
 /** docs (branch: guides (branch: intro), api), blog — in registration order, children first. */
 const NODES: TreeNode[] = [
@@ -90,5 +90,17 @@ describe("treeTabStop", () => {
     // Arrange & Act & Assert
     expect(treeTabStop({ order, disabled: new Set(), active: null })).toBe("docs");
     expect(treeTabStop({ order, disabled: new Set(order), active: null })).toBeNull();
+  });
+});
+
+describe("treeToggle", () => {
+  it("expands a collapsed branch by adding it at the end", () => {
+    // Arrange & Act & Assert
+    expect(treeToggle(["docs"], "guides")).toEqual(["docs", "guides"]);
+  });
+
+  it("collapses an expanded branch, keeping the rest in order", () => {
+    // Arrange & Act & Assert
+    expect(treeToggle(["docs", "guides", "api"], "guides")).toEqual(["docs", "api"]);
   });
 });

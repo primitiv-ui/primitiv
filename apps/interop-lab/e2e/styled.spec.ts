@@ -773,3 +773,65 @@ test("the printed tree indents each level, styles its path as a breadcrumb, and 
   await expect(group).toHaveCSS("grid-template-rows", "0px");
 });
 
+
+test("add stepper loads Tabs' script: a stepper is the Tabs elements", () => {
+  const output = readFileSync("styled-site/add-stepper-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/tabs\.js/);
+  expect(output).not.toContain("stepper.js");
+});
+
+// Each step's <button> is the only child of its trigger wrapper, so a structural
+// rule written against React's flat list (`:first-child`, `+`) has to look past it.
+const stepper = (page: import("@playwright/test").Page) => page.getByRole("tablist", { name: "Sign-up progress" });
+const connector = (page: import("@playwright/test").Page, name: string, pseudo: "::before" | "::after", property: "content" | "transform") =>
+  stepper(page)
+    .getByRole("tab", { name, exact: false })
+    .evaluate((step, [pseudo, property]) => getComputedStyle(step, pseudo).getPropertyValue(property), [pseudo, property] as const);
+
+test("the stepper's own stylesheet takes the trigger wrapper's box, so it works without Tabs' stylesheet", async ({ page }) => {
+  // A page linking Stepper's sheet alone: `add stepper` does not install Tabs' styles.
+  const markup = readFileSync("styled-site/stepper.example.html", "utf8");
+  await page.route("**/stepper-only.html", (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: `<!doctype html><link rel="stylesheet" href="/styled-site/primitiv/stepper/styles.css">${markup}`,
+    }),
+  );
+  await page.goto("/stepper-only.html");
+  await expect(page.locator("primitiv-tabs-trigger").first()).toHaveCSS("display", "contents");
+  await expect(page.locator("primitiv-tabs-list")).toHaveCSS("display", "grid");
+});
+
+test("the printed stepper draws a connector into every step but the first, filled up to the current one", async ({ page }) => {
+  await stepper(page).scrollIntoViewIfNeeded();
+  await expect(stepper(page)).toHaveCSS("display", "grid");
+  expect(await connector(page, "Account", "::before", "content")).toBe("none");
+  expect(await connector(page, "Billing", "::before", "content")).not.toBe("none");
+  expect(await connector(page, "Review", "::before", "content")).not.toBe("none");
+  // Reached (the current step) fills its incoming segment; an upcoming one does not.
+  await expect.poll(() => connector(page, "Billing", "::after", "transform")).toBe("matrix(1, 0, 0, 1, 0, 0)");
+  await expect.poll(() => connector(page, "Review", "::after", "transform")).toBe("matrix(0, 0, 0, 1, 0, 0)");
+});
+
+test("the printed stepper activates manually: an arrow moves focus, Enter moves the step", async ({ page }) => {
+  const billing = stepper(page).getByRole("tab", { name: "Billing" });
+  await billing.focus();
+  await page.keyboard.press("ArrowRight");
+  const review = stepper(page).getByRole("tab", { name: "Review" });
+  await expect(review).toBeFocused();
+  await expect(billing).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Enter");
+  await expect(review).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tabpanel", { name: "3 Review" })).toHaveText("Check everything before you submit.");
+  await expect.poll(() => connector(page, "Review", "::after", "transform")).toBe("matrix(1, 0, 0, 1, 0, 0)");
+});
+
+test("a vertical stepper runs each connector down out of its marker, and none out of the last", async ({ page }) => {
+  await page.locator("primitiv-tabs.primitiv-stepper").evaluate((root) => root.setAttribute("orientation", "vertical"));
+  await expect(stepper(page)).toHaveAttribute("data-orientation", "vertical");
+  expect(await connector(page, "Account", "::before", "content")).not.toBe("none");
+  expect(await connector(page, "Billing", "::before", "content")).not.toBe("none");
+  expect(await connector(page, "Review", "::before", "content")).toBe("none");
+  // A segment fills when the step BELOW it is reached: Account's runs into the current step.
+  await expect.poll(() => connector(page, "Account", "::after", "transform")).toBe("matrix(1, 0, 0, 1, 0, 0)");
+});

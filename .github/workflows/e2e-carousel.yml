@@ -30,6 +30,7 @@ on:
       - "apps/docs-site/src/site/examples/button.tsx"
       - "apps/docs-site/src/site/examples/modal.tsx"
       - "apps/docs-site/src/site/examples/navigation-menu.tsx"
+      - "apps/docs-site/src/site/examples/tree.tsx"
       - "apps/docs-site/e2e/**"
       - "apps/docs-site/playwright.config.ts"
       - "apps/docs-site/next.config.ts"

@@ -15,6 +15,7 @@ import {
 import { contractAttr, importBlock, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -142,6 +143,123 @@ const ControlledExample = () => {
   );
 };
 
+
+/* ------------------------------------------------------------------ *
+ * Elements markup (RFC 0033) — the `@primitiv-ui/web` custom elements in
+ * the shape `primitiv add tree --styled` prints. The headless tab is
+ * derived from it by stripping the classes.
+ * ------------------------------------------------------------------ */
+
+const T = "primitiv-tree";
+
+/** Tree size → the Breadcrumb size its selection path uses, one tier down. */
+const PATH_SIZE: Record<Size, string> = { xs: "xs", sm: "xs", md: "sm", lg: "md", xl: "lg" };
+
+/** `nodes` as Elements markup: a collapsed branch's group carries `hidden`. */
+const elementsNodes = (nodes: Node[], expanded: readonly string[], indent: string): string[] =>
+  nodes.flatMap((n) => {
+    const disabled = n.disabled ? " disabled" : "";
+    if (!n.children)
+      return [
+        `${indent}<${T}-item value="${n.value}" label="${n.label}" class="${T}__item"${disabled}><span class="${T}__item-spacer"></span><span class="${T}__item-label">${n.label}</span></${T}-item>`,
+      ];
+    const hidden = expanded.includes(n.value) ? "" : " hidden";
+    return [
+      `${indent}<${T}-branch value="${n.value}" label="${n.label}" class="${T}__branch"${disabled}>`,
+      `${indent}  <${T}-branch-control class="${T}__branch-control"><${T}-branch-indicator class="${T}__branch-indicator">${glyph("chevron-right")}</${T}-branch-indicator><span class="${T}__branch-control-label">${n.label}</span></${T}-branch-control>`,
+      `${indent}  <${T}-branch-content class="${T}__branch-content"${hidden}>`,
+      `${indent}    <span class="${T}__branch-content-inner"><span class="${T}__branch-content-body">`,
+      ...elementsNodes(n.children, expanded, `${indent}      `),
+      `${indent}    </span></span>`,
+      `${indent}  </${T}-branch-content>`,
+      `${indent}</${T}-branch>`,
+    ];
+  });
+
+/** The selection path: a Breadcrumb `<template>` the element stamps once per trail. */
+const elementsPath = (size: Size, indent = "  ") =>
+  [
+    `<${T}-selection-path class="${T}__selection-path">`,
+    `  <template>`,
+    `    <nav class="primitiv-breadcrumb primitiv-breadcrumb--${PATH_SIZE[size]}" aria-label="Breadcrumb">`,
+    `      <ol class="primitiv-breadcrumb__list">`,
+    `        <li class="primitiv-breadcrumb__item"><span data-tree-selection-segment></span></li>`,
+    `        <li class="primitiv-breadcrumb__separator" role="presentation" aria-hidden="true">/</li>`,
+    `        <li class="primitiv-breadcrumb__item"><span class="primitiv-breadcrumb__page" aria-current="page" data-tree-selection-segment></span></li>`,
+    `      </ol>`,
+    `    </nav>`,
+    `  </template>`,
+    `</${T}-selection-path>`,
+  ].map((line) => indent + line);
+
+const elementsTree = ({
+  size = "md",
+  connectors = "lines",
+  expanded = ["src"],
+  value = ["index.ts"],
+  multiple = false,
+  path = false,
+  nodes = FILE_TREE,
+}: {
+  size?: Size;
+  connectors?: Connectors;
+  expanded?: string[];
+  value?: string[];
+  multiple?: boolean;
+  path?: boolean;
+  nodes?: Node[];
+} = {}) =>
+  [
+    `<${T} class="${T} ${T}--${size} ${T}--connectors-${connectors}" aria-label="Files"` +
+      (multiple ? ` selection-mode="multiple"` : "") +
+      ` expanded="${expanded.join(" ")}"` +
+      (value.length ? ` value="${value.join(" ")}"` : "") +
+      `>`,
+    ...(path ? elementsPath(size) : []),
+    ...elementsNodes(nodes, expanded, "  "),
+    `</${T}>`,
+  ].join("\n");
+
+const glyphPreview = (_density: unknown, code: string) => withGlyphs(code);
+
+/** The controlled example's Elements preview: the buttons and readout the script drives. */
+const controlledElementsPreview = () =>
+  withGlyphs(
+    [
+      `<div class="docs-example-stack" style="inline-size: 100%">`,
+      `<div style="display: flex; gap: 0.75rem; flex-wrap: wrap">`,
+      `<button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--sm" data-expand-all>Expand all</button>`,
+      `<button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--sm" data-collapse-all>Collapse all</button>`,
+      `</div>`,
+      `<p class="docs-prop-description">Selected: <span data-selected-node>index.ts</span></p>`,
+      elementsTree(),
+      `</div>`,
+    ].join("\n"),
+  );
+
+/** Drives the controlled example as the code tab's script does. */
+const wireControlled = (root: HTMLElement) => {
+  const tree = root.querySelector<HTMLElement & { expanded: string }>("primitiv-tree");
+  const readout = root.querySelector("[data-selected-node]");
+  const expandAll = root.querySelector("[data-expand-all]");
+  const collapseAll = root.querySelector("[data-collapse-all]");
+  if (!tree || !readout || !expandAll || !collapseAll) return;
+  const onChange = (event: Event) => {
+    const { value } = (event as CustomEvent<{ value: string[] }>).detail;
+    readout.textContent = value[0] ?? "nothing";
+  };
+  const expand = () => (tree.expanded = "src components public");
+  const collapse = () => (tree.expanded = "");
+  tree.addEventListener("primitiv-tree-change", onChange);
+  expandAll.addEventListener("click", expand);
+  collapseAll.addEventListener("click", collapse);
+  return () => {
+    tree.removeEventListener("primitiv-tree-change", onChange);
+    expandAll.removeEventListener("click", expand);
+    collapseAll.removeEventListener("click", collapse);
+  };
+};
+
 /**
  * Tree's page content.
  *
@@ -156,6 +274,8 @@ export const treeSpec: ComponentSpec = {
     /* Hand-written: a compound authored recursively, so the generated `toJsx`
        would print a childless `<Tree size="md" connectors="lines" />`. */
     snippet: (values, mode) => {
+      if (mode === "elements")
+        return elementsTree({ size: values.size as Size, connectors: values.connectors as Connectors });
       const p = partNamer(mode, "Tree");
       const mods =
         contractAttr({ mode, prop: "size", value: values.size }) +
@@ -168,6 +288,7 @@ export const treeSpec: ComponentSpec = {
         `</${p("Root")}>`,
       ].join("\n");
     },
+    elementsPreview: (code) => withGlyphs(code),
     fill: true,
     render: (values) => (
       <div style={{ inlineSize: "100%" }}>
@@ -190,6 +311,23 @@ export const treeSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<${T} class="${T}">`,
+            `  <${T}-selection-path class="${T}__selection-path">`,
+            `    <template>…a Breadcrumb trail…</template>   <!-- optional -->`,
+            `  </${T}-selection-path>`,
+            `  <${T}-branch value="src" class="${T}__branch">`,
+            `    <${T}-branch-control class="${T}__branch-control">`,
+            `      <${T}-branch-indicator class="${T}__branch-indicator">…</${T}-branch-indicator>`,
+            `    </${T}-branch-control>`,
+            `    <${T}-branch-content class="${T}__branch-content">`,
+            `      <${T}-item value="index.ts" class="${T}__item">…</${T}-item>   <!-- a leaf, or another branch -->`,
+            `    </${T}-branch-content>`,
+            `  </${T}-branch>`,
+            `  <${T}-item value="readme" class="${T}__item">…</${T}-item>`,
+            `</${T}>`,
+          ].join("\n");
         const p = partNamer(mode, "Tree");
         return [
           `<${p("Root")}>`,
@@ -210,7 +348,7 @@ export const treeSpec: ComponentSpec = {
   ],
 
   keyboardMeta:
-    "The rows share a **single tab stop** (a roving tabindex), and movement runs over the *visible* rows in depth-first order — collapsed subtrees and disabled nodes are skipped. `Home`/`End` still land on non-disabled neighbours. This is the WAI-ARIA tree pattern, mirrored under `dir=\"rtl\"`.",
+    "The rows share a **single tab stop** (a roving tabindex), and movement runs over the *visible* rows in depth-first order — collapsed subtrees and disabled nodes are skipped. `Home`/`End` still land on non-disabled neighbours. This is the WAI-ARIA tree pattern; `ArrowLeft`/`ArrowRight` keep their meaning under `dir=\"rtl\"`, since the tree is vertical.",
 
   keyboard: [
     {
@@ -241,8 +379,11 @@ export const treeSpec: ComponentSpec = {
       title: "A file tree",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Author the tree as nested markup: `<primitiv-tree-branch>`es and `<primitiv-tree-item>` leaves, each with a `value` unique within the tree and a `label` the selection path reads. The root's `expanded` attribute lists the open branches and its `value` the selected node, both space-separated. Write `hidden` on a collapsed branch's `<primitiv-tree-branch-content>` so nothing shows before the script loads. The indicator is yours to fill \u2014 a chevron here \u2014 and the stylesheet rotates it open."}
+          elementsPreview={glyphPreview}
           caption="The canonical shape: `Tree.Branch`es and `Tree.Item` leaves, authored recursively. `defaultExpandedValues` seeds which branches start open and `defaultSelectedValue` which node starts selected (single selection is the default). Every node needs a `value` unique within the tree; `label` feeds the node registry that `Tree.SelectionPath` reads. The `Tree.BranchIndicator` needs no icon — it ships its own chevron and the stylesheet rotates it open."
           code={(_density, mode) => {
+            if (mode === "elements") return elementsTree({ value: ["index.ts"] });
             const p = partNamer(mode, "Tree");
             return [
               imports(mode),
@@ -268,8 +409,11 @@ export const treeSpec: ComponentSpec = {
       title: "Selection path",
       render: () => (
         <InteractiveExample
+          elementsCaption={"`<primitiv-tree-selection-path>` renders the selected node's root-to-leaf ancestry from the Breadcrumb markup in its `<template>`: the first `[data-tree-selection-segment]` is stamped once per ancestor, the last is the current node, and the separator goes between. An empty selection sets `data-empty`. Load the `breadcrumb` styles beside the tree's, and pick a Breadcrumb size one tier below the tree's. **Select a node** to watch the trail update."}
+          elementsPreview={glyphPreview}
           caption="`Tree.SelectionPath` renders a breadcrumb of the selected node's root-to-leaf ancestry — the editor path bar. It reads the selection from context, so it needs no props beyond its `size`, and it composes the `Breadcrumb` component (installed with the tree). Select a node below and watch the trail update; the current node is marked by weight. Its `size` is the **tree's** size and maps one tier down, so the bar reads compact beside the rows."
           code={(_density, mode) => {
+            if (mode === "elements") return elementsTree({ expanded: ["src", "components"], value: ["Button.tsx"], path: true });
             const p = partNamer(mode, "Tree");
             return [
               imports(mode, ["SelectionPath", "Branch", "BranchControl", "BranchContent", "BranchIndicator", "Item"]),
@@ -297,8 +441,11 @@ export const treeSpec: ComponentSpec = {
       title: "Multiple selection",
       render: () => (
         <InteractiveExample
+          elementsCaption={"`selection-mode=\"multiple\"` lets several nodes be selected at once \u2014 `Ctrl`/`Cmd`+click adds or removes one, `Shift`+click selects a contiguous range, and a plain click resets to a single node. The root's `value` then lists every selected node, in the order they were selected, and the selection path renders one trail each."}
+          elementsPreview={glyphPreview}
           caption={"`selectionMode=\"multiple\"` lets several nodes be selected at once — `Ctrl`/`Cmd`+click adds or removes one, `Shift`+click selects a contiguous range, and a plain click resets to a single node. Seed it with `defaultSelectedValues`. `Tree.SelectionPath` then renders one trail per selected node."}
           code={(_density, mode) => {
+            if (mode === "elements") return elementsTree({ multiple: true, value: ["index.ts", "app.tsx"] });
             const p = partNamer(mode, "Tree");
             return [
               imports(mode),
@@ -332,8 +479,26 @@ export const treeSpec: ComponentSpec = {
       title: "Controlled",
       render: () => (
         <InteractiveExample
+          elementsCaption={"The root's attributes are the state: set `expanded` and `value` from the server, in markup, or through the properties of the same name, to drive the tree from elsewhere \u2014 the Expand all / Collapse all buttons here. Listen for `primitiv-tree-change` (`detail.value`) and `primitiv-tree-expanded-change` (`detail.expanded`) to follow the user; each fires before the change applies and is cancelable, so `preventDefault()` keeps the tree as it is."}
+          elementsPreview={controlledElementsPreview}
+          wire={wireControlled}
           caption="Pass `expandedValues` / `onExpandedChange` and `selectedValue` / `onSelectedValueChange` and the parent owns the state — needed to drive expansion from elsewhere (the Expand all / Collapse all buttons here), to persist it, or to react to selection. Expansion and selection are independent axes, each controlled or uncontrolled on its own: mix a controlled selection with an uncontrolled `defaultExpandedValues` if that is all you need. `selectedValue`/`selectedValues` is only for the matching `selectionMode` — the two shapes are mutually exclusive."
           code={(_density, mode) => {
+            if (mode === "elements") return [
+                `<!-- The attributes are the state: set them, and listen to follow the user. -->`,
+                `<primitiv-tree class="primitiv-tree primitiv-tree--md" expanded="src" value="index.ts">`,
+                `  <!-- ... the same branches and items ... -->`,
+                `</primitiv-tree>`,
+                ``,
+                `<script type="module">`,
+                `  const tree = document.querySelector("primitiv-tree");`,
+                `  tree.addEventListener("primitiv-tree-change", (event) => {`,
+                `    console.log(event.detail.value); // preventDefault() vetoes it`,
+                `  });`,
+                `  expandAll.addEventListener("click", () => (tree.expanded = "src components public"));`,
+                `  collapseAll.addEventListener("click", () => (tree.expanded = ""));`,
+                `</script>`,
+              ].join("\n");
             const p = partNamer(mode, "Tree");
             return [
               `import { useState } from "react";`,
@@ -366,8 +531,17 @@ export const treeSpec: ComponentSpec = {
       title: "Disabled nodes",
       render: () => (
         <InteractiveExample
+          elementsCaption={"`disabled` on a `<primitiv-tree-item>` or `<primitiv-tree-branch>` sets `aria-disabled` and stops it taking selection or (for a branch) toggling \u2014 but it stays in the roving order, so a keyboard user still finds it, and `Home`/`End` land on enabled neighbours. A disabled branch does **not** disable its children."}
+          elementsPreview={glyphPreview}
           caption="`disabled` on a `Tree.Item` or `Tree.Branch` dims it and stops it taking selection or (for a branch) toggling — but it stays in the DOM and in the roving order, so a keyboard user still finds it, and `Home`/`End` land on non-disabled neighbours. A disabled branch keeps its children rendered and does **not** disable them."
           code={(_density, mode) => {
+            if (mode === "elements") return elementsTree({
+                nodes: [
+                  { value: "src", label: "src", children: [{ value: "index.ts", label: "index.ts" }, { value: "app.tsx", label: "app.tsx", disabled: true }] },
+                  { value: "public", label: "public", disabled: true, children: [{ value: "favicon.ico", label: "favicon.ico" }] },
+                  { value: "README.md", label: "README.md" },
+                ],
+              });
             const p = partNamer(mode, "Tree");
             return [
               imports(mode),
@@ -426,6 +600,22 @@ export const treeSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A hierarchical list of nodes — a file tree, a nested outline — that a user expands, collapses and selects from. Seven custom elements over the WAI-ARIA tree view, authored as nested markup: a single tab stop, arrow keys over the visible rows, single or multiple selection, and an optional breadcrumb of the selected node's ancestry.",
+    anatomyMeta:
+      "Seven elements, nested as the tree is. `<primitiv-tree>` is the `tree` and holds the state in two attributes: `expanded` (the open branches) and `value` (the selection). A **branch** is a `<primitiv-tree-branch>` holding a `<primitiv-tree-branch-control>` (its row, with a `<primitiv-tree-branch-indicator>` for the chevron) and a `<primitiv-tree-branch-content>` (the group of its children). A **leaf** is a `<primitiv-tree-item>`. `<primitiv-tree-selection-path>` is optional and stamps a Breadcrumb from its `<template>`. The `__item-spacer`, `__*-label` and `__branch-content-inner`/`-body` spans are styling-only and drop out of the headless markup.",
+    accessibility: [
+      "The root gets `role=\"tree\"` (and `aria-multiselectable` in multiple mode); each row is a `treeitem` with `aria-level`, `aria-selected`, and `aria-expanded` on branches. A branch's row is the `treeitem`, labelled from its control, and its content is the `group`.",
+      "The rows share **one tab stop**. Tab moves into the tree and out again; the arrows, Home and End move between visible rows, and Left / Right collapse and expand.",
+      "`disabled` sets `aria-disabled` and stops a node taking selection or toggling, but it stays in the roving order so a keyboard user can still find it.",
+      "A collapsed group gets `hidden` and `aria-hidden`, so a screen reader never reads a subtree that looks closed. With `force-mount` it stays rendered for the stylesheet to animate, and `aria-hidden` still hides it. Write `hidden` in your markup so nothing shows before the script loads.",
+      "The indicator is decorative (`aria-hidden`), since `aria-expanded` already announces the state.",
+      "Every user change fires a cancelable `primitiv-tree-change` or `primitiv-tree-expanded-change` first. A missing `value` or a misplaced part is reported once in the console and left alone; nothing throws, because a server-rendered page has no error boundary.",
+      "The selection path is a Breadcrumb `nav`; the current node is set apart by weight as well as colour.",
+    ],
+  },
 
   accessibility: [
     "The Root is a `role=\"tree\"`; each row is a `treeitem` carrying `aria-level`, `aria-selected`, and `aria-expanded` on branches — the WAI-ARIA tree view, so a screen reader announces the depth, the open/closed state and the selection.",

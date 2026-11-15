@@ -669,3 +669,23 @@ test("the Combobox previews are <primitiv-combobox> elements: the page's filter 
   await expect(controlled.locator("primitiv-combobox")).toHaveAttribute("value", "vue");
   await expect(controlled.locator("[data-combobox-value]")).toHaveText("vue");
 });
+
+test("the Tree previews are <primitiv-tree> elements: a click selects, and the controlled buttons drive expansion", async ({ page }) => {
+  await page.goto("/components/tree/");
+  await expect(page.getByText(/dist\/cdn\/tree\.js/).first()).toBeVisible();
+  const path = cell(page, "selection-path");
+  // The definition loads on demand: wait for the element to have wired its rows.
+  await expect(path.getByRole("treeitem", { name: "Button.tsx" })).toHaveAttribute("aria-selected", "true");
+  await expect(path.locator("primitiv-tree")).toHaveAttribute("class", /primitiv-tree/);
+  await path.getByRole("treeitem", { name: "Card.tsx" }).click();
+  await expect(path.locator("[aria-current=page]")).toHaveText("Card.tsx");
+
+  const controlled = cell(page, "controlled");
+  await expect(controlled.getByRole("treeitem", { name: "favicon.ico" })).toHaveCount(0);
+  await controlled.getByRole("button", { name: "Expand all" }).click();
+  await expect(controlled.getByRole("treeitem", { name: "favicon.ico" })).toBeVisible();
+  await controlled.getByRole("treeitem", { name: "app.tsx" }).click();
+  await expect(controlled.locator("[data-selected-node]")).toHaveText("app.tsx");
+  await controlled.getByRole("button", { name: "Collapse all" }).click();
+  await expect(controlled.getByRole("treeitem", { name: "app.tsx" })).toHaveCount(0);
+});

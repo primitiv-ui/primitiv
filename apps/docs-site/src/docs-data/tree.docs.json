@@ -728,7 +728,7 @@
       },
       {
         "tag": "primitiv-tree-branch-content",
-        "description": "`<primitiv-tree-branch-content>` — a branch's children. Structural: the root gives it `role=\"group\"`, `data-depth`, `data-state` and `hidden` while its branch is collapsed (write `hidden` in your markup too, so it is hidden before the script loads).",
+        "description": "`<primitiv-tree-branch-content>` — a branch's children. Structural: the root gives it `role=\"group\"`, `data-depth`, `data-state`, and `hidden` and `aria-hidden` while its branch is collapsed (write `hidden` in your markup too, so it is hidden before the script loads).",
         "attributes": [
           {
             "name": "force-mount",

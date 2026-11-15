@@ -546,5 +546,112 @@
     ]
   },
   "figma": {},
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "miller-columns",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-miller-columns value=\"docs guides\" class=\"primitiv-miller-columns primitiv-miller-columns--md\">\n  <primitiv-miller-columns-tree aria-label=\"Files\">\n    <!-- Columns are siblings: each one after the first names the item it lists the children of with parent. The strip shows the columns on the path and hides the rest. -->\n    <primitiv-miller-columns-column class=\"primitiv-miller-columns__column\">\n      <primitiv-miller-columns-resize-handle aria-label=\"Resize column\" min-width=\"160\" max-width=\"480\" class=\"primitiv-miller-columns__resize-handle\"></primitiv-miller-columns-resize-handle>\n      <primitiv-miller-columns-item value=\"docs\" class=\"primitiv-miller-columns__item\">\n        <span class=\"primitiv-miller-columns__item-label\">Docs</span>\n        <primitiv-miller-columns-item-indicator class=\"primitiv-miller-columns__item-indicator\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /></svg></primitiv-miller-columns-item-indicator>\n      </primitiv-miller-columns-item>\n      <primitiv-miller-columns-item value=\"readme\" class=\"primitiv-miller-columns__item\">\n        <span class=\"primitiv-miller-columns__item-label\">README.md</span>\n      </primitiv-miller-columns-item>\n    </primitiv-miller-columns-column>\n    <primitiv-miller-columns-column parent=\"docs\" class=\"primitiv-miller-columns__column\">\n      <primitiv-miller-columns-item value=\"guides\" class=\"primitiv-miller-columns__item\">\n        <span class=\"primitiv-miller-columns__item-label\">Guides</span>\n        <primitiv-miller-columns-item-indicator class=\"primitiv-miller-columns__item-indicator\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /></svg></primitiv-miller-columns-item-indicator>\n      </primitiv-miller-columns-item>\n      <primitiv-miller-columns-item value=\"api\" class=\"primitiv-miller-columns__item\">\n        <span class=\"primitiv-miller-columns__item-label\">API</span>\n      </primitiv-miller-columns-item>\n    </primitiv-miller-columns-column>\n    <primitiv-miller-columns-column parent=\"guides\" class=\"primitiv-miller-columns__column\">\n      <primitiv-miller-columns-item value=\"intro\" class=\"primitiv-miller-columns__item\">\n        <span class=\"primitiv-miller-columns__item-label\">Introduction</span>\n      </primitiv-miller-columns-item>\n      <primitiv-miller-columns-item value=\"setup\" class=\"primitiv-miller-columns__item\">\n        <span class=\"primitiv-miller-columns__item-label\">Setup</span>\n      </primitiv-miller-columns-item>\n    </primitiv-miller-columns-column>\n  </primitiv-miller-columns-tree>\n  <!-- Shown while the deepest selected item is a leaf: fill it from primitiv-miller-columns-change. -->\n  <primitiv-miller-columns-preview-panel class=\"primitiv-miller-columns__preview\" hidden>Select a file to preview it.</primitiv-miller-columns-preview-panel>\n</primitiv-miller-columns>\n",
+    "api": [
+      {
+        "tag": "primitiv-miller-columns",
+        "description": "`<primitiv-miller-columns>` — the strip of a Miller Columns view, and the state owner: a row of vertical lists where selecting a branch reveals its children in the next column.\n\n**Columns are written as siblings, not nested.** Each column after the first names the item it lists the children of with `parent`; the root shows the root column (the one without a `parent`) and, for each value on the path, the column naming it, and sets `hidden` on every other. An item is a branch while some column names it. So a server can render the whole tree, or only the open columns, or send a column when its branch is selected (`primitiv-miller-columns-show`), and the root never moves a node it did not write.\n\nThe strip scrolls to its inline end when a column opens (not on first render). Resize handles keep each depth's width, so a column opened at a resized depth takes that width, as React's do.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The active path: the selected item's value in each column, from the root, space-separated. Reflected: it moves as the user selects, so a server re-render or a history snapshot sees the live path."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-miller-columns-change",
+            "type": "CustomEvent<{ value: string[] }>",
+            "description": "Bubbles, cancelable, fired before a user's selection applies, with the path afterwards. Call `preventDefault()` to keep the current path."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-miller-columns-tree",
+        "description": "`<primitiv-miller-columns-tree>` — the `role=\"tree\"` widget inside the strip, holding only the columns. Structural: the root writes its role. Name it with `aria-label` or `aria-labelledby`. A tree may own only items and groups, so the preview panel sits beside it, not in it.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-miller-columns-column",
+        "description": "`<primitiv-miller-columns-column>` — one column, a `role=\"group\"` of items. Structural: the root writes its ARIA and `hidden` while it is off the path.",
+        "attributes": [
+          {
+            "name": "parent",
+            "type": "string",
+            "description": "The value of the item whose children this column lists. Leave it off the root column."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-miller-columns-show",
+            "type": "CustomEvent",
+            "description": "Bubbles from the column as it opens (not on first render), so a lazy column can fetch its items."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-miller-columns-item",
+        "description": "`<primitiv-miller-columns-item>` — one item, a `role=\"treeitem\"`: a branch while some column names it as `parent`, a leaf otherwise. Structural: the root writes its ARIA. Its text is what typeahead matches.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The item's value, unique among its column's items; the path holds it and a child column names it."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Keeps the item focusable for discovery, but never selectable."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-miller-columns-item-indicator",
+        "description": "`<primitiv-miller-columns-item-indicator>` — a decorative `aria-hidden` glyph in an item, shown only while that item is a branch.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-miller-columns-resize-handle",
+        "description": "`<primitiv-miller-columns-resize-handle>` — a focusable WAI-ARIA window splitter in a column: drag it, or press the arrows, Home or End, to set the width of the column at its depth. Give it an accessible name.",
+        "attributes": [
+          {
+            "name": "min-width",
+            "type": "number",
+            "description": "The narrowest width, published as `aria-valuemin`. Defaults to `0`."
+          },
+          {
+            "name": "max-width",
+            "type": "number",
+            "description": "The widest width, published as `aria-valuemax`. Unbounded by default."
+          },
+          {
+            "name": "step",
+            "type": "number",
+            "description": "Pixels per arrow press. Defaults to `10`."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-miller-columns-preview-panel",
+        "description": "`<primitiv-miller-columns-preview-panel>` — the trailing preview pane, beside the tree. It shows only while the deepest selected item is a leaf; what it shows is yours, from `primitiv-miller-columns-change`.",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep the panel shown whatever is selected; `data-empty` marks it while nothing is."
+          }
+        ],
+        "events": []
+      }
+    ]
+  }
 }

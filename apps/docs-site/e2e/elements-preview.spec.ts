@@ -210,6 +210,43 @@ test("the Stepper compact example keeps its Step N of M line on the current step
   await expect(example.locator("[data-step-status]")).toHaveText("Step 2 of 3 — Profile");
 });
 
+test("the Miller Columns previews are defined <primitiv-miller-columns> elements, loaded from miller-columns.js", async ({ page }) => {
+  await page.goto("/components/miller-columns/");
+  await expect(page.getByText(/dist\/cdn\/miller-columns\.js/).first()).toBeVisible();
+  const strip = page.locator(".docs-elements-preview primitiv-miller-columns").first();
+  await expect(strip).toHaveClass(/primitiv-miller-columns/);
+  await expect(strip.getByRole("tree", { name: "Files" })).toBeVisible();
+  await expect(strip.getByRole("treeitem", { name: "cover.jpg" })).toHaveAttribute("aria-selected", "true");
+});
+
+test("the Miller Columns file browser opens a folder's column beside it", async ({ page }) => {
+  await page.goto("/components/miller-columns/");
+  const example = cell(page, "file-browser").locator(".docs-elements-preview");
+  await expect(example.getByRole("treeitem", { name: "report.pdf" })).toBeVisible();
+  await example.getByRole("treeitem", { name: "Pictures" }).click();
+  await expect(example.getByRole("treeitem", { name: "Vacation" })).toBeVisible();
+  await expect(example.getByRole("treeitem", { name: "report.pdf" })).toBeHidden();
+});
+
+test("the Miller Columns preview pane follows the selected file", async ({ page }) => {
+  await page.goto("/components/miller-columns/");
+  const example = cell(page, "preview-pane").locator(".docs-elements-preview");
+  const preview = example.locator("[data-file-preview]");
+  await expect(preview).toContainText("wallpaper.png");
+  await example.getByRole("treeitem", { name: "README.md" }).click();
+  await expect(preview).toContainText("Markdown");
+});
+
+test("the Miller Columns selection path renders the path and walks back up it", async ({ page }) => {
+  await page.goto("/components/miller-columns/");
+  const example = cell(page, "selection-path").locator(".docs-elements-preview");
+  const trail = example.getByRole("navigation", { name: "File path" });
+  await expect(trail.getByRole("button")).toHaveText(["Documents", "Work", "report.pdf"]);
+  await trail.getByRole("button", { name: "Documents" }).click();
+  await expect(trail.getByRole("button")).toHaveText(["Documents"]);
+  await expect(example.getByRole("treeitem", { name: "report.pdf" })).toBeHidden();
+});
+
 test("the Drawer previews are <primitiv-modal> elements that slide in from their side", async ({ page }) => {
   await page.goto("/components/drawer/");
   await expect(page.getByText(/dist\/cdn\/modal\.js/).first()).toBeVisible();

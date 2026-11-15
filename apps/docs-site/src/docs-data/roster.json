@@ -309,7 +309,7 @@
     "category": "Collections & Selection",
     "description": "A horizontal strip of vertical lists where selecting a node reveals its children in the next column — the macOS Finder column view, with drag/keyboard-resizable columns and an optional preview pane.",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   },
   {
     "id": "modal",

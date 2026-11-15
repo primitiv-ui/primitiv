@@ -256,6 +256,162 @@ const SelectionPathExample = () => {
   );
 };
 
+
+// ── Elements (RFC 0033) ──────────────────────────────────────────────────────
+
+/** The chevron the styled ItemIndicator draws, sized so the headless form stays small. */
+const CHEVRON =
+  `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>`;
+
+/**
+ * The same tree as Elements markup: the `<primitiv-miller-columns>` elements,
+ * in the shape `primitiv add miller-columns --surface elements` prints. Columns
+ * are written as siblings — each after the first names its branch with
+ * `parent` — and the markup is server-correct: a column off the path, and the
+ * preview panel unless the path ends on a file, are already `hidden`.
+ */
+const elementsStrip = ({
+  size = "md",
+  value = [],
+  preview,
+}: {
+  size?: string;
+  value?: readonly string[];
+  /** The preview panel's content, or none. */
+  preview?: string;
+} = {}) => {
+  const open = new Set<string | null>([null, ...value]);
+  const columns: string[] = [];
+  const column = (nodes: FileNode[], parent: FileNode | null) => {
+    const shown = open.has(parent?.id ?? null);
+    columns.push(
+      `    <primitiv-miller-columns-column${parent ? ` parent="${parent.id}"` : ""} class="primitiv-miller-columns__column"${shown ? "" : " hidden"}>`,
+      `      <primitiv-miller-columns-resize-handle aria-label="${parent ? `Resize ${parent.label}` : "Resize column"}" min-width="140" max-width="320" class="primitiv-miller-columns__resize-handle"></primitiv-miller-columns-resize-handle>`,
+      ...nodes.flatMap((node) => [
+        `      <primitiv-miller-columns-item value="${node.id}" class="primitiv-miller-columns__item">`,
+        `        <span class="primitiv-miller-columns__item-label">${node.label}</span>`,
+        ...(node.children
+          ? [`        <primitiv-miller-columns-item-indicator class="primitiv-miller-columns__item-indicator">${CHEVRON}</primitiv-miller-columns-item-indicator>`]
+          : []),
+        `      </primitiv-miller-columns-item>`,
+      ]),
+      `    </primitiv-miller-columns-column>`,
+    );
+    for (const node of nodes) if (node.children) column(node.children, node);
+  };
+  column(TREE, null);
+  const terminal = value.length ? INDEX.get(value[value.length - 1]) : undefined;
+  return [
+    `<primitiv-miller-columns value="${value.join(" ")}" class="primitiv-miller-columns primitiv-miller-columns--${size}">`,
+    `  <primitiv-miller-columns-tree aria-label="Files">`,
+    ...columns,
+    `  </primitiv-miller-columns-tree>`,
+    ...(preview === undefined
+      ? []
+      : [
+          `  <primitiv-miller-columns-preview-panel class="primitiv-miller-columns__preview"${terminal && !terminal.children ? "" : " hidden"}>`,
+          `    ${preview}`,
+          `  </primitiv-miller-columns-preview-panel>`,
+        ]),
+    `</primitiv-miller-columns>`,
+  ].join("\n");
+};
+
+/** What a file preview shows for `node` — the same as FilePreview renders. */
+const previewHtml = (node: FileNode | undefined) =>
+  node
+    ? `${node.image ? `<img src="${node.image}" alt="" style="inline-size: 100%; max-inline-size: 12rem; border-radius: 0.5rem; display: block">` : ""}<strong>${node.label}</strong>${node.meta ? `<span class="docs-prop-description">${node.meta}</span>` : ""}`
+    : "";
+
+/** The preview pane's script, as the code tab prints it. */
+const PREVIEW_SCRIPT = [
+  `<script type="module">`,
+  `  // nodeById: your own Map<id, node>, built from the tree data you render.`,
+  `  const strip = document.querySelector("primitiv-miller-columns");`,
+  `  const preview = strip.querySelector("[data-file-preview]");`,
+  `  strip.addEventListener("primitiv-miller-columns-change", (event) => {`,
+  `    const node = nodeById.get(event.detail.value.at(-1));`,
+  `    if (!node) return;`,
+  `    preview.innerHTML = (node.image ? \`<img src="\${node.image}" alt="">\` : "")`,
+  `      + \`<strong>\${node.label}</strong><span>\${node.meta}</span>\`;`,
+  `  });`,
+  `</script>`,
+].join("\n");
+
+/** Keeps the preview pane on the selected file, as the code tab's script does. */
+const wirePreview = (root: HTMLElement) => {
+  const strip = root.querySelector("primitiv-miller-columns");
+  const preview = root.querySelector("[data-file-preview]");
+  if (!strip || !preview) return;
+  const onChange = (event: Event) => {
+    const node = INDEX.get((event as CustomEvent<{ value: string[] }>).detail.value.at(-1) ?? "");
+    if (node) preview.innerHTML = previewHtml(node);
+  };
+  strip.addEventListener("primitiv-miller-columns-change", onChange);
+  return () => strip.removeEventListener("primitiv-miller-columns-change", onChange);
+};
+
+/** The preview panel's starting content for `value`, wrapped where the script finds it. */
+const previewSlot = (value: readonly string[], html = false) =>
+  html
+    ? `<div data-file-preview style="display: grid; gap: 0.5rem; justify-items: center; text-align: center">${previewHtml(INDEX.get(value[value.length - 1]))}</div>`
+    : `<div data-file-preview></div>`;
+
+const PATH_SCRIPT = [
+  `<script type="module">`,
+  `  // nodeById: your own Map<id, node>, built from the tree data you render.`,
+  `  const strip = document.querySelector("primitiv-miller-columns");`,
+  `  const trail = document.querySelector("[data-file-path]");`,
+  `  const render = (path) => {`,
+  `    trail.replaceChildren(...path.map((id, i) => {`,
+  `      const crumb = document.createElement("button");`,
+  `      crumb.type = "button";`,
+  `      crumb.textContent = nodeById.get(id).label;`,
+  `      crumb.addEventListener("click", () => {`,
+  `        strip.value = path.slice(0, i + 1).join(" ");`,
+  `        render(path.slice(0, i + 1));`,
+  `      });`,
+  `      return crumb;`,
+  `    }));`,
+  `  };`,
+  `  render(strip.value.split(" ").filter(Boolean));`,
+  `  strip.addEventListener("primitiv-miller-columns-change", (event) => render(event.detail.value));`,
+  `</script>`,
+].join("\n");
+
+const PATH_START = ["documents", "work", "report"];
+
+/** Renders the breadcrumb and keeps it on the path, as the code tab's script does. */
+const wirePath = (root: HTMLElement) => {
+  const strip = root.querySelector<HTMLElement>("primitiv-miller-columns");
+  const trail = root.querySelector("[data-file-path]");
+  if (!strip || !trail) return;
+  const render = (path: string[]) => {
+    trail.replaceChildren(
+      ...path.map((id, i) => {
+        const crumb = document.createElement("button");
+        crumb.type = "button";
+        crumb.className = "primitiv-button primitiv-button--ghost primitiv-button--sm";
+        crumb.textContent = INDEX.get(id)?.label ?? id;
+        crumb.addEventListener("click", () => {
+          strip.setAttribute("value", path.slice(0, i + 1).join(" "));
+          render(path.slice(0, i + 1));
+        });
+        return crumb;
+      }),
+    );
+  };
+  // The attribute, not the property: the preview loads the element on demand,
+  // so this can run before <primitiv-miller-columns> is upgraded.
+  render((strip.getAttribute("value") ?? "").split(" ").filter(Boolean));
+  const onChange = (event: Event) => render((event as CustomEvent<{ value: string[] }>).detail.value);
+  strip.addEventListener("primitiv-miller-columns-change", onChange);
+  return () => strip.removeEventListener("primitiv-miller-columns-change", onChange);
+};
+
+/** A preview fills the card, as the React demos do with their full-width wrapper. */
+const filling = (markup: string) => [`<div class="docs-example-stack">`, markup, `</div>`].join("\n");
+
 /**
  * Miller Columns' page content.
  *
@@ -269,6 +425,12 @@ export const millerColumnsSpec: ComponentSpec = {
   playground: {
     component: "MillerColumns",
     snippet: (values, mode) => {
+      if (mode === "elements")
+        return [
+          elementsStrip({ size: values.size, value: ["cover"], preview: previewSlot(["cover"]) }),
+          ``,
+          PREVIEW_SCRIPT,
+        ].join("\n");
       const size = contractAttr({ mode, prop: "size", value: values.size });
       return [
         imports(mode, [...PARTS, "PreviewPanel"]),
@@ -283,6 +445,9 @@ export const millerColumnsSpec: ComponentSpec = {
       ].join("\n");
     },
     fill: true,
+    elementsPreview: (code) =>
+      filling(code.slice(0, code.indexOf("\n\n<script")).replace(previewSlot(["cover"]), previewSlot(["cover"], true))),
+    elementsWire: wirePreview,
     render: (values) => (
       <div style={{ inlineSize: "100%" }}>
         <MillerColumns
@@ -311,6 +476,22 @@ export const millerColumnsSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<primitiv-miller-columns>`,
+            `  <primitiv-miller-columns-tree>`,
+            `    <primitiv-miller-columns-column>                 <!-- the root column -->`,
+            `      <primitiv-miller-columns-resize-handle />`,
+            `      <primitiv-miller-columns-item>                 <!-- a leaf -->`,
+            `      <primitiv-miller-columns-item>                 <!-- a branch: -->`,
+            `        <primitiv-miller-columns-item-indicator />`,
+            `      </primitiv-miller-columns-item>`,
+            `    </primitiv-miller-columns-column>`,
+            `    <primitiv-miller-columns-column parent="…">   <!-- the branch's children, a sibling -->`,
+            `  </primitiv-miller-columns-tree>`,
+            `  <primitiv-miller-columns-preview-panel />      <!-- optional trailing pane -->`,
+            `</primitiv-miller-columns>`,
+          ].join("\n");
         const p = partNamer(mode, "MillerColumns");
         return [
           `<${p("Root")}>`,
@@ -357,9 +538,13 @@ export const millerColumnsSpec: ComponentSpec = {
       title: "A file browser",
       render: () => (
         <InteractiveExample
+          elementsPreview={(_density, code) => filling(code)}
+          elementsCaption="The canonical column view: selecting a folder reveals its contents in the next column. The columns are written **as siblings**: each one after the first names the item it lists the children of with `parent`, and the strip shows the columns on the path and hides the rest (`Archive` has an empty column, so it opens a blank one). `value` on `<primitiv-miller-columns>` is the selection **path** — ids, root first, space-separated. Every column carries a `<primitiv-miller-columns-resize-handle>`: drag the seam between columns, or focus it and use the arrow keys."
           caption="The canonical column view: selecting a folder reveals its contents in the next column. The tree is authored by **recursive composition** — an item is a branch when it nests a `MillerColumns.Column`, a leaf when it does not (`Archive` nests an empty column, so it opens a blank one). `defaultValue` is the selection **path** — an array of ids, root first. Every column carries a `MillerColumns.ResizeHandle`: drag the seam between columns, or focus it and use the arrow keys."
           code={(_density, mode) =>
-            [imports(mode), ``, ...compositionLines(mode, { rootAttrs: ` defaultValue={["documents", "work"]}` })].join("\n")
+            mode === "elements"
+              ? elementsStrip({ value: ["documents", "work"] })
+              : [imports(mode), ``, ...compositionLines(mode, { rootAttrs: ` defaultValue={["documents", "work"]}` })].join("\n")
           }
         >
           {() => (
@@ -382,9 +567,16 @@ export const millerColumnsSpec: ComponentSpec = {
       title: "With a preview pane",
       render: () => (
         <InteractiveExample
+          elementsPreview={() =>
+            filling(elementsStrip({ value: ["wallpaper"], preview: previewSlot(["wallpaper"], true) }))
+          }
+          wire={wirePreview}
+          elementsCaption={"Add a `<primitiv-miller-columns-preview-panel>` after the tree and it fills the strip's remaining width — Finder's rightmost pane. The element shows it only while the deepest selected item is a file, and leaves what it shows to you: listen for `primitiv-miller-columns-change`, whose `detail.value` is the new path, and render whatever the selection warrants — here a thumbnail for an image file. Render the starting content in your markup too, so the page is right before the script loads."}
           caption={"Add a `MillerColumns.PreviewPanel` after the columns and it fills the strip's remaining width — Finder's rightmost pane. It is content-agnostic: read the current selection with `useMillerColumnsSelection` (from the headless package — the registry surface does not re-export it) and render whatever the selection warrants — here a thumbnail for an image file. The pane mounts for a selected leaf; pick another file or drill into a folder to see it update (a document shows just its details)."}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [elementsStrip({ value: ["wallpaper"], preview: previewSlot(["wallpaper"]) }), ``, PREVIEW_SCRIPT].join("\n")
+              : [
               imports(mode, ["Column", "Item", "ItemIndicator", "ResizeHandle", "PreviewPanel"]),
               `import { useMillerColumnsSelection } from "@primitiv-ui/react";`,
               ``,
@@ -420,8 +612,20 @@ export const millerColumnsSpec: ComponentSpec = {
       title: "Selection path",
       render: () => (
         <InteractiveExample
+          elementsPreview={() =>
+            filling(
+              [
+                `<nav aria-label="File path" data-file-path style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem"></nav>`,
+                elementsStrip({ value: PATH_START }),
+              ].join("\n"),
+            )
+          }
+          wire={wirePath}
+          elementsCaption="The selection **is** the path — ids, root first, in the `value` attribute — so the full root-to-leaf trail is always there to read. That is what you render as a breadcrumb of where the user is; here each crumb navigates back up when clicked, by setting `value`. `primitiv-miller-columns-change` fires with the whole new path on every change, before it applies, and is cancelable. There is no multi-select: the selection is the path, so a column can have only one chosen item."
           caption="The selection **is** the path — an array of ids, root first — so a controlled `value` hands you the full root-to-leaf trail directly (or read it from `useMillerColumnsSelection().path` in an uncontrolled strip). That is what you render as a breadcrumb of where the user is; here each crumb navigates back up when clicked. `onValueChange` fires with the whole new path on every change. There is no multi-select: the selection is the path, so a column can have only one chosen item."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [`<nav aria-label="File path" data-file-path></nav>`, ``, elementsStrip({ value: PATH_START }), ``, PATH_SCRIPT].join("\n");
             const p = partNamer(mode, "MillerColumns");
             return [
               imports(mode),
@@ -453,6 +657,39 @@ export const millerColumnsSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A horizontal strip of vertical lists — the macOS Finder column view — where selecting a folder reveals its contents in the next column. `<primitiv-miller-columns>` keeps the selection path in its `value` attribute; the columns are written as siblings, each naming the item it lists the children of with `parent`, so a server can render the whole tree, only the open columns, or send a column when its folder is opened.",
+    anatomyMeta:
+      "Seven elements, written flat — no nesting. `<primitiv-miller-columns>` is the strip and holds the path; inside it `<primitiv-miller-columns-tree>` is the `role=\"tree\"` widget holding the columns. Each `<primitiv-miller-columns-column>` after the first names its branch with `parent`; an item is a **branch** while some column names it, a **leaf** otherwise. The root shows the columns on the path and sets `hidden` on the rest. `<primitiv-miller-columns-preview-panel>` is an optional trailing pane beside the tree (a `role=\"tree\"` may own only tree items), whose content is yours.",
+    keyboardMeta:
+      "The rows share a **single tab stop** (a roving `tabindex`). Movement is within the focused column, and the horizontal arrows step between columns — into a branch's column and back to its parent — the WAI-ARIA tree model, mirrored under `dir=\"rtl\"`. Selection is single only: the selection *is* the path. A `<primitiv-miller-columns-resize-handle>` is a **separate** window splitter — focus it and the arrow keys resize its column (bounded by `min-width` / `max-width`, stepped by `step`).",
+    keyboard: [
+      { keys: ["ArrowDown", "ArrowUp"], behaviour: "Move focus within the current column." },
+      { keys: ["Home", "End"], behaviour: "Focus the first / last item in the column." },
+      {
+        keys: ["ArrowRight"],
+        behaviour: "Open a branch and step into its column. A no-op on a leaf. Under `dir=\"rtl\"`, `ArrowLeft`.",
+      },
+      { keys: ["ArrowLeft"], behaviour: "Return focus to the parent column. Under `dir=\"rtl\"`, `ArrowRight`." },
+      { keys: ["Enter", "Space"], behaviour: "Select the focused item." },
+      {
+        keys: ["character"],
+        literal: true,
+        behaviour: "Typeahead — jump to the next item in the column whose text starts with the typed characters.",
+      },
+    ],
+    accessibility: [
+      "`<primitiv-miller-columns-tree>` is the `role=\"tree\"` widget, so give it the `aria-label` or `aria-labelledby` that names it. The elements write `role=\"group\"` on each column and `role=\"treeitem\"` with `aria-level`, `aria-selected` and, on a branch, `aria-expanded` on each item.",
+      "The rows share **one tab stop**. Tab moves into the widget and then out of it; the arrow keys move within and between columns. A strip of focusable rows would make a keyboard user Tab through everything — the roving `tabindex` is the tree pattern's answer.",
+      "A column off the path carries `hidden`. Write it on those columns in your own markup too, so the page is right before the script loads and stays right if it never does.",
+      "`<primitiv-miller-columns-resize-handle>` is a WAI-ARIA window splitter with `aria-valuemin` / `aria-valuemax` / `aria-valuenow` — **give it an `aria-label`**, or it announces as an unnamed separator. It is operable by both pointer drag and the keyboard.",
+      "`<primitiv-miller-columns-item-indicator>` is decorative and `aria-hidden` — the branch state is announced through `aria-expanded`, so a labelled chevron would say it twice.",
+      "The preview panel sits **outside** the `role=\"tree\"`, so its content is not announced as part of the tree. Give it its own structure and labelling.",
+      "Related: reach for [Tree](/components/tree/) when the hierarchy should show its depth in one vertical list rather than a strip of columns.",
+    ],
+  },
 
   accessibility: [
     "`MillerColumns.Root` renders the scroll strip and, inside it, the `role=\"tree\"` widget that holds the columns — so `aria-label` / `aria-labelledby` land on the inner tree, which is what names the widget. Each item is a `role=\"treeitem\"` carrying `aria-level` and `aria-expanded`.",

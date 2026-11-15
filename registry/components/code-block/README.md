@@ -156,46 +156,45 @@ there only deliberately.
 
 ## Elements (plain HTML)
 
-`primitiv add code-block --surface elements` prints the block as plain markup
-plus the one custom element it needs, `<primitiv-code-block-copy>` from
-`@primitiv-ui/web`, and loads its script (`dist/cdn/code-block.js`). Add
-`--styled` to copy this stylesheet and print the classed markup.
+`primitiv add code-block --surface elements` prints the block as the
+`<primitiv-code-block>` element from `@primitiv-ui/web` and loads its script
+(`dist/cdn/code-block.js`). Add `--styled` to copy this stylesheet and print the
+classed markup.
 
 ```html
-<div class="primitiv-code-block primitiv-code-block--md">
+<primitiv-code-block language="ts" class="primitiv-code-block primitiv-code-block--md">
   <div class="primitiv-code-block__header">
     <span class="primitiv-code-block__filename">greet.ts</span>
     <primitiv-code-block-copy>
-      <button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy" aria-label="Copy code">
-        <svg data-copy-state="idle">...</svg><svg data-copy-state="copied" hidden>...</svg>
-      </button>
+      <button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy" aria-label="Copy code">...</button>
     </primitiv-code-block-copy>
   </div>
-  <pre class="primitiv-code-block__pre language-ts"><code class="primitiv-code-block__code"><span class="token keyword">export</span> ...</code></pre>
-</div>
+  <pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code">{{ code }}</code></pre>
+</primitiv-code-block>
 ```
 
-How it differs from the React block:
+How it maps to the React block:
 
-- **The highlighting is yours, done before the browser.** Run the code through
-  Prism on your server or in your build (`Prism.highlight(code, grammar,
-  language)`) and write the result inside the `<code>`: the stylesheet colours
-  Prism's token classes from the `--primitiv-code-syntax-*` palette, so nothing
-  highlights at run time. Unhighlighted code works too, just without colour.
-- **`<primitiv-code-block-copy>` copies what is shown**: the text of the nearest
-  `<code>` it can see (the shown panel's in a tabbed block, skipping `hidden`
-  ones), or the one `for` names, without `aria-hidden` parts such as line
-  numbers. Keep each line's newline in the markup; a line-number gutter is one
-  `__line` per line with the newline at the end of its `__line-content`.
-- **The copied state** lasts two seconds: `copied` on the element,
-  `data-copied` on the button, its `aria-label` swapped for `copied-label`
-  (default `Copied`) and back, and the child marked `data-copy-state="copied"`
-  shown in place of the `idle` one. `primitiv-code-block-copy` (`detail.text`)
-  is cancelable.
-- **The tabbed form is the Tabs elements** wearing this block's classes: a
-  `<primitiv-tabs>` with the `primitiv-code-block` classes, the copy control in
-  the header beside `<primitiv-tabs-list>`, and one `<primitiv-tabs-content
-  class="primitiv-code-block__panel">` per tab. Load `tabs.js` as well.
+- **`language` is React's `language`, and the code is the `<code>`'s text**,
+  escaped as any HTML text is — a server template does that for you. The element
+  highlights it with Prism, loading only the grammars that language needs, and
+  drops the blank lines and indent it was pasted with. Before the script loads it
+  reads as plain text. Prism's own `class="language-tsx"` on a `<code>` or
+  `<pre>` works too, so Markdown output needs no change.
+- **`line-numbers` is `showLineNumbers`.** The element splits the highlighted
+  code into `__line` rows with an `aria-hidden` `__ln` number each.
+- **Code that already holds Prism's token spans is left alone**, so highlighting
+  at build time or on the server still works, with no script cost for it.
+- **The header is markup you write**, as above: a `__filename` and
+  `<primitiv-code-block-copy>` around the copy button. The copy control copies
+  its block's code as shown (without line numbers), reads `Copied` for two
+  seconds, and fires a cancelable `primitiv-code-block-copy` (`detail.text`).
+- **The tabbed form** is the Tabs elements inside the block: one `<code>` per
+  `<primitiv-tabs-content class="primitiv-code-block__panel">`, each
+  highlighted, and the copy control copies the shown panel. Load `tabs.js` as
+  well.
+- **A page that already uses Prism keeps its own**: the block adds the grammars
+  it needs to the page's `Prism` instead of loading another.
 
 ## Files
 

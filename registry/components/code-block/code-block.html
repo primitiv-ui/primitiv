@@ -1,12 +1,12 @@
-<div class="primitiv-code-block primitiv-code-block--md">
+<primitiv-code-block language="ts" class="primitiv-code-block primitiv-code-block--md">
   <div class="primitiv-code-block__header">
     <span class="primitiv-code-block__filename">greet.ts</span>
     <primitiv-code-block-copy>
       <button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy" aria-label="Copy code"><svg data-copy-state="idle" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.75 7.25v13.5H7.25V7.25zm-12 12h10.5V8.75H8.75z" /><path d="M15.25 4.75H4.75v10.5h4v1.5h-5.5V3.25h13.5v5.5h-1.5z" /></svg><svg data-copy-state="copied" hidden viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946z" /></svg></button>
     </primitiv-code-block-copy>
   </div>
-  <!-- Highlight on the server or at build time: the stylesheet colours Prism's token classes. The copy control copies the code's text as shown, so keep each line's newline in it. -->
-  <pre class="primitiv-code-block__pre language-ts"><code class="primitiv-code-block__code"><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">greet</span><span class="token punctuation">(</span>name<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  <span class="token keyword">return</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Hello, </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>name<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-</div>
+  <!-- The code as text, escaped as any HTML text is (a server template does it for you). The element highlights it in its language; add line-numbers to number it. -->
+  <pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code">export function greet(name: string) {
+  return `Hello, ${name}`;
+}</code></pre>
+</primitiv-code-block>

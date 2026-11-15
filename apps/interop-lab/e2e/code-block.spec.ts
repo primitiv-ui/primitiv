@@ -66,3 +66,23 @@ test("a cancelled copy event copies nothing", async ({ page }) => {
   await expect(copyIn(page, "block")).toHaveAccessibleName("Copy code");
   expect(await clipboard(page)).toBe("untouched");
 });
+
+test("a <primitiv-code-block> highlights its code and numbers it, and copies it as it was written", async ({ page }) => {
+  await open(page);
+  const block = page.locator("#highlighting");
+  await expect(block.locator(".token.keyword").first()).toHaveText("const");
+  await expect(block.locator(".primitiv-code-block__ln")).toHaveCount(4);
+  await copyIn(page, "highlighting").click();
+  await expect.poll(() => clipboard(page)).toBe("const a = 1;\nif (a) {\n  run();\n}");
+});
+
+test("loading Prism leaves the page's other language-* blocks alone", async ({ page }) => {
+  await open(page);
+  await expect(page.locator("#highlighting .token").first()).toBeAttached();
+  // Prism's own pass, when it is not told it is manual, runs a frame after it
+  // loads and stamps each block's language class onto its <pre> — even for a
+  // language whose grammar it has not loaded, so this shows whether it ran.
+  await page.waitForTimeout(200);
+  expect(await page.locator("#page-prism code").innerHTML()).toBe("a { color: red; }");
+  await expect(page.locator("#page-prism")).not.toHaveAttribute("class");
+});

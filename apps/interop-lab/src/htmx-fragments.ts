@@ -159,6 +159,7 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "code-block-oob-code": `<div hx-swap-oob="innerHTML:#rerendered pre">${preHtml("const fresh = true;").replace(/^<pre>|<\/pre>$/g, "")}</div>`,
   "code-block-oob-panel": `<div hx-swap-oob="innerHTML:#oob primitiv-tabs-content[value=pnpm]">${preHtml("pnpm add primitiv")}</div>`,
   "code-block-preserve": `<div id="preserve-region"><p>Swapped region</p>${codeBlockHtml({}, "preserved").replace('<div id="preserved">', '<div id="preserved" hx-preserve="true">')}</div>`,
+  "code-block-plain": "const fresh = 2;",
   "code-block-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("text")} (${++codeBlockEchoes})</span>`,
   // The Table page's cases (table-htmx.html), named to match.

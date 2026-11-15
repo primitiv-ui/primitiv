@@ -52,3 +52,12 @@ export function tabbedCodeBlockHtml(id = "tabbed", value = "npm"): string {
     `${copyHtml()}</div>${panels}</primitiv-tabs>`
   );
 }
+
+/** A block that highlights itself: the code as plain (escaped) text, indented as pasted, and a language. */
+export function highlightingBlockHtml(id = "highlighting", attrs = ' language="ts" line-numbers', code = "const a = 1;\nif (a) {\n  run();\n}"): string {
+  const pasted = code
+    .split("\n")
+    .map((line) => `    ${line}`)
+    .join("\n");
+  return `<primitiv-code-block id="${id}"${attrs}><div>${copyHtml()}</div><pre><code>\n${pasted.replace(/&/g, "&amp;").replace(/</g, "&lt;")}\n  </code></pre></primitiv-code-block>`;
+}

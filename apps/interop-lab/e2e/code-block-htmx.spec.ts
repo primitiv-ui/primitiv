@@ -48,6 +48,20 @@ test("4. an hx-preserve'd block keeps copying and announces each press once", as
   expect(await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen)).toHaveLength(1);
 });
 
+test("7. plain code swapped into a highlighting block is highlighted", async ({ page }) => {
+  await expect(page.locator("#swapped-code .token.keyword")).toHaveText("let");
+  await page.click("#load-plain");
+  await expect(page.locator("#swapped-code .token.keyword")).toHaveText("const");
+});
+
+test("8. history restore brings a highlighted block back highlighted", async ({ page }) => {
+  await expect(page.locator("#history-highlighted .token.keyword")).toHaveText("let");
+  await page.click("#go-two");
+  await expect(page.locator("#page-two")).toBeVisible();
+  await page.goBack();
+  await expect(page.locator("#history-highlighted .token.keyword")).toHaveText("let");
+});
+
 test("5. history restore mid-copy brings the button back idle, with its own label", async ({ page }) => {
   await copyIn(page, "history").click();
   await expect(copyIn(page, "history")).toHaveAccessibleName("Copied");

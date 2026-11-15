@@ -5,7 +5,7 @@ import "@primitiv-ui/web/define";
 
 import htmx from "htmx.org";
 
-import { codeBlockHtml, tabbedCodeBlockHtml } from "./code-block-fixture";
+import { codeBlockHtml, highlightingBlockHtml, tabbedCodeBlockHtml } from "./code-block-fixture";
 
 (window as unknown as { htmx: typeof htmx }).htmx = htmx;
 
@@ -19,8 +19,6 @@ set("rerender-region", codeBlockHtml({}, "rerendered"));
 set("oob-region", tabbedCodeBlockHtml("oob").replace(/(<primitiv-tabs-content value="pnpm" hidden>)<pre>[\s\S]*?<\/pre>/, "$1"));
 // 4: a preserved block inside a region that gets swapped.
 set("preserve-region", codeBlockHtml({}, "preserved").replace('<div id="preserved">', '<div id="preserved" hx-preserve="true">'));
-// 5: the block whose state history restore must bring back idle.
-set("history-region", codeBlockHtml({}, "history"));
 // 6: posts each copy to the server.
 set(
   "echo-region",
@@ -29,5 +27,10 @@ set(
     `<primitiv-code-block-copy hx-get="/fragments/code-block-echo" hx-trigger="primitiv-code-block-copy" hx-target="#echo-target" hx-vals='js:{text: event.detail.text}'>`,
   ),
 );
+
+// 7: a highlighting block whose code the server replaces with new plain text.
+set("swap-region", highlightingBlockHtml("swapped-code", ' language="js"', "let old = 1;"));
+// 5: the blocks history restore must bring back — idle, and still highlighted.
+set("history-region", codeBlockHtml({}, "history") + highlightingBlockHtml("history-highlighted", ' language="js"', "let kept = 1;"));
 
 htmx.process(document.body);

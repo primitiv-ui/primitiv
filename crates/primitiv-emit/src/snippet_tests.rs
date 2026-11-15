@@ -193,10 +193,15 @@ fn assert_uses_the_contracts_classes(
     for (dependency, dependency_stylesheet) in dependencies {
         allowed.extend(defined_classes(dependency, dependency_stylesheet));
     }
+    // A highlighter's vocabulary is not the component's: a `token` span carries
+    // whatever classes Prism gave it, and `language-*` is Prism's own convention.
     let used: std::collections::BTreeSet<String> = markup
         .split("class=\"")
         .skip(1)
-        .flat_map(|rest| rest.split('"').next().unwrap().split_whitespace())
+        .map(|rest| rest.split('"').next().unwrap())
+        .filter(|classes| !classes.split_whitespace().any(|class| class == "token"))
+        .flat_map(str::split_whitespace)
+        .filter(|class| !class.starts_with("language-"))
         .map(String::from)
         .collect();
     let unknown: Vec<_> = used.difference(&allowed).collect();

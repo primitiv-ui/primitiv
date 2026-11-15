@@ -141,6 +141,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("code-block", "code-block.recipe.ts"),
     registry_file!("code-block", "code-block.tsx"),
     registry_file!("code-block", "contract.json"),
+    registry_file!("code-block", "code-block.html"),
     registry_file!("modal", "styles.css"),
     registry_file!("modal", "styles.scss"),
     registry_file!("modal", "modal.recipe.ts"),

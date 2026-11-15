@@ -377,3 +377,13 @@
     overflow-wrap: normal;
   }
 }
+
+/* The copy control's two glyphs (or labels), marked `data-copy-state`: the
+   element sets `hidden` on the one not in play, but a reset that gives `svg` a
+   display (most do) outranks the browser's `[hidden]` rule, which would show
+   both. React swaps the elements instead, so this never matches there. */
+@layer primitiv.states {
+  .primitiv-code-block__copy [data-copy-state][hidden] {
+    display: none;
+  }
+}

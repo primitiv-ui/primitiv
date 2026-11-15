@@ -850,3 +850,12 @@ test("a vertical stepper leaves the current step's outgoing connector empty unti
   await page.locator("primitiv-stepper").evaluate((root) => root.setAttribute("value", "account"));
   await expect.poll(() => connector(page, "Billing", "::after", "transform")).toBe("matrix(1, 0, 0, 0, 0, 0)");
 });
+
+test("a compact stepper's steps keep their names, though the labels are not drawn", async ({ page }) => {
+  await page.locator("primitiv-stepper-list").evaluate((list) => list.classList.add("primitiv-stepper__list--compact"));
+  const billing = stepper(page).getByRole("tab", { name: "Billing" });
+  await expect(billing).toHaveAttribute("aria-selected", "true");
+  // Drawn as a bare segment: the label takes no space of its own.
+  const label = billing.locator(".primitiv-stepper__label");
+  expect(await label.evaluate((el) => el.getBoundingClientRect().width)).toBeLessThanOrEqual(1);
+});

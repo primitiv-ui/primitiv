@@ -149,9 +149,9 @@ Two things about this are deliberate.
 stay mounted, so every `StepperPanel` keeps its `aria-labelledby` pointing at a
 real trigger. Swapping the rail out for a hand-rolled bar at narrow widths
 breaks that reference on exactly the viewport where it is least likely to be
-noticed. The marker and label are hidden with `display: none`, which also keeps
-them out of the accessibility tree — a screen reader is not read a rail that
-is not visually there, while the tab semantics survive intact.
+noticed. The marker and description are hidden with `display: none`; the label
+is only *visually* hidden, because it is the step's accessible name — hidden
+with `display: none` it would leave every segment an unnamed tab.
 
 **The threshold is yours, not the component's.** `compact` is a boolean, driven
 from your side — `useMediaQuery`, a container query, a layout mode, anything.

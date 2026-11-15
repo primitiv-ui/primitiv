@@ -188,8 +188,8 @@ test("the Stepper wizard's Continue completes the step behind and unlocks the on
 test("the Stepper compact example keeps its Step N of M line on the current step", async ({ page }) => {
   await page.goto("/components/stepper/");
   const example = cell(page, "compact");
-  // Compact hides the labels, so the segments are found by position.
-  await example.locator(".docs-elements-preview").getByRole("tab").first().focus();
+  // Compact only visually hides the labels, so each segment keeps its name.
+  await example.locator(".docs-elements-preview").getByRole("tab", { name: "Account" }).focus();
   await page.keyboard.press("ArrowRight");
   await page.keyboard.press("Enter");
   await expect(example.locator("[data-step-status]")).toHaveText("Step 2 of 3 — Profile");

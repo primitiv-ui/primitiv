@@ -745,7 +745,7 @@ export const stepperSpec: ComponentSpec = {
       "A step the user cannot reach yet is a step with `disabled`: its tab gets `aria-disabled` and `data-disabled`, stays discoverable, and is skipped by the arrows. Remove the attribute to unlock it.",
       "The tick and warning glyphs are decoration — the marker does not announce a step's `complete` / `error` state. Surface a failed step where it can be acted on: `aria-invalid` and error text on the fields inside its panel, which is also where a screen-reader user is when they hit the problem.",
       "Inactive panels stay in the page with `hidden`, so a half-filled form keeps its values as the user moves around the rail. Render `hidden` on them in your own markup too, so the page is correct before the script loads.",
-      "The compact class keeps the steps in the page (only the markers and labels are hidden with `display: none`), so each panel's `aria-labelledby` still points at a real tab. Swapping the rail out for a hand-rolled bar at narrow widths breaks that reference on exactly the viewport where it is least likely to be noticed.",
+      "The compact class keeps the steps in the page (the markers are hidden and the labels only visually hidden, so each segment is still a named tab), so each panel's `aria-labelledby` still points at a real tab. Swapping the rail out for a hand-rolled bar at narrow widths breaks that reference on exactly the viewport where it is least likely to be noticed.",
     ],
   },
 
@@ -754,6 +754,6 @@ export const stepperSpec: ComponentSpec = {
     "Activation is `manual`. Arrow keys move focus along the rail and `Enter` / `Space` commits, so browsing the steps with the keyboard never changes step under the user and discards what is half-typed in the current panel.",
     "A step the user cannot reach yet is a `disabled` step — already a `Tabs.Trigger` prop, already correct for keyboard and screen readers, so it stays discoverable while being skipped by the arrows. There is no separate `linear` prop.",
     "`StepperMarker`'s tick and warning glyphs are `aria-hidden` decoration — the marker does not announce a step's `complete` / `error` state. Surface a failed step where it can be acted on: `aria-invalid` and error text on the fields inside its panel, which is also where a screen-reader user is when they hit the problem.",
-    "`compact` keeps the steps in the DOM (only the markers and labels are hidden with `display: none`), so each panel's `aria-labelledby` still points at a real trigger. Swapping the rail out for a hand-rolled bar at narrow widths breaks that reference on exactly the viewport where it is least likely to be noticed.",
+    "`compact` keeps the steps in the DOM (the markers are hidden and the labels only visually hidden, so each segment is still a named tab), so each panel's `aria-labelledby` still points at a real trigger. Swapping the rail out for a hand-rolled bar at narrow widths breaks that reference on exactly the viewport where it is least likely to be noticed.",
   ],
 };

@@ -157,3 +157,17 @@ export {
   type TreeSelectModifiers,
   type TreeSelectState,
 } from "./tree/policy.ts";
+export {
+  millerColumnsColumnDepths,
+  millerColumnsKeydown,
+  millerColumnsResizeDrag,
+  millerColumnsResizeKeydown,
+  millerColumnsSelect,
+  millerColumnsTabStop,
+  type MillerColumnsAddress,
+  type MillerColumnsItem,
+  type MillerColumnsKeyOutcome,
+  type MillerColumnsKeyState,
+  type MillerColumnsReadingDirection,
+  type MillerColumnsResizeState,
+} from "./miller-columns/policy.ts";

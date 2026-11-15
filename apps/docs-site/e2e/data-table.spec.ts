@@ -5,10 +5,18 @@ import { test, expect } from "@playwright/test";
 // column empty, until the glyph opted out of flex shrinking as the sort icon
 // and Pagination's chevrons already do. Run in CI's webkit and mobile-safari
 // projects, which is the point of this test.
-test("every expand trigger's chevron keeps its size", async ({ page }) => {
+for (const framework of ["react", "elements"]) {
+test(`every expand trigger's chevron keeps its size (${framework})`, async ({ page }) => {
+  await page.addInitScript(
+    ([key, value]) => localStorage.setItem(key, JSON.stringify(value)),
+    ["primitiv-docs-framework", framework],
+  );
   await page.goto("/components/data-table/");
   const triggers = page.getByRole("button", { name: /^Show details for / });
   await expect(triggers.first()).toBeVisible();
+  // React's trigger names a generated id; the Elements markup names "<row>-details".
+  // Waiting for the right one keeps the measurement off a page mid-swap.
+  await expect(triggers.first()).toHaveAttribute("aria-controls", framework === "react" ? /detail-row$/ : /-details$/);
   // Logged so a WebKit run says what it computed, pass or fail.
   console.log(
     JSON.stringify(
@@ -41,3 +49,4 @@ test("every expand trigger's chevron keeps its size", async ({ page }) => {
     expect(width).toBe(height);
   }
 });
+}

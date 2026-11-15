@@ -385,5 +385,46 @@
     ]
   },
   "figma": {},
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "table",
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-data-table primitiv-data-table--sm\">\n  <div class=\"primitiv-data-table__toolbar\">\n    <div class=\"primitiv-data-table__region primitiv-data-table__region--start\">Deployments</div>\n  </div>\n  <div class=\"primitiv-table__scroll-area\" tabindex=\"0\" role=\"region\" aria-label=\"Deployments\">\n    <table class=\"primitiv-table primitiv-table--sm\">\n      <thead class=\"primitiv-table__head\">\n        <tr class=\"primitiv-table__row\">\n          <th class=\"primitiv-table__header primitiv-data-table__control-cell\" scope=\"col\" aria-label=\"Details\"></th>\n          <th class=\"primitiv-table__header primitiv-table__header--start\" scope=\"col\">Deployment</th>\n          <th class=\"primitiv-table__header primitiv-table__header--start\" scope=\"col\">Status</th>\n          <!-- Sorting is yours: listen for the button's click, reorder the rows, and move aria-sort and the sort classes to match. -->\n          <th class=\"primitiv-table__header primitiv-table__header--end\" scope=\"col\" aria-sort=\"none\"><button type=\"button\" class=\"primitiv-data-table__sort primitiv-data-table__sort--end primitiv-data-table__sort--unsorted\">Duration<svg class=\"primitiv-data-table__sort-icon\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 6.5 5 13M5 13 3 11M5 13l2-2M11 9.5 11 3M11 3 9 5M11 3l2 2\" /></svg></button></th>\n        </tr>\n      </thead>\n      <tbody class=\"primitiv-table__body\">\n        <!-- The expand trigger sits in a cell, and its button names the detail row below it with aria-controls. force-mount keeps a closed row rendered (aria-hidden) so the panel animates. -->\n        <tr class=\"primitiv-table__row\">\n          <td class=\"primitiv-table__cell primitiv-data-table__control-cell\"><primitiv-table-expand-trigger force-mount><button type=\"button\" class=\"primitiv-button primitiv-button--ghost primitiv-button--xs primitiv-data-table__expand\" aria-controls=\"api-gateway-details\" aria-label=\"Show details for api-gateway\"><svg class=\"primitiv-data-table__expand-icon\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 4 4 4-4 4\" /></svg></button></primitiv-table-expand-trigger></td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--start\">api-gateway</td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--start\">Ready</td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--end\">412ms</td>\n        </tr>\n        <tr id=\"api-gateway-details\" class=\"primitiv-data-table__detail-row\" aria-hidden=\"true\">\n          <td></td>\n          <td colspan=\"3\"><div class=\"primitiv-data-table__detail-clip\"><div class=\"primitiv-data-table__detail-body\"><div class=\"primitiv-data-table__detail-content\"><p>api-gateway · Production · finished in 412ms.</p></div></div></div></td>\n        </tr>\n        <tr class=\"primitiv-table__row\">\n          <td class=\"primitiv-table__cell primitiv-data-table__control-cell\"><primitiv-table-expand-trigger expanded force-mount><button type=\"button\" class=\"primitiv-button primitiv-button--ghost primitiv-button--xs primitiv-data-table__expand\" aria-controls=\"web-frontend-details\" aria-label=\"Show details for web-frontend\"><svg class=\"primitiv-data-table__expand-icon\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 4 4 4-4 4\" /></svg></button></primitiv-table-expand-trigger></td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--start\">web-frontend</td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--start\">Ready</td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--end\">968ms</td>\n        </tr>\n        <tr id=\"web-frontend-details\" class=\"primitiv-data-table__detail-row\">\n          <td></td>\n          <td colspan=\"3\"><div class=\"primitiv-data-table__detail-clip\"><div class=\"primitiv-data-table__detail-body\"><div class=\"primitiv-data-table__detail-content\"><p>web-frontend · Preview · finished in 968ms.</p></div></div></div></td>\n        </tr>\n        <tr class=\"primitiv-table__row\">\n          <td class=\"primitiv-table__cell primitiv-data-table__control-cell\"><primitiv-table-expand-trigger force-mount><button type=\"button\" class=\"primitiv-button primitiv-button--ghost primitiv-button--xs primitiv-data-table__expand\" aria-controls=\"billing-worker-details\" aria-label=\"Show details for billing-worker\"><svg class=\"primitiv-data-table__expand-icon\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 4 4 4-4 4\" /></svg></button></primitiv-table-expand-trigger></td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--start\">billing-worker</td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--start\">Failed</td>\n          <td class=\"primitiv-table__cell primitiv-table__cell--end\">1,204ms</td>\n        </tr>\n        <tr id=\"billing-worker-details\" class=\"primitiv-data-table__detail-row\" aria-hidden=\"true\">\n          <td></td>\n          <td colspan=\"3\"><div class=\"primitiv-data-table__detail-clip\"><div class=\"primitiv-data-table__detail-body\"><div class=\"primitiv-data-table__detail-content\"><p>billing-worker · Production · finished in 1,204ms.</p></div></div></div></td>\n        </tr>\n      </tbody>\n    </table>\n  </div>\n  <div class=\"primitiv-data-table__footer\">\n    <div class=\"primitiv-data-table__region primitiv-data-table__region--end\">3 deployments</div>\n  </div>\n</div>\n",
+    "api": [
+      {
+        "tag": "primitiv-table-expand-trigger",
+        "description": "`<primitiv-table-expand-trigger>` — a table row's expand control: it decorates the one `<button>` you write in a cell, and shows and hides the detail row that button names with `aria-controls`.\n\n**It sits in a cell, not around the rows.** The HTML parser moves any element written between a table's rows out of the table, so nothing can wrap a row and its detail row the way React's `Table.Expandable` does. The button names its detail row by id instead, which is what `aria-controls` says anyway, and the detail row stays an ordinary `<tr>` the element writes `hidden`, `aria-hidden` and `data-state` on.\n\nThe behaviour is a disclosure's, so it runs the Collapsible controller: a click, or Enter or Space, toggles it once, and `disabled` stops it.",
+        "attributes": [
+          {
+            "name": "expanded",
+            "type": "boolean",
+            "description": "Whether the detail row is shown. Reflected: it moves as the user toggles, so a server re-render or a history snapshot sees the live state."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Stops the toggle; the button stays focusable."
+          },
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep a collapsed detail row rendered (only `aria-hidden`), for a stylesheet to animate."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-table-expand-change",
+            "type": "CustomEvent<{ expanded: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user's toggle applies. Call `preventDefault()` to keep the row as it is."
+          },
+          {
+            "name": "primitiv-table-expand-show",
+            "type": "CustomEvent",
+            "description": "Bubbles from the detail row as it opens (not on first render), so a lazy row can fetch its content."
+          }
+        ]
+      }
+    ]
+  }
 }

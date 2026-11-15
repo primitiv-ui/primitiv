@@ -784,3 +784,30 @@ test("the Tree previews are <primitiv-tree> elements: a click selects, and the c
   await controlled.getByRole("button", { name: "Collapse all" }).click();
   await expect(controlled.getByRole("treeitem", { name: "app.tsx" })).toHaveCount(0);
 });
+
+test("the Data Table previews load table.js, and the expandable rows are <primitiv-table-expand-trigger> elements", async ({ page }) => {
+  await page.goto("/components/data-table/");
+  await expect(page.getByText(/dist\/cdn\/table\.js/).first()).toBeVisible();
+  const example = cell(page, "expandable").locator(".docs-elements-preview");
+  const trigger = example.getByRole("button", { name: "Show details for harmoni-engine" });
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  expect(await page.evaluate(() => !!customElements.get("primitiv-table-expand-trigger"))).toBe(true);
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect(example.getByText("finished in 142ms")).toBeVisible();
+  // The row the markup starts open is open.
+  await expect(example.getByRole("button", { name: "Show details for registry-api" })).toHaveAttribute("aria-expanded", "true");
+});
+
+test("the Data Table selection example's script keeps the header box and the count in step", async ({ page }) => {
+  await page.goto("/components/data-table/");
+  const example = cell(page, "selection").locator(".docs-elements-preview");
+  const all = example.getByRole("checkbox", { name: "Select all rows" });
+  await expect(all).toHaveJSProperty("indeterminate", true);
+  // The native box sits under the drawn control, so press the control, as a user does.
+  await all.locator("..").click();
+  await expect(example.getByText("5 of 5 selected")).toBeVisible();
+  await example.getByRole("checkbox", { name: "Select docs-site" }).locator("..").click();
+  await expect(all).toHaveJSProperty("indeterminate", true);
+  await expect(example.getByText("4 of 5 selected")).toBeVisible();
+});

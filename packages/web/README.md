@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper and Miller Columns so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper, Miller Columns and Table's expandable rows so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -34,6 +34,7 @@ React, Vue, Angular or any other framework.
 | Tree | `primitiv-tree`, `-item`, `-branch`, `-branch-control`, `-branch-content`, `-branch-indicator`, `-selection-path` | `primitiv-tree-change`, `primitiv-tree-expanded-change` | 0.2.11 |
 | Stepper | `primitiv-stepper`, `-list`, `-step`, `-panel` | `primitiv-stepper-change` | 0.2.12 |
 | Miller Columns | `primitiv-miller-columns`, `-tree`, `-column`, `-item`, `-item-indicator`, `-resize-handle`, `-preview-panel` | `primitiv-miller-columns-change` | 0.2.13 |
+| Table | `primitiv-table-expand-trigger` | `primitiv-table-expand-change` | 0.2.14 |
 
 ## Use it
 
@@ -73,7 +74,7 @@ The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
 `defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` /
-`defineNavigationMenu(registry?)` / `defineTree(registry?)` / `defineStepper(registry?)` / `defineMillerColumns(registry?)` with **no side
+`defineNavigationMenu(registry?)` / `defineTree(registry?)` / `defineStepper(registry?)` / `defineMillerColumns(registry?)` / `defineTable(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -727,6 +728,38 @@ The elements write no `class` and no `style`. For the registry look, apply the
   (`min-width`, `max-width`, `step`); a resized width belongs to its depth.
 - **`<primitiv-miller-columns-preview-panel>`** shows while the path ends on a
   leaf (or always, with `force-mount`); its content is yours.
+
+### Table (expandable rows)
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/table.js"></script>
+
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <primitiv-table-expand-trigger>
+          <button type="button" aria-controls="ada-details">Show details for Ada</button>
+        </primitiv-table-expand-trigger>
+      </td>
+      <td>Ada</td>
+    </tr>
+    <tr id="ada-details" hidden><td colspan="2">…</td></tr>
+  </tbody>
+</table>
+```
+
+- **The trigger sits in a cell.** The HTML parser moves anything written
+  between a table's rows out of the table, so the button names its detail row
+  by id with `aria-controls`, and the element writes `hidden`, `aria-hidden`
+  and `data-state` on that row.
+- **`expanded` is the state**, reflected as the user toggles.
+  `primitiv-table-expand-change` (`detail.expanded`) bubbles and is cancelable;
+  the detail row fires `primitiv-table-expand-show` as it opens.
+- **`force-mount`** keeps a closed row rendered (only `aria-hidden`) so a
+  stylesheet can animate it; **`disabled`** stops the toggle.
+- The registry's `data-table` styles this markup; its sorting, selection and
+  paging stay your page's.
 
 ## Layers
 

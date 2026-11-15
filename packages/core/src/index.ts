@@ -143,3 +143,17 @@ export {
   type NavigationMenuTravelState,
   type NavigationMenuTriggerBox,
 } from "./navigation-menu/policy.ts";
+export {
+  treeKeydown,
+  treePath,
+  treeSelect,
+  treeTabStop,
+  treeToggle,
+  treeVisibleOrder,
+  type TreeKeyOutcome,
+  type TreeKeyState,
+  type TreeNode,
+  type TreeSelectionMode,
+  type TreeSelectModifiers,
+  type TreeSelectState,
+} from "./tree/policy.ts";

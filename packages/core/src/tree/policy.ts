@@ -1,3 +1,6 @@
+import { getKeyToActionMap } from "../keyboard/getKeyToActionMap.ts";
+import { resolveRovingTarget } from "../keyboard/resolveRovingTarget.ts";
+
 /**
  * Tree's rules — the WAI-ARIA tree view: a vertical roving tab stop over the
  * visible items, branches expanded and collapsed with the horizontal arrows,
@@ -68,7 +71,8 @@ export function treeTabStop(state: {
   active: string | null;
 }): string | null {
   const { order, disabled, active } = state;
-  if (active !== null && order.includes(active)) return active;
+  // `null` is never in the order, so it falls through with any other unknown value.
+  if (order.includes(active as string)) return active;
   return order.find((value) => !disabled.has(value)) ?? null;
 }
 
@@ -124,4 +128,61 @@ export function treeSelect(
   }
   if (already && selected.length === 1) return null;
   return { selected: [value], anchor: value };
+}
+
+/** What a key press on a tree item is decided from. */
+export type TreeKeyState = {
+  /** The visible order, from {@link treeVisibleOrder}. */
+  order: readonly string[];
+  expanded: readonly string[];
+  disabled: ReadonlySet<string>;
+  /** The node a value names. */
+  nodeOf: (value: string) => TreeNode | undefined;
+};
+
+/**
+ * What a key press asks for — a value to focus, a branch to toggle, a value to
+ * select (a branch toggles first) — or `null` to leave the event alone. An
+ * empty outcome claims the key and does nothing.
+ */
+export type TreeKeyOutcome = { focus?: string; toggle?: string; select?: string };
+
+/**
+ * The tree's keyboard contract for a key press on `focused`:
+ *
+ * - ArrowRight expands a collapsed branch, or moves to an expanded one's first
+ *   child; ArrowLeft collapses an expanded branch, or moves to the parent;
+ * - ArrowUp / ArrowDown move through the enabled visible items, wrapping, and
+ *   Home / End jump to the ends — which is how focus escapes a disabled item,
+ *   where the arrows do nothing;
+ * - Enter / Space activate: a branch toggles and is selected, a leaf is
+ *   selected, a disabled item does nothing.
+ */
+export function treeKeydown(state: TreeKeyState, focused: string, key: string): TreeKeyOutcome | null {
+  const { order, expanded, disabled } = state;
+  const node = state.nodeOf(focused);
+  const isBranch = node?.isBranch === true;
+  const off = disabled.has(focused);
+  const open = expanded.includes(focused);
+
+  if (key === "ArrowRight") {
+    if (!isBranch || off) return null;
+    if (!open) return { toggle: focused };
+    const next = order[order.indexOf(focused) + 1];
+    return next === undefined ? {} : { focus: next };
+  }
+  if (key === "ArrowLeft") {
+    if (off) return null;
+    if (isBranch && open) return { toggle: focused };
+    const parent = node?.parent ?? null;
+    return parent === null ? null : { focus: parent };
+  }
+
+  const action = getKeyToActionMap({ orientation: "vertical", homeEnd: true, activate: true })[key];
+  const navigable = order.filter((value) => !disabled.has(value));
+  const result = resolveRovingTarget({ action, navigable, currentKey: focused });
+  if (!result) return null;
+  if (action !== "activate") return { focus: result.target };
+  if (off) return {};
+  return isBranch ? { toggle: focused, select: focused } : { select: focused };
 }

@@ -1,4 +1,4 @@
-import { treePath, treeSelect, treeTabStop, treeToggle, treeVisibleOrder, type TreeNode, type TreeSelectState } from "../policy";
+import { treeKeydown, treePath, treeSelect, treeTabStop, treeToggle, treeVisibleOrder, type TreeKeyState, type TreeNode, type TreeSelectState } from "../policy";
 
 /** docs (branch: guides (branch: intro), api), blog — in registration order, children first. */
 const NODES: TreeNode[] = [
@@ -23,6 +23,15 @@ describe("treeVisibleOrder", () => {
   it("hides the children of an expanded branch under a collapsed one", () => {
     // Arrange & Act & Assert
     expect(treeVisibleOrder(NODES, ["guides"])).toEqual(["docs", "blog"]);
+  });
+
+  it("is empty for no nodes, and an expanded branch with no children adds nothing", () => {
+    // Arrange
+    const empty: TreeNode[] = [{ value: "empty", parent: null, isBranch: true, disabled: false }];
+
+    // Act & Assert
+    expect(treeVisibleOrder([], [])).toEqual([]);
+    expect(treeVisibleOrder(empty, ["empty"])).toEqual(["empty"]);
   });
 
   it("never descends into a leaf, even one named as expanded", () => {
@@ -152,11 +161,116 @@ describe("treeSelect", () => {
     expect(treeSelect(multiple, "api", { shift: true })).toEqual({ selected: ["api"], anchor: null });
   });
 
+  it("selects just the value when it is not in the visible order", () => {
+    // Arrange & Act & Assert
+    expect(treeSelect({ ...multiple, anchor: "docs" }, "hidden", { shift: true })).toEqual({
+      selected: ["hidden"],
+      anchor: "docs",
+    });
+  });
+
   it("selects just the value when the anchor is no longer visible", () => {
     // Arrange & Act & Assert
     expect(treeSelect({ ...multiple, anchor: "hidden" }, "api", { shift: true })).toEqual({
       selected: ["api"],
       anchor: "hidden",
     });
+  });
+});
+
+describe("treeKeydown", () => {
+  const byValue = new Map(NODES.map((node) => [node.value, node]));
+  const state = (expanded: string[], disabled: string[] = []): TreeKeyState => ({
+    order: treeVisibleOrder(NODES, expanded),
+    expanded,
+    disabled: new Set(disabled),
+    nodeOf: (value) => byValue.get(value),
+  });
+
+  it("expands a collapsed branch with ArrowRight", () => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state([]), "docs", "ArrowRight")).toEqual({ toggle: "docs" });
+  });
+
+  it("moves to an expanded branch's first child with ArrowRight", () => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state(["docs"]), "docs", "ArrowRight")).toEqual({ focus: "guides" });
+  });
+
+  it("claims ArrowRight on an expanded branch with nothing after it, doing nothing", () => {
+    // Arrange
+    const lone: TreeKeyState = { order: ["solo"], expanded: ["solo"], disabled: new Set(), nodeOf: () => ({ value: "solo", parent: null, isBranch: true, disabled: false }) };
+
+    // Act & Assert
+    expect(treeKeydown(lone, "solo", "ArrowRight")).toStrictEqual({});
+  });
+
+  it.each([
+    ["a leaf", [], [], "blog"],
+    ["a disabled branch", [], ["docs"], "docs"],
+  ])("leaves ArrowRight alone on %s", (_case, expanded, disabled, focused) => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state(expanded, disabled), focused, "ArrowRight")).toBeNull();
+  });
+
+  it("collapses an expanded branch with ArrowLeft", () => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state(["docs", "guides"]), "guides", "ArrowLeft")).toEqual({ toggle: "guides" });
+  });
+
+  it("moves to the parent with ArrowLeft from a child or a collapsed branch", () => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state(["docs", "guides"]), "intro", "ArrowLeft")).toEqual({ focus: "guides" });
+    expect(treeKeydown(state(["docs"]), "guides", "ArrowLeft")).toEqual({ focus: "docs" });
+  });
+
+  it.each([
+    ["a top-level item", [], [], "blog"],
+    ["a disabled item", ["docs"], ["api"], "api"],
+  ])("leaves ArrowLeft alone on %s", (_case, expanded, disabled, focused) => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state(expanded, disabled), focused, "ArrowLeft")).toBeNull();
+  });
+
+  it("moves through the enabled visible items with the vertical arrows, wrapping", () => {
+    // Arrange
+    const open = state(["docs", "guides"], ["intro"]);
+
+    // Act & Assert
+    expect(treeKeydown(open, "guides", "ArrowDown")).toEqual({ focus: "api" });
+    expect(treeKeydown(open, "docs", "ArrowUp")).toEqual({ focus: "blog" });
+    expect(treeKeydown(open, "api", "Home")).toEqual({ focus: "docs" });
+    expect(treeKeydown(open, "docs", "End")).toEqual({ focus: "blog" });
+  });
+
+  it("lets Home and End escape a disabled item, where the arrows do nothing", () => {
+    // Arrange
+    const open = state(["docs"], ["api"]);
+
+    // Act & Assert
+    expect(treeKeydown(open, "api", "ArrowDown")).toBeNull();
+    expect(treeKeydown(open, "api", "End")).toEqual({ focus: "blog" });
+  });
+
+  it.each(["Enter", " "])("activates with %j: a branch toggles and selects, a leaf selects", (key) => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state([]), "docs", key)).toEqual({ toggle: "docs", select: "docs" });
+    expect(treeKeydown(state([]), "blog", key)).toEqual({ select: "blog" });
+  });
+
+  it("claims Enter on a disabled item but does nothing", () => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state([], ["blog"]), "blog", "Enter")).toEqual({});
+  });
+
+  it("treats a value it cannot find as a top-level leaf", () => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state([]), "ghost", "ArrowRight")).toBeNull();
+    expect(treeKeydown(state([]), "ghost", "ArrowLeft")).toBeNull();
+  });
+
+  it("leaves other keys alone", () => {
+    // Arrange & Act & Assert
+    expect(treeKeydown(state([]), "docs", "a")).toBeNull();
   });
 });

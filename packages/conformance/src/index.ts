@@ -92,3 +92,4 @@ export {
   type NavigationMenuMount,
   type NavigationMenuMounted,
 } from "./navigation-menu.ts";
+export { runTreeConformance, TREE, type TreeConformanceFixture, type TreeMount } from "./tree.ts";

@@ -21,6 +21,7 @@ import { toggleGroupHtml } from "./toggle-group-fixture.ts";
 import { listboxHtml } from "./listbox-fixture.ts";
 import { selectHtml } from "./select-fixture.ts";
 import { comboboxHtml, comboboxItemsHtml } from "./combobox-fixture.ts";
+import { stepperHtml } from "./stepper-fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
@@ -28,6 +29,8 @@ let accordionLazyLoads = 0;
 let accordionEchoes = 0;
 let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
+let stepperLazyLoads = 0;
+let stepperEchoes = 0;
 let modalEchoes = 0;
 let popoverEchoes = 0;
 let navigationMenuEchoes = 0;
@@ -122,6 +125,17 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "navigation-menu-preserve": `<div id="preserve-region"><p>Swapped region</p>${navigationMenuHtml({}, "preserved", { attrs: ' hx-preserve="true" open-on-hover="false"' })}</div>`,
   "navigation-menu-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++navigationMenuEchoes})</span>`,
+  // The Stepper page's cases (stepper-htmx.html), named to match.
+  stepper: stepperHtml({ value: "review", states: { account: "complete", billing: "complete" } }, "swapped", "Swapped progress"),
+  "stepper-nested": stepperHtml({ value: "account" }, "inner", "Inner progress"),
+  "stepper-oob-step":
+    '<div hx-swap-oob="beforeend:#oob primitiv-stepper-list"><primitiv-stepper-step value="review"><button type="button">Review</button></primitiv-stepper-step></div>' +
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-stepper-panel value="review" hidden>Out-of-band panel</primitiv-stepper-panel></div>',
+  "stepper-oob-next": `<div hx-swap-oob="outerHTML:#rerendered">${stepperHtml({ value: "billing", states: { account: "complete" } }, "rerendered", "Re-rendered progress")}</div>`,
+  "stepper-preserve": `<div id="preserve-region"><p>Swapped region</p>${stepperHtml({ value: "account" }, "preserved", "Preserved progress").replace("<primitiv-stepper ", '<primitiv-stepper hx-preserve="true" ')}</div>`,
+  "stepper-lazy": () => `<p data-testid="stepper-lazy-content">Lazy review, load ${++stepperLazyLoads}</p>`,
+  "stepper-echo": (url: string) =>
+    `<span data-testid="stepper-echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++stepperEchoes})</span>`,
   // The Collapsible page's cases (collapsible-htmx.html), named to match.
   collapsible: collapsibleHtml({ open: true }, "swapped"),
   "collapsible-nested": collapsibleHtml({}, "inner", { label: "Inner", panel: "Inner panel" }),

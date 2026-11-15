@@ -18,6 +18,11 @@ const TRIGGER = "primitiv-tabs-trigger";
 const CONTENT = "primitiv-tabs-content";
 // Stryker restore StringLiteral
 
+/** The tags of a tab set's parts — Tabs' own, or a component built on it (Stepper). */
+export type TabsPartTags = { readonly list: string; readonly trigger: string; readonly content: string };
+
+const TABS_PARTS: TabsPartTags = { list: LIST, trigger: TRIGGER, content: CONTENT };
+
 /**
  * An interactive part decorates exactly one element child and needs a `value`.
  * Anything else is reported once and left undecorated rather than thrown: a
@@ -30,7 +35,7 @@ function decoratable(trigger: HTMLElement): { tab: HTMLElement; value: string } 
   }
   reportOnce(
     trigger,
-    `<${TRIGGER}> needs a value and exactly one element child (a <button>, an <a href> or a router link) to decorate.`,
+    `<${trigger.localName}> needs a value and exactly one element child (a <button>, an <a href> or a router link) to decorate.`,
   );
   return null;
 }
@@ -77,14 +82,35 @@ export class PrimitivTabsElement extends PrimitivRootElement {
         activationMode: this.#activationMode(),
       }),
       activate: (value, index) => {
-        if (this.announce("primitiv-tabs-change", { value, index })) this.value = value;
+        if (this.announce(`${this.eventPrefix()}-change`, { value, index })) this.value = value;
       },
     };
   }
 
+  /**
+   * The tags this root's parts carry. A component built on Tabs (Stepper)
+   * names its own, so its markup reads as itself while the behaviour is Tabs'.
+   */
+  protected partTags(): TabsPartTags {
+    return TABS_PARTS;
+  }
+
+  /** The prefix of the events this root fires: `<prefix>-change` and `<prefix>-show`. */
+  protected eventPrefix(): string {
+    return ROOT;
+  }
+
+  /** The activation mode when `activation-mode` names neither. */
+  protected defaultActivationMode(): TabsActivationMode {
+    return "automatic";
+  }
+
+  /** Write anything further a component built on Tabs puts on a decorated tab. */
+  protected decorateTab(_trigger: HTMLElement, _tab: HTMLElement): void {}
+
   #activationMode(): TabsActivationMode {
     const mode = this.getAttribute("activation-mode");
-    return mode === "manual" ? mode : "automatic";
+    return mode === "manual" || mode === "automatic" ? mode : this.defaultActivationMode();
   }
 
   #orientation(): TabsOrientation {
@@ -92,12 +118,13 @@ export class PrimitivTabsElement extends PrimitivRootElement {
   }
 
   protected reconcile(): void {
+    const tags = this.partTags();
     const orientation = this.#orientation();
     const active = this.value;
     const rootId = this.rootId();
     write(this, "data-orientation", orientation);
 
-    for (const list of this.parts(LIST)) {
+    for (const list of this.parts(tags.list)) {
       write(list, "role", "tablist");
       write(list, "aria-orientation", orientation);
       write(list, "data-orientation", orientation);
@@ -106,12 +133,12 @@ export class PrimitivTabsElement extends PrimitivRootElement {
     }
 
     const panels = new Map<string, HTMLElement>();
-    for (const panel of this.parts(CONTENT)) {
+    for (const panel of this.parts(tags.content)) {
       const value = panel.getAttribute("value");
       if (value !== null) panels.set(value, panel);
     }
 
-    const triggers = this.parts(TRIGGER).flatMap((trigger) => {
+    const triggers = this.parts(tags.trigger).flatMap((trigger) => {
       const part = decoratable(trigger);
       return part ? [{ trigger, ...part }] : [];
     });
@@ -141,6 +168,7 @@ export class PrimitivTabsElement extends PrimitivRootElement {
       write(tab, "data-disabled", disabled ? "" : null);
       write(tab, "data-state", selected ? "active" : "inactive");
       write(tab, "data-orientation", orientation);
+      this.decorateTab(trigger, tab);
       if (panel) write(panel, "aria-labelledby", tab.id);
     }
 
@@ -159,7 +187,7 @@ export class PrimitivTabsElement extends PrimitivRootElement {
     // `Map.get(undefined)` is simply undefined, so no tab active means no panel.
     const shownPanel = panels.get(active as string);
     if (this.#rendered && active !== this.#shown && shownPanel) {
-      shownPanel.dispatchEvent(new CustomEvent("primitiv-tabs-show", { bubbles: true }));
+      shownPanel.dispatchEvent(new CustomEvent(`${this.eventPrefix()}-show`, { bubbles: true }));
     }
     this.#shown = active;
     this.#rendered = true;

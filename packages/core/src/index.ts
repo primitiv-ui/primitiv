@@ -173,4 +173,4 @@ export {
   type MillerColumnsReadingDirection,
   type MillerColumnsResizeState,
 } from "./miller-columns/policy.ts";
-export { CODE_BLOCK_COPIED_MS, codeBlockCopyText } from "./code-block/policy.ts";
+export { CODE_BLOCK_COPIED_MS, codeBlockCopyText, codeBlockDedent, codeBlockLanguage, codeBlockLines } from "./code-block/policy.ts";

@@ -378,6 +378,9 @@
      Hence the rule in primitiv.variants below rather than here. */
 
   .primitiv-data-table__expand-icon {
+    /* Never shrunk: an SVG with no width/height attributes in a flex button
+       collapses to nothing in WebKit; Pagination's chevrons hold the same way. */
+    flex: none;
     inline-size: var(--primitiv-data-table-icon-size, var(--primitiv-framed-control-sm-icon-size));
     block-size: var(--primitiv-data-table-icon-size, var(--primitiv-framed-control-sm-icon-size));
     transition: transform var(--primitiv-data-table-transition-duration, var(--primitiv-motion-duration-expand))

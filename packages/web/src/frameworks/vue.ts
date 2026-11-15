@@ -42,6 +42,7 @@ import type {
   PrimitivStepperChangeEvent,
   PrimitivTableExpandChangeEvent,
   PrimitivCodeBlockCopyEvent,
+  PrimitivCodeBlockHighlightEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -198,6 +199,10 @@ declare module "vue" {
     "primitiv-table-expand-trigger": Tag<
       { expanded?: boolean | ""; disabled?: boolean | ""; forceMount?: boolean | "" },
       { "primitiv-table-expand-change": (event: PrimitivTableExpandChangeEvent) => void }
+    >;
+    "primitiv-code-block": Tag<
+      { language?: string; lineNumbers?: boolean | "" },
+      { "primitiv-code-block-highlight": (event: PrimitivCodeBlockHighlightEvent) => void }
     >;
     "primitiv-code-block-copy": Tag<
       { for?: string; copied?: boolean | ""; copiedLabel?: string },

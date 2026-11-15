@@ -287,6 +287,7 @@ it("defines the Code Block element when define/code-block is imported", async ()
 
   // Assert
   expect(customElements.get("primitiv-code-block-copy")).toBeDefined();
+  expect(customElements.get("primitiv-code-block")).toBeDefined();
 });
 
 it("defines the Table element when define/table is imported", async () => {

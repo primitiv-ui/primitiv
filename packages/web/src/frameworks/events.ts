@@ -15,6 +15,9 @@ export type PrimitivTableExpandChangeEvent = CustomEvent<{ expanded: boolean }>;
 /** The `primitiv-code-block-copy` event: bubbles, cancelable, fired before the text is written, with the text. */
 export type PrimitivCodeBlockCopyEvent = CustomEvent<{ text: string }>;
 
+/** The `primitiv-code-block-highlight` event: bubbles, after a block's code is (re)rendered, with the language it was highlighted as. */
+export type PrimitivCodeBlockHighlightEvent = CustomEvent<{ language: string | null }>;
+
 /** The `primitiv-stepper-change` event: bubbles, cancelable, fired before the change of step applies. */
 export type PrimitivStepperChangeEvent = CustomEvent<{ value: string; index: number }>;
 

@@ -1,0 +1,94 @@
+/**
+ * Prism, loaded only when a block needs it, and each grammar only when a block
+ * names its language — so a page showing only TSX downloads only TSX, and a
+ * page with no code block downloads none of it. Each `import()` is a separate
+ * file in the CDN build.
+ */
+import type PrismType from "prismjs";
+
+type Prism = typeof PrismType;
+type Grammar = PrismType.Grammar;
+
+// Stryker disable all: static — both tables are built once at import, so runtime mutant switching never reaches them; every entry is pinned by a per-language highlighting test instead.
+/** Each grammar Primitiv highlights: how to load it, and the grammars it builds on. */
+const GRAMMARS: Record<string, { load: () => Promise<unknown>; requires: readonly string[] }> = {
+  markup: { load: () => import("prismjs/components/prism-markup.js"), requires: [] },
+  css: { load: () => import("prismjs/components/prism-css.js"), requires: [] },
+  clike: { load: () => import("prismjs/components/prism-clike.js"), requires: [] },
+  javascript: { load: () => import("prismjs/components/prism-javascript.js"), requires: ["clike"] },
+  jsx: { load: () => import("prismjs/components/prism-jsx.js"), requires: ["markup", "javascript"] },
+  typescript: { load: () => import("prismjs/components/prism-typescript.js"), requires: ["javascript"] },
+  tsx: { load: () => import("prismjs/components/prism-tsx.js"), requires: ["jsx", "typescript"] },
+  json: { load: () => import("prismjs/components/prism-json.js"), requires: [] },
+  bash: { load: () => import("prismjs/components/prism-bash.js"), requires: [] },
+  yaml: { load: () => import("prismjs/components/prism-yaml.js"), requires: [] },
+  markdown: { load: () => import("prismjs/components/prism-markdown.js"), requires: ["markup"] },
+  python: { load: () => import("prismjs/components/prism-python.js"), requires: [] },
+  diff: { load: () => import("prismjs/components/prism-diff.js"), requires: [] },
+  sql: { load: () => import("prismjs/components/prism-sql.js"), requires: [] },
+  scss: { load: () => import("prismjs/components/prism-scss.js"), requires: ["css"] },
+  rust: { load: () => import("prismjs/components/prism-rust.js"), requires: [] },
+  go: { load: () => import("prismjs/components/prism-go.js"), requires: ["clike"] },
+  graphql: { load: () => import("prismjs/components/prism-graphql.js"), requires: [] },
+};
+
+/** The other names a language goes by, as Prism's own classes spell them. */
+const ALIASES: Record<string, string> = {
+  html: "markup",
+  xml: "markup",
+  svg: "markup",
+  js: "javascript",
+  ts: "typescript",
+  sh: "bash",
+  shell: "bash",
+  yml: "yaml",
+  md: "markdown",
+  py: "python",
+};
+// Stryker restore all
+
+let core: Promise<Prism> | undefined;
+const loaded = new Map<string, Promise<void>>();
+
+/**
+ * The global `Prism` the grammar files extend. A page that already has Prism
+ * keeps it — the grammars are added to it — so its own setup and plugins go on
+ * working. Otherwise Prism's core is loaded, told it is `manual` first: without
+ * that it highlights every `language-*` element on the page by itself,
+ * Primitiv's or not.
+ */
+function prism(): Promise<Prism> {
+  return (core ??= (async () => {
+    const scope = globalThis as { Prism?: Partial<Prism> };
+    if (typeof scope.Prism?.highlight === "function") return scope.Prism as Prism;
+    // Stryker disable next-line ObjectLiteral,BooleanLiteral: jsdom never runs Prism's own pass, so only a browser shows what this prevents — the interop lab's "leaves the page's other language-* blocks alone" test pins it.
+    scope.Prism = { ...scope.Prism, manual: true };
+    const module = await import("prismjs/components/prism-core.js");
+    scope.Prism = module.default;
+    return module.default;
+  })());
+}
+
+/** Load `name`'s grammar after those it builds on, once however often it is asked for. */
+function load(name: string): Promise<void> {
+  let done = loaded.get(name);
+  // Stryker disable next-line ConditionalExpression: equivalent — loading again re-imports a cached module, which does not run the grammar file twice.
+  if (!done) {
+    const { load: file, requires } = GRAMMARS[name]!;
+    done = (async () => {
+      for (const required of requires) await load(required);
+      await file();
+    })();
+    loaded.set(name, done);
+  }
+  return done;
+}
+
+/** Prism and the grammar for `language`, or null for a language Primitiv does not highlight. */
+export async function grammarFor(language: string): Promise<{ prism: Prism; grammar: Grammar; name: string } | null> {
+  const name = ALIASES[language] ?? language;
+  if (!Object.hasOwn(GRAMMARS, name)) return null;
+  const instance = await prism();
+  await load(name);
+  return { prism: instance, grammar: instance.languages[name]!, name };
+}

@@ -52,7 +52,8 @@
     "./define/combobox": "./src/define/combobox.ts"
   },
   "imports": {
-    "@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.42"
+    "@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.42",
+    "prismjs": "npm:prismjs@1.30.0"
   },
   "publish": {
     "exclude": [

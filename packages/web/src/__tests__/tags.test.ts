@@ -64,6 +64,7 @@ import type {
   PrimitivStepperElement,
   PrimitivTableExpandTriggerElement,
   PrimitivCodeBlockCopyElement,
+  PrimitivCodeBlockElement,
   PrimitivStepperListElement,
   PrimitivStepperPanelElement,
   PrimitivStepperStepElement,
@@ -103,7 +104,8 @@ it("types every Miller Columns tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-miller-columns-preview-panel")).toEqualTypeOf<PrimitivMillerColumnsPreviewPanelElement>();
 });
 
-it("types the Code Block tag in HTMLElementTagNameMap", () => {
+it("types the Code Block tags in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-code-block")).toEqualTypeOf<PrimitivCodeBlockElement | null>();
   expectTypeOf(document.querySelector("primitiv-code-block-copy")).toEqualTypeOf<PrimitivCodeBlockCopyElement | null>();
 });
 

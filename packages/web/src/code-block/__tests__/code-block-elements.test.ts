@@ -30,7 +30,7 @@ const button = () => element().querySelector("button") as HTMLButtonElement;
 const glyph = (state: string) => button().querySelector(`[data-copy-state="${state}"]`) as SVGElement;
 
 describe("defineCodeBlock", () => {
-  it("defines exactly the copy control's tag name on the registry it is given", () => {
+  it("defines exactly the block's and the copy control's tag names on the registry it is given", () => {
     // Arrange
     const defined: string[] = [];
     const registry: ElementRegistry = {
@@ -44,7 +44,7 @@ describe("defineCodeBlock", () => {
     defineCodeBlock(registry);
 
     // Assert
-    expect(defined).toEqual(["primitiv-code-block-copy"]);
+    expect(defined).toEqual(["primitiv-code-block", "primitiv-code-block-copy"]);
   });
 });
 
@@ -284,6 +284,18 @@ describe("<primitiv-code-block-copy>", () => {
     // Assert
     expect(thrown).toEqual([]);
     expect(element().hasAttribute("copied")).toBe(false);
+  });
+
+  it("copies only from its own block, never from code outside it", async () => {
+    // Arrange
+    await mount(`<pre><code>outside</code></pre><primitiv-code-block>${COPY_BUTTON}</primitiv-code-block>`);
+
+    // Act
+    button().click();
+    await settle();
+
+    // Assert
+    expect(writeText).not.toHaveBeenCalled();
   });
 
   it("copies nothing when there is no code to copy, or its for names none", async () => {

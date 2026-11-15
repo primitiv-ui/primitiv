@@ -109,7 +109,7 @@ import type {
   PrimitivMillerColumnsTreeElement,
 } from "../miller-columns/elements.ts";
 import type { PrimitivTableExpandTriggerElement } from "../table/elements.ts";
-import type { PrimitivCodeBlockCopyElement } from "../code-block/elements.ts";
+import type { PrimitivCodeBlockCopyElement, PrimitivCodeBlockElement } from "../code-block/elements.ts";
 import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
@@ -192,6 +192,7 @@ import type {
   PrimitivStepperChangeEvent,
   PrimitivTableExpandChangeEvent,
   PrimitivCodeBlockCopyEvent,
+  PrimitivCodeBlockHighlightEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -421,6 +422,11 @@ declare module "svelte/elements" {
       disabled?: boolean;
       "force-mount"?: boolean;
       "onprimitiv-table-expand-change"?: (event: PrimitivTableExpandChangeEvent) => void;
+    };
+    "primitiv-code-block": Attributes<PrimitivCodeBlockElement> & {
+      language?: string;
+      "line-numbers"?: boolean;
+      "onprimitiv-code-block-highlight"?: (event: PrimitivCodeBlockHighlightEvent) => void;
     };
     "primitiv-code-block-copy": Attributes<PrimitivCodeBlockCopyElement> & {
       for?: string;

@@ -1,14 +1,107 @@
-import { CODE_BLOCK_COPIED_MS, codeBlockCopyText } from "@primitiv-ui/core";
+import { CODE_BLOCK_COPIED_MS, codeBlockCopyText, codeBlockDedent, codeBlockLanguage, codeBlockLines } from "@primitiv-ui/core";
 
 import { defineElements, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
 import { PrimitivRootElement } from "../internal/RootElement.ts";
 import { CodeBlockCopyController } from "./CodeBlockCopyController.ts";
+import { grammarFor } from "./prism.ts";
 
 export type { ElementRegistry };
 
 // Stryker disable StringLiteral: static — evaluated once at import, so runtime mutant switching never reaches them; the name is pinned by the defineCodeBlock registry test instead.
 const COPY = "primitiv-code-block-copy";
+const BLOCK = "primitiv-code-block";
 // Stryker restore StringLiteral
+
+/** Text as HTML: only `&` and `<` can start markup in a text node. */
+function escapeText(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+}
+
+/** One line of a numbered block: its number out of the text, its newline kept, as the copy control reads it. */
+function numberedLine(line: string, index: number): string {
+  return (
+    `<span class="primitiv-code-block__line"><span class="primitiv-code-block__ln" aria-hidden="true">${index + 1}</span>` +
+    `<span class="primitiv-code-block__line-content">${line}\n</span></span>`
+  );
+}
+
+/** What a block last wrote into one `<code>`: the source it rendered and the markup that came of it. */
+type Rendered = { source: string; html: string };
+
+/**
+ * `<primitiv-code-block>` — a block of source code that highlights itself.
+ * Write the code as the text of a `<pre><code>` inside it — escaped as any
+ * HTML text is, which a server template does for you — and name its language:
+ *
+ * ```html
+ * <primitiv-code-block language="tsx">
+ *   <pre><code>{{ code }}</code></pre>
+ * </primitiv-code-block>
+ * ```
+ *
+ * The element highlights it with Prism, loading only the grammar that language
+ * needs, and drops the blank lines and shared indent it was pasted with. Before
+ * the script loads, the code reads as plain text. Code that already holds
+ * token spans — highlighted at build time or on the server — is left as it is,
+ * so both ways work with nothing to choose. Each `<code>` inside is its own, so
+ * a tabbed block highlights every panel, and Prism's `language-*` class on a
+ * `<code>` or `<pre>` names that one's language.
+ *
+ * With `line-numbers`, each line becomes a `primitiv-code-block__line` with its
+ * number in an `aria-hidden` `primitiv-code-block__ln`, and the `<pre>` gets
+ * `data-line-numbers` — the same parts the React block renders.
+ *
+ * @customElement primitiv-code-block
+ * @summary A block of source code that highlights itself with Prism.
+ * @attr {string} language - The language to highlight as: `tsx`, `ts`, `js`, `jsx`, `html`, `css`, `scss`, `json`, `bash`, `yaml`, `markdown`, `python`, `sql`, `diff`, `rust`, `go` or `graphql`. Prism's `language-*` class on a `<code>` or `<pre>` names that one's language instead.
+ * @attr {boolean} line-numbers - Number the lines.
+ * @fires {CustomEvent<{ language: string | null }>} primitiv-code-block-highlight - Bubbles, after a `<code>` is (re)rendered — once its grammar has loaded.
+ */
+export class PrimitivCodeBlockElement extends PrimitivRootElement {
+  readonly #rendered = new WeakMap<Element, Rendered>();
+  /** The render each `<code>` is waiting on, so a slower, older one cannot land over a newer one. */
+  readonly #pending = new WeakMap<Element, string>();
+  protected readonly controller = { connect: (): void => {}, disconnect: (): void => {} };
+  protected readonly reconcileOn: readonly string[] = ["language", "line-numbers"];
+
+  protected reconcile(): void {
+    const lineNumbers = this.hasAttribute("line-numbers");
+    for (const code of this.querySelectorAll("code")) this.#render(code, lineNumbers);
+  }
+
+  #render(code: HTMLElement, lineNumbers: boolean): void {
+    const pre = code.closest("pre");
+    const language =
+      // Stryker disable next-line ArrayDeclaration: equivalent — a filled fallback holds no language-* class, so it names nothing either.
+      codeBlockLanguage(null, [...code.classList, ...(pre?.classList ?? [])]) ??
+      // Stryker disable next-line ArrayDeclaration: equivalent — as above.
+      codeBlockLanguage(this.getAttribute("language"), []);
+    const previous = this.#rendered.get(code);
+    const ours = previous?.html === code.innerHTML;
+    // Token spans the element did not write were highlighted on the server: leave them.
+    if (!ours && code.firstElementChild) return;
+    if (!previous && !language && !lineNumbers) return;
+    const source = ours ? previous!.source : codeBlockDedent(code.textContent);
+    const key = `${language}\n${lineNumbers}\n${source}`;
+    if (this.#pending.get(code) === key && (ours || !previous)) return;
+    this.#pending.set(code, key);
+    void this.#write(code, pre, { source, language, lineNumbers, key });
+  }
+
+  async #write(
+    code: HTMLElement,
+    pre: HTMLElement | null,
+    { source, language, lineNumbers, key }: { source: string; language: string | null; lineNumbers: boolean; key: string },
+  ): Promise<void> {
+    const found = language ? await grammarFor(language) : null;
+    if (this.#pending.get(code) !== key) return;
+    const html = found ? found.prism.highlight(source, found.grammar, found.name) : escapeText(source);
+    if (pre) write(pre, "data-line-numbers", lineNumbers ? "" : null);
+    code.innerHTML = lineNumbers ? codeBlockLines(html).map(numberedLine).join("") : html;
+    this.#rendered.set(code, { source, html: code.innerHTML });
+    this.dispatchEvent(new CustomEvent("primitiv-code-block-highlight", { bubbles: true, detail: { language } }));
+  }
+}
 
 /**
  * `<primitiv-code-block-copy>` — a code block's copy control: it decorates the
@@ -77,7 +170,9 @@ export class PrimitivCodeBlockCopyElement extends PrimitivRootElement {
       const named = (this.getRootNode() as Document | ShadowRoot).getElementById(target);
       return named?.matches("code") ? named : (named?.querySelector("code") ?? null);
     }
-    for (let node = this.parentElement; node; node = node.parentElement) {
+    // Inside a block, the block is the whole scope; elsewhere, the nearest ancestor holding code.
+    const block = this.closest(BLOCK);
+    for (let node = this.parentElement; node; node = node === block ? null : node.parentElement) {
       const code = [...node.querySelectorAll("code")].find((candidate) => !candidate.closest("[hidden]"));
       if (code) return code;
     }
@@ -122,10 +217,13 @@ export class PrimitivCodeBlockCopyElement extends PrimitivRootElement {
 }
 
 /**
- * Define the Code Block element — the copy control — on `registry` (the global
+ * Define the Code Block elements — the block and its copy control — on `registry` (the global
  * `customElements` by default). Safe to call more than once, and a no-op where
  * there is no registry (a server render).
  */
 export function defineCodeBlock(registry: ElementRegistry | undefined = globalThis.customElements): void {
-  defineElements(registry, [[COPY, PrimitivCodeBlockCopyElement]]);
+  defineElements(registry, [
+    [BLOCK, PrimitivCodeBlockElement],
+    [COPY, PrimitivCodeBlockCopyElement],
+  ]);
 }

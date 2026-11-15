@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper, Miller Columns and Table's expandable rows so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper, Miller Columns, Table's expandable rows and Code Block's copy control so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -35,6 +35,7 @@ React, Vue, Angular or any other framework.
 | Stepper | `primitiv-stepper`, `-list`, `-step`, `-panel` | `primitiv-stepper-change` | 0.2.12 |
 | Miller Columns | `primitiv-miller-columns`, `-tree`, `-column`, `-item`, `-item-indicator`, `-resize-handle`, `-preview-panel` | `primitiv-miller-columns-change` | 0.2.13 |
 | Table | `primitiv-table-expand-trigger` | `primitiv-table-expand-change` | 0.2.14 |
+| Code Block | `primitiv-code-block-copy` | `primitiv-code-block-copy` | 0.2.14 |
 
 ## Use it
 
@@ -74,7 +75,7 @@ The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
 `defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` /
-`defineNavigationMenu(registry?)` / `defineTree(registry?)` / `defineStepper(registry?)` / `defineMillerColumns(registry?)` / `defineTable(registry?)` with **no side
+`defineNavigationMenu(registry?)` / `defineTree(registry?)` / `defineStepper(registry?)` / `defineMillerColumns(registry?)` / `defineTable(registry?)` / `defineCodeBlock(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -760,6 +761,33 @@ The elements write no `class` and no `style`. For the registry look, apply the
   stylesheet can animate it; **`disabled`** stops the toggle.
 - The registry's `data-table` styles this markup; its sorting, selection and
   paging stay your page's.
+
+### Code Block (copy control)
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/code-block.js"></script>
+
+<div>
+  <primitiv-code-block-copy>
+    <button type="button" aria-label="Copy code">
+      <span data-copy-state="idle">Copy</span><span data-copy-state="copied" hidden>Copied</span>
+    </button>
+  </primitiv-code-block-copy>
+  <pre><code>npm install @primitiv-ui/web
+</code></pre>
+</div>
+```
+
+- **The highlighting is the server's.** Write code Prism has highlighted (or
+  plain code); nothing parses it in the browser.
+- **It copies what is shown**: the nearest `<code>` it can see — skipping any
+  inside a `hidden` element, so a tabbed block copies its shown panel — or the
+  one `for` names, without `aria-hidden` parts such as line numbers.
+- **`copied` lasts two seconds**, with `data-copied` on the button, its
+  `aria-label` swapped for `copied-label` (kept in `data-label`), and the
+  `data-copy-state` children shown and hidden to match. It is transient: an
+  element that connects with it (a history snapshot, a move) drops it.
+  `primitiv-code-block-copy` (`detail.text`) bubbles and is cancelable.
 
 ## Layers
 

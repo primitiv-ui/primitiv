@@ -811,3 +811,33 @@ test("the Data Table selection example's script keeps the header box and the cou
   await expect(all).toHaveJSProperty("indeterminate", true);
   await expect(example.getByText("4 of 5 selected")).toBeVisible();
 });
+
+test.describe("the Code Block previews", () => {
+  test.use({ permissions: ["clipboard-read", "clipboard-write"] });
+
+  test("load code-block.js, and the copy control copies the block as shown", async ({ page }) => {
+    await page.goto("/components/code-block/");
+    await expect(page.getByText(/dist\/cdn\/code-block\.js/).first()).toBeVisible();
+    const example = cell(page, "line-numbers").locator(".docs-elements-preview");
+    // Highlighted at build time: the token spans are already in the markup.
+    await expect(example.locator(".token.keyword").first()).toBeAttached();
+    // Previews load the definitions on demand: press only once the element is defined.
+    await page.waitForFunction(() => customElements.get("primitiv-code-block-copy"));
+    const header = cell(page, "header").locator(".docs-elements-preview");
+    const copy = header.locator(".primitiv-code-block__copy");
+    await copy.click();
+    await expect(copy).toHaveAccessibleName("Copied");
+    const text = await page.evaluate(() => navigator.clipboard.readText());
+    expect(text.startsWith('import { Button } from "@primitiv-ui/react";\n\nexport function Save() {')).toBe(true);
+    expect(text.endsWith("}")).toBe(true);
+  });
+
+  test("the tabbed preview copies the panel that is shown", async ({ page }) => {
+    await page.goto("/components/code-block/");
+    await page.waitForFunction(() => customElements.get("primitiv-code-block-copy"));
+    const example = cell(page, "tabbed").locator(".docs-elements-preview");
+    await example.getByRole("tab", { name: "pnpm" }).click();
+    await example.locator(".primitiv-code-block__copy").click();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe("pnpm dlx primitiv add button");
+  });
+});

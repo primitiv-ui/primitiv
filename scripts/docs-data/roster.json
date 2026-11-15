@@ -141,7 +141,7 @@
     "category": "Typography",
     "description": "A block of source code — a bordered, tinted surface with mono type, an optional filename/copy header, an optional line-number gutter, and Prism syntax highlighting themed from tokens. Sized xs–xl; `data-density` scales the padding. Compound subcomponents (CodeBlock.Tabs/Header/List/Trigger/Content/Copy) add a tabbed variant that composes the headless Tabs primitive and reuses the tabs component's classes.",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   },
   {
     "id": "collapsible",

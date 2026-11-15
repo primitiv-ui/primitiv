@@ -378,6 +378,15 @@
   }
 }
 
+/* `<primitiv-code-block-copy>` wraps the copy button in the Elements markup.
+   It draws no box of its own, so the button stays the header's flex item and its
+   `margin-inline-start: auto` still pushes it to the end, as in the React block. */
+@layer primitiv.base {
+  .primitiv-code-block__header > primitiv-code-block-copy {
+    display: contents;
+  }
+}
+
 /* The copy control's two glyphs (or labels), marked `data-copy-state`: the
    element sets `hidden` on the one not in play, but a reset that gives `svg` a
    display (most do) outranks the browser's `[hidden]` rule, which would show

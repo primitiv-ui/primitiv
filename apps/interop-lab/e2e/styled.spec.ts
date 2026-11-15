@@ -957,6 +957,14 @@ test.describe("the printed code block", () => {
       .toBe("export function greet(name: string) {\n  return `Hello, ${name}`;\n}");
   });
 
+  test("puts the copy button at the header's far end, as the React block does", async ({ page }) => {
+    const block = page.locator(".primitiv-code-block").filter({ hasText: "greet.ts" });
+    const header = await block.locator(".primitiv-code-block__header").boundingBox();
+    const copy = await block.locator(".primitiv-code-block__copy").boundingBox();
+    const padding = await block.locator(".primitiv-code-block__header").evaluate((el) => parseFloat(getComputedStyle(el).paddingInlineEnd));
+    expect(Math.round(copy!.x + copy!.width)).toBe(Math.round(header!.x + header!.width - padding));
+  });
+
   test("shows one glyph at a time, though the page's reset gives every svg a display", async ({ page }) => {
     // By class, not name: the name is what changes.
     const button = page.locator(".primitiv-code-block").filter({ hasText: "greet.ts" }).locator(".primitiv-code-block__copy");

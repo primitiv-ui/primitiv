@@ -426,5 +426,41 @@
   "figma": {
     "componentSetKey": "601:9607"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "code-block",
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-code-block primitiv-code-block--md\">\n  <div class=\"primitiv-code-block__header\">\n    <span class=\"primitiv-code-block__filename\">greet.ts</span>\n    <primitiv-code-block-copy>\n      <button type=\"button\" class=\"primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy\" aria-label=\"Copy code\"><svg data-copy-state=\"idle\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.75 7.25v13.5H7.25V7.25zm-12 12h10.5V8.75H8.75z\" /><path d=\"M15.25 4.75H4.75v10.5h4v1.5h-5.5V3.25h13.5v5.5h-1.5z\" /></svg><svg data-copy-state=\"copied\" hidden viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946z\" /></svg></button>\n    </primitiv-code-block-copy>\n  </div>\n  <!-- Highlight on the server or at build time: the stylesheet colours Prism's token classes. The copy control copies the code's text as shown, so keep each line's newline in it. -->\n  <pre class=\"primitiv-code-block__pre language-ts\"><code class=\"primitiv-code-block__code\"><span class=\"token keyword\">export</span> <span class=\"token keyword\">function</span> <span class=\"token function\">greet</span><span class=\"token punctuation\">(</span>name<span class=\"token operator\">:</span> <span class=\"token builtin\">string</span><span class=\"token punctuation\">)</span> <span class=\"token punctuation\">{</span>\n  <span class=\"token keyword\">return</span> <span class=\"token template-string\"><span class=\"token template-punctuation string\">`</span><span class=\"token string\">Hello, </span><span class=\"token interpolation\"><span class=\"token interpolation-punctuation punctuation\">${</span>name<span class=\"token interpolation-punctuation punctuation\">}</span></span><span class=\"token template-punctuation string\">`</span></span><span class=\"token punctuation\">;</span>\n<span class=\"token punctuation\">}</span></code></pre>\n</div>\n",
+    "api": [
+      {
+        "tag": "primitiv-code-block-copy",
+        "description": "`<primitiv-code-block-copy>` — a code block's copy control: it decorates the one `<button>` you write, and puts the block's code on the clipboard when it is pressed.\n\n**The highlighting is yours.** A block is the `<pre><code>` your server or build step wrote — Prism's token classes are what the registry stylesheet colours — so nothing here parses or highlights code.\n\nThe code it copies is the nearest one it can see: the first `<code>` in its closest ancestor that holds one, skipping any inside a `hidden` element (so in a tabbed block, the shown panel's), or the one `for` names. It copies the text as the reader sees it: `aria-hidden` parts such as line numbers are left out, so write each line's newline into the markup. While `copied`, the button carries `data-copied`, its `aria-label` (when it has one) reads `copied-label` with its own kept in `data-label`, and of its children marked `data-copy-state`, the `copied` ones show and the `idle` ones are `hidden`. `copied` is transient: an element that connects with it — from a history snapshot, or moved mid-copy — drops it.",
+        "attributes": [
+          {
+            "name": "for",
+            "type": "string",
+            "description": "The id of the block (or `<code>`) to copy, when it is not the nearest one."
+          },
+          {
+            "name": "copied",
+            "type": "boolean",
+            "description": "Set for two seconds after a copy. Reflected, so a stylesheet can key off it; dropped on connect."
+          },
+          {
+            "name": "copied-label",
+            "type": "string",
+            "description": "The button's `aria-label` while copied. Defaults to \"Copied\"."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-code-block-copy",
+            "type": "CustomEvent<{ text: string }>",
+            "description": "Bubbles, cancelable, fired before the text is written. Call `preventDefault()` to copy nothing."
+          }
+        ]
+      }
+    ]
+  }
 }

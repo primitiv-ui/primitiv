@@ -154,6 +154,49 @@ the chip too, where a long line will then overflow its container — the `inline
 variant's own note explains why that default exists, so pass `wrap={false}`
 there only deliberately.
 
+## Elements (plain HTML)
+
+`primitiv add code-block --surface elements` prints the block as plain markup
+plus the one custom element it needs, `<primitiv-code-block-copy>` from
+`@primitiv-ui/web`, and loads its script (`dist/cdn/code-block.js`). Add
+`--styled` to copy this stylesheet and print the classed markup.
+
+```html
+<div class="primitiv-code-block primitiv-code-block--md">
+  <div class="primitiv-code-block__header">
+    <span class="primitiv-code-block__filename">greet.ts</span>
+    <primitiv-code-block-copy>
+      <button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy" aria-label="Copy code">
+        <svg data-copy-state="idle">...</svg><svg data-copy-state="copied" hidden>...</svg>
+      </button>
+    </primitiv-code-block-copy>
+  </div>
+  <pre class="primitiv-code-block__pre language-ts"><code class="primitiv-code-block__code"><span class="token keyword">export</span> ...</code></pre>
+</div>
+```
+
+How it differs from the React block:
+
+- **The highlighting is yours, done before the browser.** Run the code through
+  Prism on your server or in your build (`Prism.highlight(code, grammar,
+  language)`) and write the result inside the `<code>`: the stylesheet colours
+  Prism's token classes from the `--primitiv-code-syntax-*` palette, so nothing
+  highlights at run time. Unhighlighted code works too, just without colour.
+- **`<primitiv-code-block-copy>` copies what is shown**: the text of the nearest
+  `<code>` it can see (the shown panel's in a tabbed block, skipping `hidden`
+  ones), or the one `for` names, without `aria-hidden` parts such as line
+  numbers. Keep each line's newline in the markup; a line-number gutter is one
+  `__line` per line with the newline at the end of its `__line-content`.
+- **The copied state** lasts two seconds: `copied` on the element,
+  `data-copied` on the button, its `aria-label` swapped for `copied-label`
+  (default `Copied`) and back, and the child marked `data-copy-state="copied"`
+  shown in place of the `idle` one. `primitiv-code-block-copy` (`detail.text`)
+  is cancelable.
+- **The tabbed form is the Tabs elements** wearing this block's classes: a
+  `<primitiv-tabs>` with the `primitiv-code-block` classes, the copy control in
+  the header beside `<primitiv-tabs-list>`, and one `<primitiv-tabs-content
+  class="primitiv-code-block__panel">` per tab. Load `tabs.js` as well.
+
 ## Files
 
 | File | Authored? | Role |

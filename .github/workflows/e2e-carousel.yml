@@ -37,6 +37,8 @@ on:
       - "apps/docs-site/src/styles/primitiv/stepper/**"
       - "apps/docs-site/src/styles/primitiv/data-table/**"
       - "apps/docs-site/src/site/examples/data-table.tsx"
+      - "apps/docs-site/src/styles/primitiv/code-block/**"
+      - "apps/docs-site/src/site/examples/code-block.tsx"
       - "apps/docs-site/e2e/**"
       - "apps/docs-site/playwright.config.ts"
       - "apps/docs-site/next.config.ts"

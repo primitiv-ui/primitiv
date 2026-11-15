@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox and Navigation Menu so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu and Tree so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -31,6 +31,7 @@ React, Vue, Angular or any other framework.
 | Select | `primitiv-select`, `-trigger`, `-value`, `-content`, `-item`, `-item-indicator`, `-group`, `-separator` | `primitiv-select-change`, `-open-change` | 0.2.1 |
 | Combobox | `primitiv-combobox`, `-input`, `-content`, `-item`, `-empty` | `primitiv-combobox-change`, `-open-change`, `-query-change` | 0.2.1 |
 | Navigation Menu | `primitiv-navigation-menu`, `-list`, `-item`, `-trigger`, `-content`, `-viewport`, `-indicator`, `-link` | `primitiv-navigation-menu-change` | 0.2.10 |
+| Tree | `primitiv-tree`, `-item`, `-branch`, `-branch-control`, `-branch-content`, `-branch-indicator`, `-selection-path` | `primitiv-tree-change`, `primitiv-tree-expanded-change` | 0.2.11 |
 
 ## Use it
 
@@ -63,14 +64,14 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`, `/combobox`, `/navigation-menu`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`, `/combobox`, `/navigation-menu`, `/tree`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
 `defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` /
-`defineNavigationMenu(registry?)` with **no side
+`defineNavigationMenu(registry?)` / `defineTree(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -625,6 +626,39 @@ The elements write no `class` and no `style`. For the registry look, apply the
   viewport, as `--primitiv-navigation-menu-*` custom properties. The styled
   viewport anchors to whichever trigger is open with no `anchor-name` in your
   markup.
+
+### Tree
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/tree.js"></script>
+
+<primitiv-tree aria-label="Files" expanded="src" value="index">
+  <primitiv-tree-branch value="src" label="src">
+    <primitiv-tree-branch-control><primitiv-tree-branch-indicator>▸</primitiv-tree-branch-indicator>src</primitiv-tree-branch-control>
+    <primitiv-tree-branch-content>
+      <primitiv-tree-item value="index" label="index.ts">index.ts</primitiv-tree-item>
+    </primitiv-tree-branch-content>
+  </primitiv-tree-branch>
+  <primitiv-tree-item value="readme" label="README.md" disabled>README.md</primitiv-tree-item>
+</primitiv-tree>
+```
+
+- **The WAI-ARIA tree view.** The root is the `tree`, each item and branch a
+  `treeitem` with `aria-level`, `aria-selected` and (on a branch) `aria-expanded`,
+  and a branch's content its `group`. The rows share one tab stop; the arrows,
+  Home and End move over the visible rows, Right expands then enters, Left
+  collapses then climbs, and Enter or Space selects (a branch toggling too).
+- **State is two attributes on the root**, both space-separated: `expanded`
+  (the open branches) and `value` (the selection, in the order it was made).
+  `primitiv-tree-change` (`detail.value`) and `primitiv-tree-expanded-change`
+  (`detail.expanded`) bubble and are cancelable.
+- **`selection-mode="multiple"`** adds Shift ranges and Ctrl / Cmd toggles.
+- **Write `hidden` on a collapsed branch's content yourself.** The element
+  keeps `hidden` and `aria-hidden` in step; `force-mount` keeps it rendered
+  (only `aria-hidden`) for a stylesheet to animate.
+- **`<primitiv-tree-selection-path>`** stamps the Breadcrumb markup in its
+  `<template>` once per selected node: the first `[data-tree-selection-segment]`
+  once per ancestor and the last for the node. It reads each node's `label`.
 
 ## Layers
 

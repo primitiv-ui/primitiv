@@ -612,7 +612,7 @@ export const treeSpec: ComponentSpec = {
       "`disabled` sets `aria-disabled` and stops a node taking selection or toggling, but it stays in the roving order so a keyboard user can still find it.",
       "A collapsed group gets `hidden` and `aria-hidden`, so a screen reader never reads a subtree that looks closed. With `force-mount` it stays rendered for the stylesheet to animate, and `aria-hidden` still hides it. Write `hidden` in your markup so nothing shows before the script loads.",
       "The indicator is decorative (`aria-hidden`), since `aria-expanded` already announces the state.",
-      "Every user change fires a cancelable `primitiv-tree-change` or `primitiv-tree-expanded-change` first. A missing `value` or a misplaced part is reported once in the console and left alone; nothing throws, because a server-rendered page has no error boundary.",
+      "Every user change fires a cancelable `primitiv-tree-change` or `primitiv-tree-expanded-change` first. A node with no `value`, or a branch with no `<primitiv-tree-branch-control>`, is reported once in the console and left alone; nothing throws, because a server-rendered page has no error boundary.",
       "The selection path is a Breadcrumb `nav`; the current node is set apart by weight as well as colour.",
     ],
   },

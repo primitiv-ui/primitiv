@@ -23,3 +23,4 @@ import "./combobox.ts";
 import "./tooltip.ts";
 import "./stepper.ts";
 import "./miller-columns.ts";
+import "./table.ts";

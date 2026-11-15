@@ -108,6 +108,7 @@ import type {
   PrimitivMillerColumnsResizeHandleElement,
   PrimitivMillerColumnsTreeElement,
 } from "./miller-columns/elements.ts";
+import type { PrimitivTableExpandTriggerElement } from "./table/elements.ts";
 import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
@@ -213,6 +214,7 @@ declare global {
     "primitiv-miller-columns-item-indicator": PrimitivMillerColumnsItemIndicatorElement;
     "primitiv-miller-columns-resize-handle": PrimitivMillerColumnsResizeHandleElement;
     "primitiv-miller-columns-preview-panel": PrimitivMillerColumnsPreviewPanelElement;
+    "primitiv-table-expand-trigger": PrimitivTableExpandTriggerElement;
     "primitiv-stepper": PrimitivStepperElement;
     "primitiv-stepper-list": PrimitivStepperListElement;
     "primitiv-stepper-step": PrimitivStepperStepElement;

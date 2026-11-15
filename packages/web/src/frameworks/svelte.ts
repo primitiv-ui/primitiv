@@ -108,6 +108,7 @@ import type {
   PrimitivMillerColumnsResizeHandleElement,
   PrimitivMillerColumnsTreeElement,
 } from "../miller-columns/elements.ts";
+import type { PrimitivTableExpandTriggerElement } from "../table/elements.ts";
 import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
@@ -188,6 +189,7 @@ import type {
   PrimitivTreeExpandedChangeEvent,
   PrimitivMillerColumnsChangeEvent,
   PrimitivStepperChangeEvent,
+  PrimitivTableExpandChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -411,6 +413,12 @@ declare module "svelte/elements" {
     };
     "primitiv-miller-columns-preview-panel": Attributes<PrimitivMillerColumnsPreviewPanelElement> & {
       "force-mount"?: boolean;
+    };
+    "primitiv-table-expand-trigger": Attributes<PrimitivTableExpandTriggerElement> & {
+      expanded?: boolean;
+      disabled?: boolean;
+      "force-mount"?: boolean;
+      "onprimitiv-table-expand-change"?: (event: PrimitivTableExpandChangeEvent) => void;
     };
     "primitiv-stepper": Attributes<PrimitivStepperElement> & {
       value?: string;

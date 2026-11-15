@@ -281,6 +281,14 @@ it("defines the Miller Columns elements when define/miller-columns is imported",
   }
 });
 
+it("defines the Table element when define/table is imported", async () => {
+  // Arrange & Act
+  await import("../table");
+
+  // Assert
+  expect(customElements.get("primitiv-table-expand-trigger")).toBeDefined();
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -305,4 +313,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-tree")).toBeDefined();
   expect(customElements.get("primitiv-stepper")).toBeDefined();
   expect(customElements.get("primitiv-miller-columns")).toBeDefined();
+  expect(customElements.get("primitiv-table-expand-trigger")).toBeDefined();
 });

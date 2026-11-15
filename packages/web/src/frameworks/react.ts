@@ -109,6 +109,7 @@ import type {
   PrimitivMillerColumnsResizeHandleElement,
   PrimitivMillerColumnsTreeElement,
 } from "../miller-columns/elements.ts";
+import type { PrimitivTableExpandTriggerElement } from "../table/elements.ts";
 import type {
   PrimitivStepperElement,
   PrimitivStepperListElement,
@@ -189,6 +190,7 @@ import type {
   PrimitivTreeExpandedChangeEvent,
   PrimitivMillerColumnsChangeEvent,
   PrimitivStepperChangeEvent,
+  PrimitivTableExpandChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -447,6 +449,12 @@ declare module "react" {
       };
       "primitiv-miller-columns-preview-panel": ElementProps<PrimitivMillerColumnsPreviewPanelElement> & {
         "force-mount"?: boolean;
+      };
+      "primitiv-table-expand-trigger": ElementProps<PrimitivTableExpandTriggerElement> & {
+        expanded?: boolean;
+        disabled?: boolean;
+        "force-mount"?: boolean;
+        "onprimitiv-table-expand-change"?: (event: PrimitivTableExpandChangeEvent) => void;
       };
       "primitiv-stepper": ElementProps<PrimitivStepperElement> & {
         value?: string;

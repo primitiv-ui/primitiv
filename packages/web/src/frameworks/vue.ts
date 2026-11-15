@@ -40,6 +40,7 @@ import type {
   PrimitivTreeExpandedChangeEvent,
   PrimitivMillerColumnsChangeEvent,
   PrimitivStepperChangeEvent,
+  PrimitivTableExpandChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -193,6 +194,10 @@ declare module "vue" {
     "primitiv-miller-columns-item-indicator": Tag<Record<never, never>>;
     "primitiv-miller-columns-resize-handle": Tag<{ minWidth?: number | string; maxWidth?: number | string; step?: number | string }>;
     "primitiv-miller-columns-preview-panel": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-table-expand-trigger": Tag<
+      { expanded?: boolean | ""; disabled?: boolean | ""; forceMount?: boolean | "" },
+      { "primitiv-table-expand-change": (event: PrimitivTableExpandChangeEvent) => void }
+    >;
     "primitiv-stepper": Tag<
       {
         value?: string;

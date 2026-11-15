@@ -62,6 +62,7 @@ import type {
   PrimitivMillerColumnsResizeHandleElement,
   PrimitivMillerColumnsTreeElement,
   PrimitivStepperElement,
+  PrimitivTableExpandTriggerElement,
   PrimitivStepperListElement,
   PrimitivStepperPanelElement,
   PrimitivStepperStepElement,
@@ -99,6 +100,10 @@ it("types every Miller Columns tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-miller-columns-item-indicator")).toEqualTypeOf<PrimitivMillerColumnsItemIndicatorElement>();
   expectTypeOf(document.createElement("primitiv-miller-columns-resize-handle")).toEqualTypeOf<PrimitivMillerColumnsResizeHandleElement>();
   expectTypeOf(document.createElement("primitiv-miller-columns-preview-panel")).toEqualTypeOf<PrimitivMillerColumnsPreviewPanelElement>();
+});
+
+it("types the Table tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-table-expand-trigger")).toEqualTypeOf<PrimitivTableExpandTriggerElement | null>();
 });
 
 it("types every Stepper tag in HTMLElementTagNameMap", () => {

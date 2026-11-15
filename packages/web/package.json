@@ -46,6 +46,10 @@
       "types": "./src/stepper/index.ts",
       "default": "./src/stepper/index.ts"
     },
+    "./table": {
+      "types": "./src/table/index.ts",
+      "default": "./src/table/index.ts"
+    },
     "./miller-columns": {
       "types": "./src/miller-columns/index.ts",
       "default": "./src/miller-columns/index.ts"
@@ -133,6 +137,10 @@
     "./define/stepper": {
       "types": "./src/define/stepper.ts",
       "default": "./src/define/stepper.ts"
+    },
+    "./define/table": {
+      "types": "./src/define/table.ts",
+      "default": "./src/define/table.ts"
     },
     "./define/miller-columns": {
       "types": "./src/define/miller-columns.ts",
@@ -289,6 +297,10 @@
         "types": "./dist/stepper/index.d.ts",
         "default": "./dist/stepper/index.js"
       },
+      "./table": {
+        "types": "./dist/table/index.d.ts",
+        "default": "./dist/table/index.js"
+      },
       "./miller-columns": {
         "types": "./dist/miller-columns/index.d.ts",
         "default": "./dist/miller-columns/index.js"
@@ -376,6 +388,10 @@
       "./define/stepper": {
         "types": "./dist/define/stepper.d.ts",
         "default": "./dist/define/stepper.js"
+      },
+      "./define/table": {
+        "types": "./dist/define/table.d.ts",
+        "default": "./dist/define/table.js"
       },
       "./define/miller-columns": {
         "types": "./dist/define/miller-columns.d.ts",

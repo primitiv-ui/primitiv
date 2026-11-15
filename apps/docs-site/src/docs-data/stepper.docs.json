@@ -464,5 +464,88 @@
   "figma": {
     "componentSetKey": "1788:45166"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "tabs",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-tabs value=\"billing\" activation-mode=\"manual\" class=\"primitiv-stepper primitiv-stepper--md\">\n  <primitiv-tabs-list label=\"Sign-up progress\" class=\"primitiv-stepper__list\">\n    <!-- A step's progress is data-step-state on its button: upcoming, complete or error. The marker shows what that state calls for: the step number, a tick for a complete step, a warning glyph for an errored one. -->\n    <primitiv-tabs-trigger value=\"account\">\n      <button type=\"button\" class=\"primitiv-stepper__step\" data-step-state=\"complete\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-mark\"></span></span>\n        <span class=\"primitiv-stepper__label\">Account</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"billing\">\n      <button type=\"button\" class=\"primitiv-stepper__step\" data-step-state=\"upcoming\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-number\">2</span></span>\n        <span class=\"primitiv-stepper__label\">Billing</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"review\">\n      <button type=\"button\" class=\"primitiv-stepper__step\" data-step-state=\"upcoming\">\n        <span class=\"primitiv-stepper__marker\"><span class=\"primitiv-stepper__marker-number\">3</span></span>\n        <span class=\"primitiv-stepper__label\">Review</span>\n      </button>\n    </primitiv-tabs-trigger>\n  </primitiv-tabs-list>\n  <primitiv-tabs-content value=\"account\" class=\"primitiv-stepper__panel\" hidden>Your account details.</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"billing\" class=\"primitiv-stepper__panel\">Where should we send the receipt?</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"review\" class=\"primitiv-stepper__panel\" hidden>Check everything before you submit.</primitiv-tabs-content>\n</primitiv-tabs>\n",
+    "api": [
+      {
+        "tag": "primitiv-tabs",
+        "description": "`<primitiv-tabs>` — the state owner of a WAI-ARIA tab set.\n\nThe root finds its own parts, so a tab set nested in a panel keeps its own, and reconciles their ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s). `activation-mode` is read live at each key press, so a change to it needs no reconcile.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The active tab's value. Reflected: it moves as the user switches tabs, so a server re-render or a history snapshot sees the live selection."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "Layout axis, which picks the arrow-key pair. Defaults to `horizontal`."
+          },
+          {
+            "name": "activation-mode",
+            "type": "\"automatic\" | \"manual\"",
+            "description": "`automatic` activates a tab as focus arrives; `manual` waits for Enter or Space. Defaults to `automatic`."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-tabs-change",
+            "type": "CustomEvent<{ value: string; index: number }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-tabs-list",
+        "description": "`<primitiv-tabs-list>` — the tablist. Structural: the root writes its ARIA.",
+        "attributes": [
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The tablist's accessible name. Give this or `aria-labelledby`."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tabs-trigger",
+        "description": "`<primitiv-tabs-trigger>` — an interactive part. It decorates exactly one child the consumer writes (a `<button>`, an `<a href>`, a router link), which receives the tab role, so the rendered DOM matches React's `<button role=\"tab\">` (RFC 0033 D24).",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The tab's value, pairing it with the panel of the same value."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Marks the tab disabled: arrow keys still land on it, but it never activates."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tabs-content",
+        "description": "`<primitiv-tabs-content>` — a tab panel. Structural: the root writes its ARIA.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The panel's value, pairing it with the tab of the same value."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-tabs-show",
+            "type": "CustomEvent",
+            "description": "Bubbles from the panel as it becomes active (not on first render), so a lazy panel can fetch its content."
+          }
+        ]
+      }
+    ]
+  }
 }

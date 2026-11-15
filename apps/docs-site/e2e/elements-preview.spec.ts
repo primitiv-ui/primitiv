@@ -152,6 +152,51 @@ test("the ConfirmDialog previews are <primitiv-modal> elements, loaded from moda
   await expect(trigger).toBeFocused();
 });
 
+test("the Stepper previews are <primitiv-tabs> elements wearing the stepper classes, loaded from tabs.js", async ({ page }) => {
+  await page.goto("/components/stepper/");
+  // Its markup is the Tabs elements: the script that defines them is tabs'.
+  await expect(page.getByText(/dist\/cdn\/tabs\.js/).first()).toBeVisible();
+  await expect(page.getByText("stepper.js")).toHaveCount(0);
+  const root = page.locator(".docs-elements-preview primitiv-tabs").first();
+  await expect(root).toHaveClass(/primitiv-stepper/);
+  await expect(root.locator("button").first()).toHaveAttribute("role", "tab");
+  await expect(root.locator("primitiv-tabs-list")).toHaveCSS("display", "grid");
+});
+
+test("every Stepper preview fills its card, as the React demos do", async ({ page }) => {
+  await page.goto("/components/stepper/");
+  const roots = page.locator(".docs-elements-preview primitiv-tabs.primitiv-stepper");
+  await expect(roots).toHaveCount(5);
+  const widths = await roots.evaluateAll((all) => all.map((root) => root.getBoundingClientRect().width));
+  // The playground's root fills its card; a shrunk example spanned half of that.
+  for (const width of widths.slice(1)) expect(width).toBeGreaterThan(widths[0] * 0.95);
+});
+
+test("the Stepper wizard's Continue completes the step behind and unlocks the one ahead", async ({ page }) => {
+  await page.goto("/components/stepper/");
+  const example = cell(page, "wizard");
+  const profile = example.getByRole("tab", { name: "Profile" });
+  await expect(profile).toHaveAttribute("aria-disabled", "true");
+  await example.getByRole("button", { name: "Continue" }).click();
+  await expect(profile).toHaveAttribute("aria-selected", "true");
+  await expect(example.getByRole("tab", { name: "Account" })).toHaveAttribute("data-step-state", "complete");
+  await expect(example.getByRole("tab", { name: "Review" })).toHaveAttribute("aria-disabled", "true");
+  await expect(example.getByRole("button", { name: "Back" })).toBeEnabled();
+  await expect(example.locator(".docs-elements-preview").getByRole("tabpanel")).toHaveText(
+    "Tell us who you are. This is what other people see.",
+  );
+});
+
+test("the Stepper compact example keeps its Step N of M line on the current step", async ({ page }) => {
+  await page.goto("/components/stepper/");
+  const example = cell(page, "compact");
+  // Compact hides the labels, so the segments are found by position.
+  await example.locator(".docs-elements-preview").getByRole("tab").first().focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Enter");
+  await expect(example.locator("[data-step-status]")).toHaveText("Step 2 of 3 — Profile");
+});
+
 test("the Drawer previews are <primitiv-modal> elements that slide in from their side", async ({ page }) => {
   await page.goto("/components/drawer/");
   await expect(page.getByText(/dist\/cdn\/modal\.js/).first()).toBeVisible();

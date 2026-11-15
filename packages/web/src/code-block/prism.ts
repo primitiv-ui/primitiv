@@ -1,4 +1,3 @@
-/// <reference path="./prism-components.d.ts" />
 /**
  * Prism, loaded only when a block needs it, and each grammar only when a block
  * names its language — so a page showing only TSX downloads only TSX, and a
@@ -11,25 +10,49 @@ type Prism = typeof PrismType;
 type Grammar = PrismType.Grammar;
 
 // Stryker disable all: static — both tables are built once at import, so runtime mutant switching never reaches them; every entry is pinned by a per-language highlighting test instead.
+/*
+ * Prism's grammar files ship no types: each extends the global `Prism` as a
+ * side effect and exports nothing. Each import says so where it is made, rather
+ * than in an ambient `declare module`, which JSR rejects as a change to global
+ * types.
+ */
 /** Each grammar Primitiv highlights: how to load it, and the grammars it builds on. */
 const GRAMMARS: Record<string, { load: () => Promise<unknown>; requires: readonly string[] }> = {
+  // @ts-expect-error -- an untyped grammar file (see above).
   markup: { load: () => import("prismjs/components/prism-markup.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   css: { load: () => import("prismjs/components/prism-css.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   clike: { load: () => import("prismjs/components/prism-clike.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   javascript: { load: () => import("prismjs/components/prism-javascript.js"), requires: ["clike"] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   jsx: { load: () => import("prismjs/components/prism-jsx.js"), requires: ["markup", "javascript"] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   typescript: { load: () => import("prismjs/components/prism-typescript.js"), requires: ["javascript"] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   tsx: { load: () => import("prismjs/components/prism-tsx.js"), requires: ["jsx", "typescript"] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   json: { load: () => import("prismjs/components/prism-json.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   bash: { load: () => import("prismjs/components/prism-bash.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   yaml: { load: () => import("prismjs/components/prism-yaml.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   markdown: { load: () => import("prismjs/components/prism-markdown.js"), requires: ["markup"] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   python: { load: () => import("prismjs/components/prism-python.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   diff: { load: () => import("prismjs/components/prism-diff.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   sql: { load: () => import("prismjs/components/prism-sql.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   scss: { load: () => import("prismjs/components/prism-scss.js"), requires: ["css"] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   rust: { load: () => import("prismjs/components/prism-rust.js"), requires: [] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   go: { load: () => import("prismjs/components/prism-go.js"), requires: ["clike"] },
+  // @ts-expect-error -- an untyped grammar file (see above).
   graphql: { load: () => import("prismjs/components/prism-graphql.js"), requires: [] },
 };
 
@@ -64,9 +87,10 @@ function prism(): Promise<Prism> {
     if (typeof scope.Prism?.highlight === "function") return scope.Prism as Prism;
     // Stryker disable next-line ObjectLiteral,BooleanLiteral: jsdom never runs Prism's own pass, so only a browser shows what this prevents — the interop lab's "leaves the page's other language-* blocks alone" test pins it.
     scope.Prism = { ...scope.Prism, manual: true };
-    const module = await import("prismjs/components/prism-core.js");
-    scope.Prism = module.default;
-    return module.default;
+    // @ts-expect-error -- Prism's core file is untyped too; its export is Prism itself.
+    const instance = (await import("prismjs/components/prism-core.js")).default as Prism;
+    scope.Prism = instance;
+    return instance;
   })());
 }
 

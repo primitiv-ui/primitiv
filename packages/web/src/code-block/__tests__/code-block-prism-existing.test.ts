@@ -5,7 +5,8 @@ it("extends the Prism a page already has rather than replacing it", async () => 
   // Arrange — the page's own Prism, loaded before Primitiv's
   const scope = globalThis as { Prism?: unknown };
   scope.Prism = { manual: true };
-  const loaded = (await import("prismjs/components/prism-core.js")).default;
+  // @ts-expect-error -- Prism's core file is untyped; its export is Prism itself.
+  const loaded = (await import("prismjs/components/prism-core.js")).default as typeof import("prismjs");
   // A page's Prism is its own script's instance, not the module Primitiv would
   // import (which Node caches): a copy stands in for it.
   const pagePrism = { ...loaded };

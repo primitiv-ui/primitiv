@@ -1,4 +1,5 @@
-import { ComponentProps, KeyboardEvent, ReactNode, Ref } from "react";
+import type { MillerColumnsController } from "@primitiv-ui/web";
+import { ComponentProps, ReactNode, Ref } from "react";
 
 import type { Direction } from "../DirectionProvider/types";
 
@@ -206,8 +207,6 @@ export type MillerColumnsContextValue = {
   setColumnWidth: (depth: number, width: number) => void;
   /** The active selection path. */
   activePath: string[];
-  /** Select the item at the given depth and value. */
-  select: (depth: number, value: string) => void;
   /** Register (or unregister, with a `null` element) an item. */
   registerItem: (
     depth: number,
@@ -221,20 +220,15 @@ export type MillerColumnsContextValue = {
   terminalIsLeaf: boolean;
   /** Get the registered items for a column. */
   getColumnItems: (depth: number) => MillerColumnsItemMeta[];
-  /** Read a registered item's rendered cell text, for typeahead matching. */
-  getItemLabel: (depth: number, value: string) => string;
-  /** Move focus to the given item. */
-  focusItem: (depth: number, value: string) => void;
-  /** Focus the first item in a column; returns whether one was focused. */
-  focusFirstInColumn: (depth: number) => boolean;
-  /** Request that focus move into the given column. */
-  requestColumnFocus: (depth: number) => void;
-  /** The currently active (focused) item, if any. */
-  activeItem: MillerColumnsItemAddress | null;
+  /**
+   * The behaviour the `<primitiv-miller-columns>` elements run too (RFC 0033
+   * D30): selection, the keymap, stepping into a column and typeahead.
+   */
+  controller: MillerColumnsController;
+  /** The one item in the Tab order, or none. */
+  tabStop: MillerColumnsItemAddress | null;
   /** Set the active (focused) item. */
   setActiveItem: (item: MillerColumnsItemAddress) => void;
-  /** Printable-character typeahead, scoped to the focused item's column. */
-  handleTypeahead: (event: KeyboardEvent<HTMLElement>) => void;
 };
 
 /** Value shared through a column's context. */

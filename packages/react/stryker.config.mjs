@@ -37,13 +37,6 @@ const SHARED_MODULES = {
   // The button-based tri-state hook for menu checkbox-items. Checkbox itself is
   // input-based (useCheckboxInput); this is used by Dropdown / ContextMenu.
   "src/Checkbox/hooks/useCheckboxRoot.ts": ["Dropdown", "ContextMenu"],
-  // Printable-character typeahead. It began life under src/Listbox/hooks and so
-  // was mutated by Listbox's run; promoting it to src/hooks for MillerColumns to
-  // share took it out of every component's glob, silently dropping it from the
-  // ratchet. Re-home it onto its consumer so the gate still covers it. Listbox
-  // left it when it moved onto the shared ListboxController (RFC 0033 D30), so
-  // MillerColumns is the one consumer now; the matching itself is core's.
-  "src/hooks/useTypeahead.ts": ["MillerColumns"],
   // Hosting a @primitiv-ui/web controller (RFC 0033 D30), shared by every
   // component the elements surface has moved onto it. CheckboxCard hosts it too
   // but is left off: its card registers in an effect after the controller's

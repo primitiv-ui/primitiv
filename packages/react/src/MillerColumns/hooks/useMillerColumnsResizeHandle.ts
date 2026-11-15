@@ -1,3 +1,4 @@
+import { MillerColumnsResizeController } from "@primitiv-ui/web";
 import {
   KeyboardEvent,
   PointerEvent,
@@ -12,8 +13,6 @@ import type { MillerColumnsResizeHandleProps } from "../types";
 import { useMillerColumnsContext } from "./useMillerColumnsContext";
 import { useMillerColumnsColumnContext } from "./useMillerColumnsColumnContext";
 
-type DragState = { startX: number; startWidth: number };
-
 export function useMillerColumnsResizeHandle({
   onPointerDown,
   onKeyDown,
@@ -26,105 +25,66 @@ export function useMillerColumnsResizeHandle({
   const { depth } = useMillerColumnsColumnContext();
 
   const handleRef = useRef<HTMLDivElement>(null);
-  const [drag, setDrag] = useState<DragState | null>(null);
+  const [dragging, setDragging] = useState(false);
   // The column's rendered width before anything resizes it. Tracked so
   // `aria-valuenow` is truthful from the first render — a splitter whose
   // value only appears after the first drag announces nothing until then.
   const [measured, setMeasured] = useState(0);
 
-  const clamp = (width: number) =>
-    Math.min(maxWidth, Math.max(minWidth, width));
-
   // The resized width wins; otherwise the column is still sized by CSS.
   const width = columnWidths.get(depth) ?? measured;
 
+  // Stryker disable ArrayDeclaration: equivalent — any constant dependency list runs this once, as `[]` does.
   useLayoutEffect(() => {
-    const column = handleRef.current?.closest<HTMLElement>(
+    // The handle only renders inside a Column, which context enforces, so the
+    // ref is set and the column ancestor is always there.
+    const column = handleRef.current!.closest<HTMLElement>(
       "[data-miller-columns-column]",
-    );
-    /* c8 ignore next 3 -- the handle only renders inside a Column, which
-       context already enforces, so the ancestor is always present. */
-    if (!column) {
-      return;
-    }
+    )!;
     const measure = () => setMeasured(column.getBoundingClientRect().width);
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(column);
     return () => observer.disconnect();
   }, []);
+  // Stryker restore ArrayDeclaration
 
-  // A drag is tracked on `window`, not the handle, so the pointer can
-  // travel anywhere once it is down; the listeners live only for the
-  // lifetime of the drag.
-  useEffect(() => {
-    if (!drag) {
-      return;
-    }
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // The splitter's keymap and the pointer drag (tracked on `window`, for the
+  // drag's lifetime only) run in the web implementation's
+  // MillerColumnsResizeController, the same code the elements run. React keeps
+  // the widths; the controller reads them through `latest`.
+  const snapshot = { columnWidths, setColumnWidth, dir, depth, width, minWidth, maxWidth, step };
+  const latest = useRef(snapshot);
+  latest.current = snapshot;
+  const controllerRef = useRef<MillerColumnsResizeController | null>(null);
+  controllerRef.current ??= new MillerColumnsResizeController({
+    // The resized width, else the column's rendered width as last measured —
+    // where both a key press and a drag start from.
+    width: () => latest.current.width,
+    bounds: () => ({
+      min: latest.current.minWidth,
+      max: latest.current.maxWidth,
+      step: latest.current.step,
+    }),
+    dir: () => latest.current.dir,
+    setWidth: (next) => latest.current.setColumnWidth(latest.current.depth, next),
+    dragging: setDragging,
+  });
+  const controller = controllerRef.current;
 
-    const activeDrag = drag;
-
-    function handleMove(event: globalThis.PointerEvent) {
-      const next = activeDrag.startWidth + event.clientX - activeDrag.startX;
-      setColumnWidth(depth, Math.min(maxWidth, Math.max(minWidth, next)));
-    }
-
-    function endDrag() {
-      setDrag(null);
-    }
-
-    window.addEventListener("pointermove", handleMove);
-    window.addEventListener("pointerup", endDrag);
-    window.addEventListener("pointercancel", endDrag);
-    return () => {
-      window.removeEventListener("pointermove", handleMove);
-      window.removeEventListener("pointerup", endDrag);
-      window.removeEventListener("pointercancel", endDrag);
-    };
-  }, [drag, depth, setColumnWidth, minWidth, maxWidth]);
+  // A drag tracks the pointer on window, so it must not outlive the handle.
+  // Stryker disable next-line ArrayDeclaration: equivalent — the controller is created once per mount, so `[controller]` never changes, as `[]` does not.
+  useEffect(() => () => controller.disconnect(), [controller]);
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     onPointerDown?.(event);
-    // The handle only renders inside a Column (enforced by context), so
-    // its column ancestor is always present in the DOM. Once a column
-    // has been resized its width is known; before that, measure it.
-    const column = event.currentTarget.closest<HTMLElement>(
-      "[data-miller-columns-column]",
-    )!;
-    const startWidth =
-      columnWidths.get(depth) ?? column.getBoundingClientRect().width;
-    setDrag({ startX: event.clientX, startWidth });
+    controller.pointerdown(event);
   }
-
-  // The column extends towards the inline-end edge, which is leftwards
-  // under rtl — so the key that widens it mirrors with the direction.
-  const growKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
-  const shrinkKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     onKeyDown?.(event);
-
-    const next = (() => {
-      switch (event.key) {
-        case growKey:
-          return width + step;
-        case shrinkKey:
-          return width - step;
-        case "Home":
-          return minWidth;
-        case "End":
-          return maxWidth;
-        default:
-          return null;
-      }
-    })();
-
-    if (next === null || !Number.isFinite(next)) {
-      return;
-    }
-
-    event.preventDefault();
-    setColumnWidth(depth, clamp(next));
+    controller.keydown(event);
   }
 
   return {
@@ -137,7 +97,7 @@ export function useMillerColumnsResizeHandle({
       "aria-valuemin": minWidth,
       ...(Number.isFinite(maxWidth) ? { "aria-valuemax": maxWidth } : {}),
       "data-miller-columns-resize-handle": "",
-      ...(drag ? { "data-dragging": "" } : {}),
+      ...(dragging ? { "data-dragging": "" } : {}),
       onPointerDown: handlePointerDown,
       onKeyDown: handleKeyDown,
       ...rest,

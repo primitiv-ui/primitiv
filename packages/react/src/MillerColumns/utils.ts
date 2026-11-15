@@ -10,19 +10,6 @@ import {
 import { MillerColumnsColumn } from "./MillerColumns";
 
 /**
- * Produces the next active path when an item at `depth` with id `value`
- * is selected: keeps the columns shallower than `depth` untouched,
- * appends `value`, and drops everything deeper (those columns close).
- */
-export function selectAtDepth(
-  path: string[],
-  depth: number,
-  value: string,
-): string[] {
-  return [...path.slice(0, depth), value];
-}
-
-/**
  * Splits a props bag into its `aria-*` entries and everything else.
  *
  * `Root` renders two elements — a plain strip container and the inner
@@ -78,7 +65,9 @@ export type MillerColumnsPartName = "column";
 function millerColumnsPartOf(
   type: unknown,
 ): MillerColumnsPartName | undefined {
-  return (type as Record<string, MillerColumnsPartName | undefined> | null)?.[
+  // Only ever read off a valid element's `type` — a tag name or a component,
+  // never null — so the lookup needs no guard.
+  return (type as Record<string, MillerColumnsPartName | undefined>)[
     MILLER_COLUMNS_PART
   ];
 }

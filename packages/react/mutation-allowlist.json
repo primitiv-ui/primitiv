@@ -38,5 +38,6 @@
   "Table",
   "Slider",
   "Combobox",
-  "Tree"
+  "Tree",
+  "MillerColumns"
 ]

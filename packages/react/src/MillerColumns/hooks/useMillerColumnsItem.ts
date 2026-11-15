@@ -7,7 +7,6 @@ import {
   useRef,
 } from "react";
 
-import { useRovingTabindex } from "../../hooks/index.ts";
 import { composeRefs } from "../../Slot/index.ts";
 
 import type {
@@ -30,19 +29,8 @@ export function useMillerColumnsItem(
   }: Omit<MillerColumnsItemProps, "children">,
   hasChildren: boolean,
 ) {
-  const {
-    dir,
-    activePath,
-    select,
-    registerItem,
-    getColumnItems,
-    focusItem,
-    focusFirstInColumn,
-    requestColumnFocus,
-    activeItem,
-    setActiveItem,
-    handleTypeahead,
-  } = useMillerColumnsContext();
+  const { activePath, registerItem, controller, tabStop, setActiveItem } =
+    useMillerColumnsContext();
   const { depth } = useMillerColumnsColumnContext();
 
   const selected = activePath[depth] === value;
@@ -62,33 +50,12 @@ export function useMillerColumnsItem(
     return () => registerItem(depth, value, null, disabled, hasChildren);
   }, [depth, value, disabled, hasChildren, registerItem]);
 
-  const enabledValues = getColumnItems(depth)
-    .filter((item) => !item.disabled)
-    .map((item) => item.value);
-
-  const { handleKeyDown: rovingKeyDown } = useRovingTabindex<string>({
-    orientation: "vertical",
-    navigable: enabledValues,
-    currentKey: value,
-    includeHomeEnd: true,
-    includeActivate: true,
-    onNavigate: (target, action) => {
-      if (action === "activate") {
-        if (!disabled) {
-          select(depth, value);
-        }
-        return;
-      }
-      focusItem(depth, target);
-    },
-  });
-
   function handleClick(event: MouseEvent<HTMLDivElement>) {
     if (disabled) {
       return;
     }
     onClick?.(event);
-    select(depth, value);
+    controller.click({ depth, value });
   }
 
   function handleFocus(event: FocusEvent<HTMLDivElement>) {
@@ -96,60 +63,16 @@ export function useMillerColumnsItem(
     setActiveItem({ depth, value });
   }
 
-  // Exactly one item in the whole tree is the Tab stop. It follows the
-  // last-focused item; before any focus it defaults to the deepest
-  // selected item, falling back to the first enabled root item.
-  const tabStop =
-    activeItem ??
-    (activePath.length > 0
-      ? { depth: activePath.length - 1, value: activePath[activePath.length - 1] }
-      : null);
-  const isTabStop = tabStop
-    ? tabStop.depth === depth && tabStop.value === value
-    : depth === 0 &&
-      getColumnItems(0).find((item) => !item.disabled)?.value === value;
+  // Exactly one item in the whole tree is the Tab stop: the controller's
+  // rule — the last-focused item, else the deepest selected item, else the
+  // first enabled root item.
+  const isTabStop = tabStop?.depth === depth && tabStop.value === value;
 
-  // Columns run left-to-right under ltr and right-to-left under rtl, so
-  // the key that steps *into* a child column mirrors with the direction.
-  const stepInKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
-  const stepOutKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
-
+  // The keymap (step in and out, the column's arrows, Enter / Space) and
+  // typeahead are the controller's; a consumer's handler runs first.
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     onKeyDown?.(event);
-
-    if (event.key === stepInKey) {
-      if (!hasChildren || disabled) {
-        return;
-      }
-      event.preventDefault();
-      if (selected) {
-        focusFirstInColumn(depth + 1);
-      } else {
-        requestColumnFocus(depth + 1);
-        select(depth, value);
-      }
-      return;
-    }
-
-    if (event.key === stepOutKey) {
-      if (depth === 0) {
-        return;
-      }
-      event.preventDefault();
-      // A column at depth > 0 exists only because its parent item is
-      // selected, so activePath[depth - 1] is always defined here.
-      focusItem(depth - 1, activePath[depth - 1]);
-      return;
-    }
-
-    rovingKeyDown(event);
-
-    // The keymap gets first refusal — it calls preventDefault on every key
-    // it consumes, so only a still-unhandled printable character reaches
-    // typeahead (Space activates, and never falls through).
-    if (!event.defaultPrevented) {
-      handleTypeahead(event);
-    }
+    controller.keydown({ depth, value }, event);
   }
 
   const itemProps = {

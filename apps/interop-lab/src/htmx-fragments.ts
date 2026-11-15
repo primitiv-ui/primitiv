@@ -22,6 +22,7 @@ import { listboxHtml } from "./listbox-fixture.ts";
 import { selectHtml } from "./select-fixture.ts";
 import { comboboxHtml, comboboxItemsHtml } from "./combobox-fixture.ts";
 import { stepperHtml } from "./stepper-fixture.ts";
+import { MILLER_TREE, millerColumnHtml, millerColumnsHtml } from "./miller-columns-fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
@@ -31,6 +32,8 @@ let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
 let stepperLazyLoads = 0;
 let stepperEchoes = 0;
+let millerLazyLoads = 0;
+let millerEchoes = 0;
 let modalEchoes = 0;
 let popoverEchoes = 0;
 let navigationMenuEchoes = 0;
@@ -125,6 +128,16 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "navigation-menu-preserve": `<div id="preserve-region"><p>Swapped region</p>${navigationMenuHtml({}, "preserved", { attrs: ' hx-preserve="true" open-on-hover="false"' })}</div>`,
   "navigation-menu-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++navigationMenuEchoes})</span>`,
+  // The Miller Columns page's cases (miller-columns-htmx.html), named to match.
+  "miller-columns": millerColumnsHtml({ value: ["docs", "guides"] }, "swapped", "Swapped"),
+  "miller-columns-nested": millerColumnsHtml({ value: ["blog"] }, "inner", "Inner"),
+  "miller-columns-oob-column": `<div hx-swap-oob="beforeend:#oob primitiv-miller-columns-tree">${millerColumnHtml(MILLER_TREE[1].children!, "blog")}</div>`,
+  "miller-columns-oob-deeper": `<div hx-swap-oob="outerHTML:#rerendered">${millerColumnsHtml({ value: ["docs", "guides"] }, "rerendered", "Re-rendered")}</div>`,
+  "miller-columns-preserve": `<div id="preserve-region"><p>Swapped region</p>${millerColumnsHtml({ value: [] }, "preserved", "Preserved").replace("<primitiv-miller-columns ", '<primitiv-miller-columns hx-preserve="true" ')}</div>`,
+  "miller-columns-lazy": () =>
+    `<primitiv-miller-columns-item value="post-${++millerLazyLoads}">Lazy post ${millerLazyLoads}</primitiv-miller-columns-item>`,
+  "miller-columns-echo": (url: string) =>
+    `<span data-testid="miller-echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++millerEchoes})</span>`,
   // The Stepper page's cases (stepper-htmx.html), named to match.
   stepper: stepperHtml({ value: "review", states: { account: "complete", billing: "complete" } }, "swapped", "Swapped progress"),
   "stepper-nested": stepperHtml({ value: "account" }, "inner", "Inner progress"),

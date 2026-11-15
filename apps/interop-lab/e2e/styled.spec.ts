@@ -750,7 +750,8 @@ test("add tree printed the per-component script for its first release", () => {
 });
 
 test("the printed tree indents each level, styles its path as a breadcrumb, and collapses a group", async ({ page }) => {
-  const tree = page.getByRole("tree", { name: "Files" });
+  // The element itself: the Miller Columns strip on this page has a tree named "Files" too.
+  const tree = page.locator("primitiv-tree");
   await tree.scrollIntoViewIfNeeded();
   await expect(tree).toHaveCSS("display", "block");
   // Each row's indent comes from the depth the element publishes.
@@ -858,4 +859,55 @@ test("a compact stepper's steps keep their names, though the labels are not draw
   // Drawn as a bare segment: the label takes no space of its own.
   const label = billing.locator(".primitiv-stepper__label");
   expect(await label.evaluate((el) => el.getBoundingClientRect().width)).toBeLessThanOrEqual(1);
+});
+
+test("add miller-columns printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-miller-columns-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/miller-columns\.js/);
+});
+
+// Scoped to the strip: the Tree example on this page is named "Files" too.
+const files = (page: import("@playwright/test").Page) =>
+  page.locator("primitiv-miller-columns").getByRole("tree", { name: "Files" });
+
+test("the printed strip lays its open columns side by side and takes the closed ones out", async ({ page }) => {
+  await files(page).scrollIntoViewIfNeeded();
+  await expect(files(page)).toHaveCSS("display", "flex");
+  const groups = files(page).getByRole("group");
+  await expect(groups).toHaveCount(3);
+  const lefts = await groups.evaluateAll((all) => all.map((group) => group.getBoundingClientRect().left));
+  expect(lefts[1]).toBeGreaterThan(lefts[0]);
+  expect(lefts[2]).toBeGreaterThan(lefts[1]);
+  // Choosing README closes Docs' and Guides' columns: out of the layout, not just invisible.
+  await files(page).getByRole("treeitem", { name: "README.md" }).click();
+  await expect(groups).toHaveCount(1);
+  await expect(page.locator('primitiv-miller-columns-column[parent="docs"]')).toHaveCSS("display", "none");
+});
+
+test("the printed preview panel takes no box while the path ends on a branch, and shows for a leaf", async ({ page }) => {
+  const preview = page.locator(".primitiv-miller-columns__preview");
+  await expect(preview).toHaveCSS("display", "none");
+  await files(page).getByRole("treeitem", { name: "Setup" }).click();
+  await expect(preview).toBeVisible();
+  await expect(preview).toHaveCSS("display", "flex");
+});
+
+test("the printed resize handle widens its column from the keyboard", async ({ page }) => {
+  const handle = page.getByRole("separator", { name: "Resize column" });
+  await handle.focus();
+  await page.keyboard.press("End");
+  await expect(handle).toHaveAttribute("aria-valuenow", "480");
+  await expect(files(page).getByRole("group").first()).toHaveCSS("width", "480px");
+});
+
+test("an item indicator on a leaf takes no box", async ({ page }) => {
+  const readme = files(page).getByRole("treeitem", { name: "README.md" });
+  await readme.evaluate((item) => {
+    const indicator = document.createElement("primitiv-miller-columns-item-indicator");
+    indicator.className = "primitiv-miller-columns__item-indicator";
+    indicator.textContent = "›";
+    item.append(indicator);
+  });
+  await expect(readme.locator(".primitiv-miller-columns__item-indicator")).toHaveAttribute("hidden", "");
+  await expect(readme.locator(".primitiv-miller-columns__item-indicator")).toHaveCSS("display", "none");
 });

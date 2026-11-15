@@ -177,7 +177,7 @@ test("the printed popover opens anchored under its trigger with no anchor-name w
     };
   };
   await expect.poll(geometry).toEqual({ below: true, centred: true });
-  await panel.getByRole("button", { name: "Close" }).click();
+  await panel.getByRole("button", { name: "Done" }).click();
   await expect(panel).toBeHidden();
 });
 

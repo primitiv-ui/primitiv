@@ -1315,3 +1315,17 @@ fn ensures_the_elements_package_once_at_this_cli_s_release_whatever_the_floors()
         "{captured}"
     );
 }
+
+#[test]
+fn indents_printed_markup_but_leaves_a_pre_s_continuation_lines_as_written() {
+    // A <pre> keeps its whitespace: indenting its later lines would put the
+    // indent into the code, and a copy control would copy it.
+    let markup = "<div>\n  <pre><code>a\n  b\n}</code></pre>\n  <pre>one line</pre>\n</div>\n";
+
+    let printed = crate::commands::add::indented(markup);
+
+    assert_eq!(
+        printed,
+        "  <div>\n    <pre><code>a\n  b\n}</code></pre>\n    <pre>one line</pre>\n  </div>\n"
+    );
+}

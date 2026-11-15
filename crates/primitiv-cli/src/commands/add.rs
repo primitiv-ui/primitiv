@@ -410,21 +410,40 @@ fn print_examples(
                 .map_err(|error| CliError::Registry(error.to_string()))?;
             message.push_str(&format!("\nExample markup for {name}:\n\n"));
             // Indented like the other printed blocks (the `<link>` and `<script>`
-            // lines); leading spaces are harmless wherever it is pasted.
+            // lines), except where whitespace is content (see `indented`).
             let markup = String::from_utf8_lossy(&markup);
             let markup = if headless {
                 without_classes(&markup)
             } else {
                 markup.into_owned()
             };
-            for line in markup.lines() {
-                message.push_str(&format!("  {line}\n"));
-            }
+            message.push_str(&indented(&markup));
         }
     }
     output
         .write_stdout(message.as_bytes())
         .map_err(CliError::Io)
+}
+
+/// `markup` indented two spaces a line, like the other printed blocks, but for
+/// the lines that continue a `<pre>`: its whitespace is content, so an indent
+/// there would land in the code (and in what a copy control copies).
+pub(crate) fn indented(markup: &str) -> String {
+    let mut in_pre = false;
+    markup
+        .lines()
+        .map(|line| {
+            let indent = if in_pre { "" } else { "  " };
+            // Whichever tag comes last on the line decides what follows it.
+            in_pre = match (line.rfind("<pre"), line.rfind("</pre>")) {
+                (Some(open), Some(close)) => open > close,
+                (Some(_), None) => true,
+                (None, Some(_)) => false,
+                (None, None) => in_pre,
+            };
+            format!("{indent}{line}\n")
+        })
+        .collect()
 }
 
 /// The headless form of the registry's example markup: the same elements with

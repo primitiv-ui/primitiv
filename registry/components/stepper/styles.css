@@ -603,7 +603,17 @@
   /* And the fill condition inverts with it. The segment still fills when the
      step BELOW it has been reached — but that step is now the next sibling
      rather than the owner, so it takes a `:has()` on the following step instead
-     of reading the owner's own attributes. */
+     of reading the owner's own attributes.
+
+     First, undo the horizontal rule above: a reached step's OWN segment is the
+     one running out of it towards a step that may not be reached yet. The
+     fills below are more specific, so they win wherever the step below is. */
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-state="active"]::after,
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-step-state="complete"]::after,
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-step-state="error"]::after {
+    transform: scaleY(0);
+  }
+
   .primitiv-stepper__list[data-orientation="vertical"]
     .primitiv-stepper__step:has(+ .primitiv-stepper__step[data-state="active"])::after,
   .primitiv-stepper__list[data-orientation="vertical"]
@@ -611,13 +621,13 @@
   .primitiv-stepper__list[data-orientation="vertical"]
     .primitiv-stepper__step:has(+ .primitiv-stepper__step[data-step-state="error"])::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > :where(primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-state="active"]))
+    > primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-state="active"])
     > .primitiv-stepper__step::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > :where(primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-step-state="complete"]))
+    > primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-step-state="complete"])
     > .primitiv-stepper__step::after,
   .primitiv-stepper__list[data-orientation="vertical"]
-    > :where(primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-step-state="error"]))
+    > primitiv-tabs-trigger:has(+ primitiv-tabs-trigger > .primitiv-stepper__step[data-step-state="error"])
     > .primitiv-stepper__step::after {
     transform: scaleY(1);
   }

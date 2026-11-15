@@ -835,3 +835,15 @@ test("a vertical stepper runs each connector down out of its marker, and none ou
   // A segment fills when the step BELOW it is reached: Account's runs into the current step.
   await expect.poll(() => connector(page, "Account", "::after", "transform")).toBe("matrix(1, 0, 0, 1, 0, 0)");
 });
+
+test("a vertical stepper leaves the current step's outgoing connector empty until the step below is reached", async ({ page }) => {
+  await page.locator("primitiv-tabs.primitiv-stepper").evaluate((root) => root.setAttribute("orientation", "vertical"));
+  await expect(stepper(page)).toHaveAttribute("data-orientation", "vertical");
+  // Billing is current and Review upcoming, so the segment between them is unreached.
+  await expect.poll(() => connector(page, "Billing", "::after", "transform")).toBe("matrix(1, 0, 0, 0, 0, 0)");
+  // A complete step whose next step is upcoming leaves its segment empty too.
+  await page.locator('primitiv-tabs-trigger[value="review"] button').evaluate((step) => step.setAttribute("data-step-state", "upcoming"));
+  await page.locator('primitiv-tabs-trigger[value="billing"] button').evaluate((step) => step.setAttribute("data-step-state", "complete"));
+  await page.locator("primitiv-tabs.primitiv-stepper").evaluate((root) => root.setAttribute("value", "account"));
+  await expect.poll(() => connector(page, "Billing", "::after", "transform")).toBe("matrix(1, 0, 0, 0, 0, 0)");
+});

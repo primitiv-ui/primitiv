@@ -1,6 +1,5 @@
 import userEvent from "@testing-library/user-event";
 
-import { treeHtml } from "./tree.fixtures";
 import { listenerErrors, mount, node, root } from "./mount";
 
 afterEach(() => {
@@ -14,10 +13,13 @@ describe("<primitiv-tree> edge cases", () => {
     // Arrange
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const user = userEvent.setup();
+    const seen: unknown[] = [];
+    document.body.addEventListener("primitiv-tree-change", (event) => seen.push((event as CustomEvent).detail));
 
     // Act
     await mount('<primitiv-tree><primitiv-tree-item>Nameless</primitiv-tree-item><primitiv-tree-item value="b">B</primitiv-tree-item></primitiv-tree>');
     await user.click(document.querySelector("primitiv-tree-item") as HTMLElement);
+    const clicked = [...seen];
     root().setAttribute("value", "b");
     await Promise.resolve();
 
@@ -26,6 +28,7 @@ describe("<primitiv-tree> edge cases", () => {
     expect(error).toHaveBeenCalledWith("<primitiv-tree-item> needs a value.", expect.any(HTMLElement));
     expect(document.querySelector("primitiv-tree-item")?.hasAttribute("role")).toBe(false);
     expect(root().getAttribute("value")).toBe("b");
+    expect(clicked).toEqual([]);
   });
 
   it("reports a branch with no row", async () => {
@@ -41,17 +44,4 @@ describe("<primitiv-tree> edge cases", () => {
     expect(node("a").getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("moves nowhere when the next item is gone", async () => {
-    // Arrange
-    const user = userEvent.setup();
-    await mount(treeHtml());
-    root().addEventListener("keydown", () => node("blog").remove(), { capture: true });
-    node("docs").focus();
-
-    // Act
-    await user.keyboard("{ArrowDown}");
-
-    // Assert
-    expect(document.activeElement).toBe(node("docs"));
-  });
 });

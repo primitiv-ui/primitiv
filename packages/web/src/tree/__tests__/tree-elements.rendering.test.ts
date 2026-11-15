@@ -101,21 +101,48 @@ describe("<primitiv-tree> rendering", () => {
     expect(docs.getAttribute("data-state")).toBe("open");
     expect(docs.getAttribute("aria-hidden")).toBe("true");
     expect(guides.getAttribute("data-state")).toBe("closed");
+    // Adopted again as rendered, nothing is rewritten — not even in passing.
+    const rendered = document.body.innerHTML;
+    document.body.replaceChildren();
+    const writes = vi.spyOn(Element.prototype, "setAttribute");
+    document.body.innerHTML = rendered;
+    await settle();
+    expect(writes.mock.contexts.filter((element) => (element as Element).isConnected)).toEqual([]);
   });
 
-  it("follows the selection mode, a node's disabled and a group's force-mount as they change", async () => {
+  it("follows the selection mode as it changes", async () => {
     // Arrange
     await mount(treeHtml());
 
     // Act
     root().setAttribute("selection-mode", "multiple");
-    node("blog").setAttribute("disabled", "");
-    group("docs").setAttribute("force-mount", "");
     await settle();
 
     // Assert
     expect(root().getAttribute("aria-multiselectable")).toBe("true");
+  });
+
+  it("follows a node's disabled as it changes", async () => {
+    // Arrange
+    await mount(treeHtml());
+
+    // Act
+    node("blog").setAttribute("disabled", "");
+    await settle();
+
+    // Assert
     expect(node("blog").getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("follows a group's force-mount as it changes", async () => {
+    // Arrange
+    await mount(treeHtml());
+
+    // Act
+    group("docs").setAttribute("force-mount", "");
+    await settle();
+
+    // Assert
     expect(group("docs").hidden).toBe(false);
   });
 

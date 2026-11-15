@@ -1,5 +1,6 @@
 import userEvent from "@testing-library/user-event";
 
+
 import { treeHtml } from "./tree.fixtures";
 import { control, listenerErrors, mount, node, path, root, settle } from "./mount";
 
@@ -91,11 +92,24 @@ describe("<primitiv-tree> interaction", () => {
     // Act
     await user.click(control("guides").firstElementChild as HTMLElement);
     const fromRow = root().getAttribute("expanded");
-    await user.click(node("guides"));
+    node("guides").dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     // Assert
     expect(fromRow).toBe("docs guides");
     expect(root().getAttribute("expanded")).toBe("docs guides");
+  });
+
+  it("toggles nothing from a row that is not its branch's own child", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    await mount('<primitiv-tree><primitiv-tree-branch value="a"><span><primitiv-tree-branch-control>A</primitiv-tree-branch-control></span></primitiv-tree-branch></primitiv-tree>');
+
+    // Act
+    await user.click(document.querySelector("primitiv-tree-branch-control") as HTMLElement);
+
+    // Assert
+    expect(root().hasAttribute("expanded")).toBe(false);
   });
 
   it("selects the item clicked inside a group, not its branch", async () => {
@@ -129,23 +143,28 @@ describe("<primitiv-tree> interaction", () => {
     await mount(treeHtml({ selected: ["blog"], selectionPath: true }).replace("</primitiv-tree>", '<button id="inside">In</button></primitiv-tree>'));
     const seen = heard("primitiv-tree-change");
 
+    node("blog").focus();
+    await settle();
+
     // Act
     await user.click(path());
     await user.click(document.getElementById("inside") as HTMLElement);
-    await user.keyboard("{ArrowDown}");
+    await user.keyboard("{ArrowDown}{Home}");
+    await settle();
 
     // Assert
     expect(seen).toEqual([]);
-    expect(node("docs").tabIndex).toBe(0);
+    expect(document.activeElement?.id).toBe("inside");
+    expect(node("blog").tabIndex).toBe(0);
   });
 
   it("leaves a tree nested in one of its items to that tree", async () => {
     // Arrange
     const user = userEvent.setup();
     await mount(
-      treeHtml({ id: "outer" }).replace(
-        '<primitiv-tree-item value="blog" label="Blog">Blog</primitiv-tree-item>',
-        '<primitiv-tree-item value="blog" label="Blog">Blog<primitiv-tree id="inner"><primitiv-tree-item value="post">Post</primitiv-tree-item></primitiv-tree></primitiv-tree-item>',
+      treeHtml({ id: "outer", expanded: ["docs"] }).replace(
+        '<primitiv-tree-item value="api" label="API">API</primitiv-tree-item>',
+        '<primitiv-tree-item value="api" label="API">API<primitiv-tree id="inner"><primitiv-tree-item value="post">Post</primitiv-tree-item></primitiv-tree></primitiv-tree-item>',
       ),
     );
     const post = document.querySelector('#inner [value="post"]') as HTMLElement;

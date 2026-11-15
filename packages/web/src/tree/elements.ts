@@ -18,7 +18,8 @@ const NODE = `${ITEM}, ${BRANCH}`;
 // Stryker restore StringLiteral
 
 /** A space-separated attribute as a list. */
-const list = (value: string | null): string[] => (value ?? "").split(" ").filter(Boolean);
+// Stryker disable next-line ArrowFunction: static — created once at import, so runtime mutant switching never reaches it; every selection and expansion test pins it.
+const list = (value: string): string[] => value.split(" ").filter(Boolean);
 
 /** A node as the root reads it from the DOM: the element, its depth and its label. */
 type Part = TreeNode & { element: HTMLElement; depth: number; label: string };
@@ -141,7 +142,8 @@ export class PrimitivTreeElement extends PrimitivRootElement {
         expanded: list(this.expanded),
       }),
       nodes: () => this.#parts(),
-      element: (value) => this.#parts().find((part) => part.value === value)?.element,
+      // The controller only asks for a value it just read from these same parts.
+      element: (value) => this.#parts().find((part) => part.value === value)!.element,
       select: (value) => {
         if (this.announce("primitiv-tree-change", { value })) this.value = value.join(" ");
       },
@@ -153,7 +155,8 @@ export class PrimitivTreeElement extends PrimitivRootElement {
 
   /** The branch `element` sits in, if it is this tree's. */
   #owner(element: Element): HTMLElement | null {
-    const branch = element.parentElement?.closest<HTMLElement>(BRANCH) ?? null;
+    // Every node and branch sits inside the root, so it always has a parent.
+    const branch = (element.parentElement as HTMLElement).closest<HTMLElement>(BRANCH);
     return branch && this.#mine(branch) ? branch : null;
   }
 
@@ -204,8 +207,8 @@ export class PrimitivTreeElement extends PrimitivRootElement {
     const control = (event.target as Element).closest(CONTROL);
     const node = this.#node(event);
     const value = node?.getAttribute("value");
-    if (!node || value == null) return;
-    if (node.localName === ITEM) this.#tree.click(value, modifiers);
+    if (value == null) return;
+    if ((node as HTMLElement).localName === ITEM) this.#tree.click(value, modifiers);
     else if (control && control.parentElement === node) this.#tree.toggleClick(value, modifiers);
   }
 

@@ -260,6 +260,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("miller-columns", "miller-columns.recipe.ts"),
     registry_file!("miller-columns", "miller-columns.tsx"),
     registry_file!("miller-columns", "contract.json"),
+    registry_file!("miller-columns", "miller-columns.html"),
     registry_file!("stack", "styles.css"),
     registry_file!("stack", "styles.scss"),
     registry_file!("stack", "stack.recipe.ts"),

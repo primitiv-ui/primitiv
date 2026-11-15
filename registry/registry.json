@@ -1528,7 +1528,18 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.2.13"
+          }
+        ],
+        "example": "miller-columns.html",
+        "handWritten": true,
+        "omits": ["empty"]
+      }
     },
     "modal": {
       "version": "0.1.0",

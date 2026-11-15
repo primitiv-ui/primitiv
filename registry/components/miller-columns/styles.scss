@@ -401,6 +401,15 @@
 }
 
 @layer primitiv.states {
+  /* The elements surface hides a closed part with the `hidden` attribute where
+     React unmounts it: the preview panel while the path ends on a branch, an
+     indicator on a leaf. Both set their own display above, which outranks the
+     UA's [hidden] rule, so it is restated here. */
+  .primitiv-miller-columns__preview[hidden],
+  .primitiv-miller-columns__item-indicator[hidden] {
+    display: none;
+  }
+
   /* Hover bites only on rows that are NOT on the path. Excluding them by
      selector rather than by source order is deliberate: `:hover:not(...)` is a
      more specific selector than `[data-terminal]`, so an ordering-only fix

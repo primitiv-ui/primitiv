@@ -218,10 +218,55 @@ exists because exactly one item in column N is chosen, so two selections in
 a column leave the next column undefined. To mark many nodes, keep that set
 yourself and render it as content inside each item.
 
+## Elements (plain HTML)
+
+`primitiv add miller-columns --surface elements` prints the strip as the
+`<primitiv-miller-columns>` custom elements from `@primitiv-ui/web` and loads
+their script (`dist/cdn/miller-columns.js`). Add `--styled` to copy this
+stylesheet and print the classed markup.
+
+```html
+<primitiv-miller-columns value="docs" class="primitiv-miller-columns primitiv-miller-columns--md">
+  <primitiv-miller-columns-tree aria-label="Files">
+    <primitiv-miller-columns-column class="primitiv-miller-columns__column">
+      <primitiv-miller-columns-item value="docs" class="primitiv-miller-columns__item">
+        <span class="primitiv-miller-columns__item-label">Docs</span>
+        <primitiv-miller-columns-item-indicator class="primitiv-miller-columns__item-indicator"><svg>...</svg></primitiv-miller-columns-item-indicator>
+      </primitiv-miller-columns-item>
+    </primitiv-miller-columns-column>
+    <primitiv-miller-columns-column parent="docs" class="primitiv-miller-columns__column">
+      <!-- Docs' children -->
+    </primitiv-miller-columns-column>
+  </primitiv-miller-columns-tree>
+  <primitiv-miller-columns-preview-panel class="primitiv-miller-columns__preview" hidden>...</primitiv-miller-columns-preview-panel>
+</primitiv-miller-columns>
+```
+
+How the React parts map:
+
+- **Columns are written as siblings, not nested.** React authors a branch's
+  column inside its item and projects it into the strip; plain HTML cannot
+  move a node, so each column after the first names its branch with
+  `parent="<item value>"`. An item is a branch while some column names it.
+  The strip shows the columns on the path and sets `hidden` on the rest —
+  write `hidden` on those in your markup too.
+- **The path is the `value` attribute**, space-separated, root first.
+  `primitiv-miller-columns-change` (`detail.value`, the new path) is
+  cancelable; a column fires `primitiv-miller-columns-show` as it opens, so a
+  server can send its items then (`hx-trigger="primitiv-miller-columns-show once"`).
+- **The preview panel's content is yours**, from the change event — there is
+  no `useMillerColumnsSelection` outside React.
+- **The empty-folder line is left out** (the registry block `omits` it): it is
+  a `<p>` in every column, which the derived headless markup would show
+  always. An empty column still carries `data-empty` for your own message.
+- **A resize handle's width belongs to its depth**, as in React: a column
+  opened at a resized depth takes that width.
+
 ## Files
 
 | File | Purpose |
 | --- | --- |
+| `miller-columns.html` | **authored** | The Elements example `add --surface elements` prints (the headless form is derived from it by stripping classes). |
 | `miller-columns.tsx` | The styled wrapper components |
 | `miller-columns.recipe.ts` | `cva` recipes mapping variants to modifier classes |
 | `styles.css` | The default theme (canonical) |

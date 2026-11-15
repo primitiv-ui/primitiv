@@ -1,0 +1,34 @@
+<primitiv-miller-columns value="docs guides" class="primitiv-miller-columns primitiv-miller-columns--md">
+  <primitiv-miller-columns-tree aria-label="Files">
+    <!-- Columns are siblings: each one after the first names the item it lists the children of with parent. The strip shows the columns on the path and hides the rest. -->
+    <primitiv-miller-columns-column class="primitiv-miller-columns__column">
+      <primitiv-miller-columns-resize-handle aria-label="Resize column" min-width="160" max-width="480" class="primitiv-miller-columns__resize-handle"></primitiv-miller-columns-resize-handle>
+      <primitiv-miller-columns-item value="docs" class="primitiv-miller-columns__item">
+        <span class="primitiv-miller-columns__item-label">Docs</span>
+        <primitiv-miller-columns-item-indicator class="primitiv-miller-columns__item-indicator"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></primitiv-miller-columns-item-indicator>
+      </primitiv-miller-columns-item>
+      <primitiv-miller-columns-item value="readme" class="primitiv-miller-columns__item">
+        <span class="primitiv-miller-columns__item-label">README.md</span>
+      </primitiv-miller-columns-item>
+    </primitiv-miller-columns-column>
+    <primitiv-miller-columns-column parent="docs" class="primitiv-miller-columns__column">
+      <primitiv-miller-columns-item value="guides" class="primitiv-miller-columns__item">
+        <span class="primitiv-miller-columns__item-label">Guides</span>
+        <primitiv-miller-columns-item-indicator class="primitiv-miller-columns__item-indicator"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></primitiv-miller-columns-item-indicator>
+      </primitiv-miller-columns-item>
+      <primitiv-miller-columns-item value="api" class="primitiv-miller-columns__item">
+        <span class="primitiv-miller-columns__item-label">API</span>
+      </primitiv-miller-columns-item>
+    </primitiv-miller-columns-column>
+    <primitiv-miller-columns-column parent="guides" class="primitiv-miller-columns__column">
+      <primitiv-miller-columns-item value="intro" class="primitiv-miller-columns__item">
+        <span class="primitiv-miller-columns__item-label">Introduction</span>
+      </primitiv-miller-columns-item>
+      <primitiv-miller-columns-item value="setup" class="primitiv-miller-columns__item">
+        <span class="primitiv-miller-columns__item-label">Setup</span>
+      </primitiv-miller-columns-item>
+    </primitiv-miller-columns-column>
+  </primitiv-miller-columns-tree>
+  <!-- Shown while the deepest selected item is a leaf: fill it from primitiv-miller-columns-change. -->
+  <primitiv-miller-columns-preview-panel class="primitiv-miller-columns__preview" hidden>Select a file to preview it.</primitiv-miller-columns-preview-panel>
+</primitiv-miller-columns>

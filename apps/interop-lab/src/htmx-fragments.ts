@@ -9,6 +9,7 @@ import { contextMenuHtml } from "./context-menu-fixture.ts";
 import { dropdownHtml } from "./dropdown-fixture.ts";
 import { navigationMenuHtml } from "./navigation-menu-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
+import { treeHtml } from "./tree-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
 import { checkboxCardHtml } from "./checkbox-card-fixture.ts";
@@ -30,6 +31,7 @@ let collapsibleEchoes = 0;
 let modalEchoes = 0;
 let popoverEchoes = 0;
 let navigationMenuEchoes = 0;
+let treeEchoes = 0;
 let tooltipEchoes = 0;
 let dropdownEchoes = 0;
 let contextMenuEchoes = 0;
@@ -102,6 +104,15 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++accordionEchoes})</span>`,
   "accordion-rtl": `<div dir="rtl">${accordionHtml({ value: "", orientation: "horizontal" }, "rtl")}</div>`,
 
+  // The Tree page's cases (tree-htmx.html), named to match.
+  tree: treeHtml({ expanded: ["docs"], selected: ["api"] }, "swapped"),
+  "tree-nested": '<primitiv-tree id="inner" aria-label="Posts"><primitiv-tree-item value="post">Post</primitiv-tree-item></primitiv-tree>',
+  "tree-oob-children":
+    '<div hx-swap-oob="beforeend:#lazy-children"><primitiv-tree-item value="one">One</primitiv-tree-item><primitiv-tree-item value="two">Two</primitiv-tree-item></div>',
+  "tree-oob-selected": `<div hx-swap-oob="outerHTML:#rerendered">${treeHtml({ selected: ["blog"] }, "rerendered")}</div>`,
+  "tree-preserve": `<div id="preserve-region"><p>Swapped region</p>${treeHtml({}, "preserved", { attrs: ' hx-preserve="true" selection-mode="multiple"' })}</div>`,
+  "tree-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++treeEchoes})</span>`,
   // The Navigation Menu page's cases (navigation-menu-htmx.html), named to match.
   "navigation-menu": navigationMenuHtml({ value: "docs" }, "swapped", { attrs: ' open-on-hover="false"' }),
   "navigation-menu-nested": navigationMenuHtml({}, "inner", { label: "Inner", attrs: ' open-on-hover="false" aria-label="Inner"' }),

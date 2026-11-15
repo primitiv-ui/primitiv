@@ -744,3 +744,32 @@ test("the printed navigation menu opens its panel anchored under the open trigge
   await expect(viewport).toHaveCSS("opacity", "0");
 });
 
+test("add tree printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-tree-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/tree\.js/);
+});
+
+test("the printed tree indents each level, styles its path as a breadcrumb, and collapses a group", async ({ page }) => {
+  const tree = page.getByRole("tree", { name: "Files" });
+  await tree.scrollIntoViewIfNeeded();
+  await expect(tree).toHaveCSS("display", "block");
+  // Each row's indent comes from the depth the element publishes.
+  const indent = (name: string) =>
+    page.getByRole("treeitem", { name, exact: true }).evaluate((row) => {
+      const target = row.matches("primitiv-tree-branch") ? row.querySelector("primitiv-tree-branch-control")! : row;
+      return parseFloat(getComputedStyle(target).paddingInlineStart);
+    });
+  const [top, middle, deep] = [await indent("src"), await indent("components"), await indent("Button.tsx")];
+  expect(middle).toBeGreaterThan(top);
+  expect(deep).toBeGreaterThan(middle);
+  // The path clones the printed Breadcrumb template, so it wears Breadcrumb's classes.
+  const current = page.locator(".primitiv-tree__selection-path .primitiv-breadcrumb__page");
+  await expect(current).toHaveText("Button.tsx");
+  await expect(page.locator(".primitiv-tree__selection-path nav.primitiv-breadcrumb")).toHaveCount(1);
+  // A click on the row collapses it by the grid-row track, and the group stays out of the a11y tree.
+  await page.locator('primitiv-tree-branch[value="components"] > primitiv-tree-branch-control').click();
+  await expect(page.getByRole("treeitem", { name: "Button.tsx", exact: true })).toHaveCount(0);
+  const group = page.locator('primitiv-tree-branch[value="components"] > primitiv-tree-branch-content');
+  await expect(group).toHaveCSS("grid-template-rows", "0px");
+});
+

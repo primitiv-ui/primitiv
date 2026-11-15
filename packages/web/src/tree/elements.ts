@@ -283,7 +283,9 @@ export class PrimitivTreeElement extends PrimitivRootElement {
       write(content, "data-depth", String(depth + 1));
       write(content, "data-state", state);
       write(content, "hidden", open || forced ? null : "");
-      write(content, "aria-hidden", forced && !open ? "true" : null);
+      // Also while merely `hidden`: a stylesheet that animates the group gives it
+      // a `display` that beats `hidden`, which would leave it in the a11y tree.
+      write(content, "aria-hidden", open ? null : "true");
     }
     for (const indicator of element.querySelectorAll<HTMLElement>(INDICATOR)) {
       if (indicator.closest(BRANCH) !== element) continue;
@@ -327,8 +329,8 @@ export class PrimitivTreeBranchControlElement extends ElementBase {}
 
 /**
  * `<primitiv-tree-branch-content>` — a branch's children. Structural: the root
- * gives it `role="group"`, `data-depth`, `data-state` and `hidden` while its
- * branch is collapsed (write `hidden` in your markup too, so it is hidden
+ * gives it `role="group"`, `data-depth`, `data-state`, and `hidden` and
+ * `aria-hidden` while its branch is collapsed (write `hidden` in your markup too, so it is hidden
  * before the script loads).
  *
  * @customElement primitiv-tree-branch-content

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Tree, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-tree" hx-get="/fragments/tree" hx-target="#slot-1">Load tree</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. A tree swapped into an item of another -->
+    <section id="outer-region"></section>
+    <button type="button" id="load-nested" hx-get="/fragments/tree-nested" hx-target="#outer-slot">Load nested</button>
+
+    <!-- 3. A branch's children arriving out of band -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/tree-oob-children" hx-swap="none">Load children</button>
+
+    <!-- 4. Server re-render, now selected -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-selected" hx-get="/fragments/tree-oob-selected" hx-swap="none">Select it</button>
+
+    <!-- 5. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/tree-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 6. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/tree-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 7. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <script type="module" src="/src/tree-htmx.ts"></script>
+  </body>
+</html>

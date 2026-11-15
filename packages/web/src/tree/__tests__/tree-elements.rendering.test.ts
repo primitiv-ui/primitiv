@@ -86,6 +86,7 @@ describe("<primitiv-tree> rendering", () => {
 
     // Assert
     expect(group("docs").getAttribute("hidden")).toBe("");
+    expect(group("docs").getAttribute("aria-hidden")).toBe("true");
   });
 
   it("marks only its own branch's indicator, not a nested branch's", async () => {

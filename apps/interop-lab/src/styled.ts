@@ -1,4 +1,4 @@
-// The markup `primitiv add tabs`, `add accordion`, `add collapsible`, `add modal`, `add confirm-dialog`, `add drawer`, `add popover`, `add tooltip`, `add dropdown`, `add context-menu`, `add toggle-group`, `add segmented-control`, `add radio-card`, `add checkbox-card`, `add slider`, `add breadcrumb-overflow`, `add split-button`, `add listbox`, `add select`, `add combobox`, `add navigation-menu`, `add tree`, `add stepper`, `add miller-columns` and `add data-table` printed, pasted into the page as a consumer
+// The markup `primitiv add tabs`, `add accordion`, `add collapsible`, `add modal`, `add confirm-dialog`, `add drawer`, `add popover`, `add tooltip`, `add dropdown`, `add context-menu`, `add toggle-group`, `add segmented-control`, `add radio-card`, `add checkbox-card`, `add slider`, `add breadcrumb-overflow`, `add split-button`, `add listbox`, `add select`, `add combobox`, `add navigation-menu`, `add tree`, `add stepper`, `add miller-columns`, `add data-table` and `add code-block` printed, pasted into the page as a consumer
 // would, then the elements defined over it (the lab's stand-in for the CDN
 // script, so it runs from workspace source).
 import accordion from "../styled-site/accordion.example.html?raw";
@@ -26,6 +26,7 @@ import tree from "../styled-site/tree.example.html?raw";
 import stepper from "../styled-site/stepper.example.html?raw";
 import millerColumns from "../styled-site/miller-columns.example.html?raw";
 import dataTable from "../styled-site/data-table.example.html?raw";
+import codeBlock from "../styled-site/code-block.example.html?raw";
 
-(document.getElementById("app") as HTMLElement).innerHTML = tabs + accordion + collapsible + modal + confirmDialog + drawer + popover + tooltip + dropdown + contextMenu + toggleGroup + segmentedControl + radioCard + checkboxCard + slider + breadcrumbOverflow + splitButton + listbox + select + combobox + navigationMenu + tree + stepper + millerColumns + dataTable;
+(document.getElementById("app") as HTMLElement).innerHTML = tabs + accordion + collapsible + modal + confirmDialog + drawer + popover + tooltip + dropdown + contextMenu + toggleGroup + segmentedControl + radioCard + checkboxCard + slider + breadcrumbOverflow + splitButton + listbox + select + combobox + navigationMenu + tree + stepper + millerColumns + dataTable + codeBlock;
 await import("@primitiv-ui/web/define");

@@ -46,6 +46,7 @@ export default defineConfig({
       { find: /^@primitiv-ui\/web\/define\/accordion$/, replacement: workspace("web/src/define/accordion.ts") },
       { find: /^@primitiv-ui\/web\/define\/collapsible$/, replacement: workspace("web/src/define/collapsible.ts") },
       { find: /^@primitiv-ui\/web\/define\/table$/, replacement: workspace("web/src/define/table.ts") },
+      { find: /^@primitiv-ui\/web\/define\/code-block$/, replacement: workspace("web/src/define/code-block.ts") },
       { find: /^@primitiv-ui\/web\/define\/modal$/, replacement: workspace("web/src/define/modal.ts") },
       { find: /^@primitiv-ui\/web\/define\/context-menu$/, replacement: workspace("web/src/define/context-menu.ts") },
       { find: /^@primitiv-ui\/web\/define\/dropdown$/, replacement: workspace("web/src/define/dropdown.ts") },

@@ -62,12 +62,14 @@ test("the printed accordion is styled and working, its closed panels collapsed r
   await expect(page.getByRole("region", { name: "One" })).toHaveText("First panel");
   const second = page.locator("primitiv-accordion-content").nth(1);
   await expect(second).toHaveCSS("display", "grid");
-  await expect(page.getByRole("region")).toHaveCount(1);
+  // Scoped to the accordion: the Data Table on this page has a labelled region too.
+  const regions = page.locator("primitiv-accordion").getByRole("region");
+  await expect(regions).toHaveCount(1);
 
   await accordionTrigger(page, "Two").click();
   await expect(page.getByRole("region", { name: "Two" })).toHaveText("Second panel");
   await expect(page.locator(".primitiv-accordion__trigger-icon").nth(1)).toHaveAttribute("data-state", "open");
-  await expect(page.getByRole("region")).toHaveCount(1);
+  await expect(regions).toHaveCount(1);
 });
 
 test("add collapsible printed the per-component script for its first release", () => {
@@ -934,4 +936,34 @@ test("the printed data table collapses a closed detail row to nothing and opens 
   await expect.poll(() => api.locator(".primitiv-data-table__detail-body").evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(0);
   // The chevron turns as the row opens.
   await expect(trigger.locator(".primitiv-data-table__expand-icon")).not.toHaveCSS("transform", "none");
+});
+
+test("add code-block printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-code-block-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/code-block\.js/);
+});
+
+test.describe("the printed code block", () => {
+  test.use({ permissions: ["clipboard-read", "clipboard-write"] });
+
+  test("copies its code exactly as written, with no indent from the printed markup", async ({ page }) => {
+    const block = page.locator(".primitiv-code-block").filter({ hasText: "greet.ts" });
+    await block.scrollIntoViewIfNeeded();
+    // The highlighter's token classes are coloured by the stylesheet.
+    await expect(block.locator(".token.keyword").first()).not.toHaveCSS("color", await block.locator("code").evaluate((el) => getComputedStyle(el).color));
+    await block.getByRole("button", { name: "Copy code" }).click();
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe("export function greet(name: string) {\n  return `Hello, ${name}`;\n}");
+  });
+
+  test("shows one glyph at a time, though the page's reset gives every svg a display", async ({ page }) => {
+    // By class, not name: the name is what changes.
+    const button = page.locator(".primitiv-code-block").filter({ hasText: "greet.ts" }).locator(".primitiv-code-block__copy");
+    await expect(button.locator('[data-copy-state="copied"]')).toHaveCSS("display", "none");
+    await button.click();
+    await expect(button).toHaveAccessibleName("Copied");
+    await expect(button.locator('[data-copy-state="idle"]')).toHaveCSS("display", "none");
+    await expect(button.locator('[data-copy-state="copied"]')).toBeVisible();
+  });
 });

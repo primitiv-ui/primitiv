@@ -5,6 +5,7 @@
 import { accordionHtml } from "./accordion-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { tableHtml, tableRowHtml } from "./table-fixture.ts";
+import { codeBlockHtml, preHtml } from "./code-block-fixture.ts";
 import { modalHtml } from "./modal-fixture.ts";
 import { contextMenuHtml } from "./context-menu-fixture.ts";
 import { dropdownHtml } from "./dropdown-fixture.ts";
@@ -33,6 +34,7 @@ let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
 let tableLazyLoads = 0;
 let tableEchoes = 0;
+let codeBlockEchoes = 0;
 let stepperLazyLoads = 0;
 let stepperEchoes = 0;
 let millerLazyLoads = 0;
@@ -152,6 +154,13 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "stepper-lazy": () => `<p data-testid="stepper-lazy-content">Lazy review, load ${++stepperLazyLoads}</p>`,
   "stepper-echo": (url: string) =>
     `<span data-testid="stepper-echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++stepperEchoes})</span>`,
+  // The Code Block page's cases (code-block-htmx.html), named to match.
+  "code-block": codeBlockHtml({}, "swapped", "echo swapped"),
+  "code-block-oob-code": `<div hx-swap-oob="innerHTML:#rerendered pre">${preHtml("const fresh = true;").replace(/^<pre>|<\/pre>$/g, "")}</div>`,
+  "code-block-oob-panel": `<div hx-swap-oob="innerHTML:#oob primitiv-tabs-content[value=pnpm]">${preHtml("pnpm add primitiv")}</div>`,
+  "code-block-preserve": `<div id="preserve-region"><p>Swapped region</p>${codeBlockHtml({}, "preserved").replace('<div id="preserved">', '<div id="preserved" hx-preserve="true">')}</div>`,
+  "code-block-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("text")} (${++codeBlockEchoes})</span>`,
   // The Table page's cases (table-htmx.html), named to match.
   table: tableHtml({ expanded: ["Ada"] }, "swapped"),
   "table-nested": tableHtml({}, "inner", ["Linus"]),

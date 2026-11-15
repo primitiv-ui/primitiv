@@ -21,3 +21,4 @@ import "./listbox.ts";
 import "./select.ts";
 import "./combobox.ts";
 import "./tooltip.ts";
+import "./stepper.ts";

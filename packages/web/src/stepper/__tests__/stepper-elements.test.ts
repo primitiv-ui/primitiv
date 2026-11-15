@@ -101,6 +101,44 @@ describe("<primitiv-stepper>", () => {
     expect(step("Billing").getAttribute("data-step-state")).toBe("error");
   });
 
+  // One attribute per case: a change to any observed attribute reconciles them
+  // all, so changing several at once would hide one that is not observed.
+  it("follows the rail's label as it changes", async () => {
+    // Arrange
+    await mount(stepperHtml());
+
+    // Act
+    document.querySelector("primitiv-stepper-list")!.setAttribute("label", "Checkout progress");
+    await Promise.resolve();
+
+    // Assert
+    expect(screen.getByRole("tablist", { name: "Checkout progress" })).toBeTruthy();
+  });
+
+  it("follows a step's disabled as it changes", async () => {
+    // Arrange
+    await mount(stepperHtml());
+
+    // Act
+    document.querySelector('primitiv-stepper-step[value="review"]')!.setAttribute("disabled", "");
+    await Promise.resolve();
+
+    // Assert
+    expect(step("Review").getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("follows the orientation as it changes", async () => {
+    // Arrange
+    await mount(stepperHtml());
+
+    // Act
+    document.querySelector("primitiv-stepper")!.setAttribute("orientation", "vertical");
+    await Promise.resolve();
+
+    // Assert
+    expect(screen.getByRole("tablist").getAttribute("aria-orientation")).toBe("vertical");
+  });
+
   it("activates manually by default: an arrow moves focus, Enter moves the step", async () => {
     // Arrange
     const user = userEvent.setup();

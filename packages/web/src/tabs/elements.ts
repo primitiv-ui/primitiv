@@ -21,8 +21,6 @@ const CONTENT = "primitiv-tabs-content";
 /** The tags of a tab set's parts — Tabs' own, or a component built on it (Stepper). */
 export type TabsPartTags = { readonly list: string; readonly trigger: string; readonly content: string };
 
-const TABS_PARTS: TabsPartTags = { list: LIST, trigger: TRIGGER, content: CONTENT };
-
 /**
  * An interactive part decorates exactly one element child and needs a `value`.
  * Anything else is reported once and left undecorated rather than thrown: a
@@ -92,7 +90,7 @@ export class PrimitivTabsElement extends PrimitivRootElement {
    * names its own, so its markup reads as itself while the behaviour is Tabs'.
    */
   protected partTags(): TabsPartTags {
-    return TABS_PARTS;
+    return { list: LIST, trigger: TRIGGER, content: CONTENT };
   }
 
   /** The prefix of the events this root fires: `<prefix>-change` and `<prefix>-show`. */

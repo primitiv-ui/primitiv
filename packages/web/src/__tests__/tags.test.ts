@@ -54,6 +54,10 @@ import type {
   PrimitivPopoverElement,
   PrimitivPopoverTitleElement,
   PrimitivPopoverTriggerElement,
+  PrimitivStepperElement,
+  PrimitivStepperListElement,
+  PrimitivStepperPanelElement,
+  PrimitivStepperStepElement,
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -79,6 +83,13 @@ import type {
   PrimitivToggleGroupElement,
   PrimitivToggleGroupItemElement,
 } from "../index";
+
+it("types every Stepper tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-stepper")).toEqualTypeOf<PrimitivStepperElement | null>();
+  expectTypeOf(document.createElement("primitiv-stepper-list")).toEqualTypeOf<PrimitivStepperListElement>();
+  expectTypeOf(document.createElement("primitiv-stepper-step")).toEqualTypeOf<PrimitivStepperStepElement>();
+  expectTypeOf(document.createElement("primitiv-stepper-panel")).toEqualTypeOf<PrimitivStepperPanelElement>();
+});
 
 it("types every Tabs tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.querySelector("primitiv-tabs")).toEqualTypeOf<PrimitivTabsElement | null>();

@@ -12,8 +12,6 @@ const STEP = "primitiv-stepper-step";
 const PANEL = "primitiv-stepper-panel";
 // Stryker restore StringLiteral
 
-const STEPPER_PARTS: TabsPartTags = { list: LIST, trigger: STEP, content: PANEL };
-
 /**
  * `<primitiv-stepper>` — a step rail for a multi-step form. The behaviour is a
  * WAI-ARIA tab set's, exactly as React's registry Stepper composes Tabs: each
@@ -34,16 +32,18 @@ export class PrimitivStepperElement extends PrimitivTabsElement {
   protected readonly reconcileOn: readonly string[] = ["value", "disabled", "label", "orientation", "state"];
 
   protected partTags(): TabsPartTags {
-    return STEPPER_PARTS;
+    return { list: LIST, trigger: STEP, content: PANEL };
   }
 
   protected eventPrefix(): string {
     return ROOT;
   }
 
+  // Stryker disable BlockStatement,StringLiteral: equivalent — core activates on arrival only for exactly "automatic", so any other default reads as manual; the default is pinned by the manual-activation test.
   protected defaultActivationMode(): TabsActivationMode {
     return "manual";
   }
+  // Stryker restore BlockStatement,StringLiteral
 
   protected decorateTab(step: HTMLElement, tab: HTMLElement): void {
     write(tab, "data-step-state", step.getAttribute("state") ?? "upcoming");

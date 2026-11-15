@@ -100,6 +100,12 @@ import type {
   PrimitivTreeSelectionPathElement,
 } from "../tree/elements.ts";
 import type {
+  PrimitivStepperElement,
+  PrimitivStepperListElement,
+  PrimitivStepperPanelElement,
+  PrimitivStepperStepElement,
+} from "../stepper/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -171,6 +177,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTreeChangeEvent,
   PrimitivTreeExpandedChangeEvent,
+  PrimitivStepperChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -372,6 +379,24 @@ declare module "svelte/elements" {
     "primitiv-tabs-content": Attributes<PrimitivTabsContentElement> & {
       value: string;
       "onprimitiv-tabs-show"?: (event: CustomEvent) => void;
+    };
+    "primitiv-stepper": Attributes<PrimitivStepperElement> & {
+      value?: string;
+      orientation?: "horizontal" | "vertical";
+      "activation-mode"?: "automatic" | "manual";
+      "onprimitiv-stepper-change"?: (event: PrimitivStepperChangeEvent) => void;
+    };
+    "primitiv-stepper-list": Attributes<PrimitivStepperListElement> & {
+      label?: string;
+    };
+    "primitiv-stepper-step": Attributes<PrimitivStepperStepElement> & {
+      value: string;
+      state?: "upcoming" | "complete" | "error";
+      disabled?: boolean;
+    };
+    "primitiv-stepper-panel": Attributes<PrimitivStepperPanelElement> & {
+      value: string;
+      "onprimitiv-stepper-show"?: (event: CustomEvent) => void;
     };
     "primitiv-tooltip": Attributes<PrimitivTooltipElement> & {
       open?: boolean;

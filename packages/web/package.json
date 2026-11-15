@@ -42,6 +42,10 @@
       "types": "./src/tree/index.ts",
       "default": "./src/tree/index.ts"
     },
+    "./stepper": {
+      "types": "./src/stepper/index.ts",
+      "default": "./src/stepper/index.ts"
+    },
     "./popover": {
       "types": "./src/popover/index.ts",
       "default": "./src/popover/index.ts"
@@ -121,6 +125,10 @@
     "./define/tree": {
       "types": "./src/define/tree.ts",
       "default": "./src/define/tree.ts"
+    },
+    "./define/stepper": {
+      "types": "./src/define/stepper.ts",
+      "default": "./src/define/stepper.ts"
     },
     "./define/popover": {
       "types": "./src/define/popover.ts",
@@ -269,6 +277,10 @@
         "types": "./dist/tree/index.d.ts",
         "default": "./dist/tree/index.js"
       },
+      "./stepper": {
+        "types": "./dist/stepper/index.d.ts",
+        "default": "./dist/stepper/index.js"
+      },
       "./popover": {
         "types": "./dist/popover/index.d.ts",
         "default": "./dist/popover/index.js"
@@ -348,6 +360,10 @@
       "./define/tree": {
         "types": "./dist/define/tree.d.ts",
         "default": "./dist/define/tree.js"
+      },
+      "./define/stepper": {
+        "types": "./dist/define/stepper.d.ts",
+        "default": "./dist/define/stepper.js"
       },
       "./define/popover": {
         "types": "./dist/define/popover.d.ts",

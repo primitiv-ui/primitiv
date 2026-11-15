@@ -99,6 +99,12 @@ import type {
   PrimitivTabsListElement,
   PrimitivTabsTriggerElement,
 } from "./tabs/elements.ts";
+import type {
+  PrimitivStepperElement,
+  PrimitivStepperListElement,
+  PrimitivStepperPanelElement,
+  PrimitivStepperStepElement,
+} from "./stepper/elements.ts";
 
 import type {
   PrimitivTooltipArrowElement,
@@ -191,6 +197,10 @@ declare global {
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;
     "primitiv-tabs-content": PrimitivTabsContentElement;
+    "primitiv-stepper": PrimitivStepperElement;
+    "primitiv-stepper-list": PrimitivStepperListElement;
+    "primitiv-stepper-step": PrimitivStepperStepElement;
+    "primitiv-stepper-panel": PrimitivStepperPanelElement;
     "primitiv-context-menu": PrimitivContextMenuElement;
     "primitiv-context-menu-trigger": PrimitivContextMenuTriggerElement;
     "primitiv-context-menu-content": PrimitivContextMenuContentElement;

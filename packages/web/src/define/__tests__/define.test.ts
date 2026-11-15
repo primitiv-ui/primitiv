@@ -253,6 +253,16 @@ it("defines the SplitButton elements, and the Dropdown elements its menu is made
   }
 });
 
+it("defines the Stepper elements when define/stepper is imported", async () => {
+  // Arrange & Act
+  await import("../stepper");
+
+  // Assert
+  for (const name of ["primitiv-stepper", "primitiv-stepper-list", "primitiv-stepper-step", "primitiv-stepper-panel"]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -275,4 +285,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-split-button")).toBeDefined();
   expect(customElements.get("primitiv-navigation-menu")).toBeDefined();
   expect(customElements.get("primitiv-tree")).toBeDefined();
+  expect(customElements.get("primitiv-stepper")).toBeDefined();
 });

@@ -38,6 +38,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTreeChangeEvent,
   PrimitivTreeExpandedChangeEvent,
+  PrimitivStepperChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -181,6 +182,17 @@ declare module "vue" {
     "primitiv-tabs-list": Tag<{ label?: string }>;
     "primitiv-tabs-trigger": Tag<{ value: string; disabled?: boolean | "" }>;
     "primitiv-tabs-content": Tag<{ value: string }, { "primitiv-tabs-show": (event: CustomEvent) => void }>;
+    "primitiv-stepper": Tag<
+      {
+        value?: string;
+        orientation?: "horizontal" | "vertical";
+        activationMode?: "automatic" | "manual";
+      },
+      { "primitiv-stepper-change": (event: PrimitivStepperChangeEvent) => void }
+    >;
+    "primitiv-stepper-list": Tag<{ label?: string }>;
+    "primitiv-stepper-step": Tag<{ value: string; state?: "upcoming" | "complete" | "error"; disabled?: boolean | "" }>;
+    "primitiv-stepper-panel": Tag<{ value: string }, { "primitiv-stepper-show": (event: CustomEvent) => void }>;
     "primitiv-tooltip": Tag<
       { open?: boolean | ""; delayDuration?: number | string; disableHoverableContent?: boolean | "" },
       { "primitiv-tooltip-change": (event: PrimitivTooltipChangeEvent) => void }

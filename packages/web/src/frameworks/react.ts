@@ -101,6 +101,12 @@ import type {
   PrimitivTreeSelectionPathElement,
 } from "../tree/elements.ts";
 import type {
+  PrimitivStepperElement,
+  PrimitivStepperListElement,
+  PrimitivStepperPanelElement,
+  PrimitivStepperStepElement,
+} from "../stepper/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -172,6 +178,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTreeChangeEvent,
   PrimitivTreeExpandedChangeEvent,
+  PrimitivStepperChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
@@ -408,6 +415,24 @@ declare module "react" {
       "primitiv-tabs-content": ElementProps<PrimitivTabsContentElement> & {
         value: string;
         "onprimitiv-tabs-show"?: (event: CustomEvent) => void;
+      };
+      "primitiv-stepper": ElementProps<PrimitivStepperElement> & {
+        value?: string;
+        orientation?: "horizontal" | "vertical";
+        "activation-mode"?: "automatic" | "manual";
+        "onprimitiv-stepper-change"?: (event: PrimitivStepperChangeEvent) => void;
+      };
+      "primitiv-stepper-list": ElementProps<PrimitivStepperListElement> & {
+        label?: string;
+      };
+      "primitiv-stepper-step": ElementProps<PrimitivStepperStepElement> & {
+        value: string;
+        state?: "upcoming" | "complete" | "error";
+        disabled?: boolean;
+      };
+      "primitiv-stepper-panel": ElementProps<PrimitivStepperPanelElement> & {
+        value: string;
+        "onprimitiv-stepper-show"?: (event: CustomEvent) => void;
       };
       "primitiv-tooltip": ElementProps<PrimitivTooltipElement> & {
         open?: boolean;

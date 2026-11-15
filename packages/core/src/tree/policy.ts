@@ -56,3 +56,18 @@ export function treePath<N extends Pick<TreeNode, "value" | "parent">>(
   }
   return path;
 }
+
+/**
+ * The one item in the page's Tab order (the roving tab stop): the item focus
+ * was last on while it is still visible, else the first enabled visible item,
+ * else none.
+ */
+export function treeTabStop(state: {
+  order: readonly string[];
+  disabled: ReadonlySet<string>;
+  active: string | null;
+}): string | null {
+  const { order, disabled, active } = state;
+  if (active !== null && order.includes(active)) return active;
+  return order.find((value) => !disabled.has(value)) ?? null;
+}

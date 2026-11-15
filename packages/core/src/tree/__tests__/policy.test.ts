@@ -1,4 +1,4 @@
-import { treePath, treeVisibleOrder, type TreeNode } from "../policy";
+import { treePath, treeTabStop, treeVisibleOrder, type TreeNode } from "../policy";
 
 /** docs (branch: guides (branch: intro), api), blog — in registration order, children first. */
 const NODES: TreeNode[] = [
@@ -70,5 +70,25 @@ describe("treePath", () => {
 
     // Assert
     expect(path).toHaveLength(64);
+  });
+});
+
+describe("treeTabStop", () => {
+  const order = ["docs", "guides", "blog"];
+
+  it("is the item focus was last on, while it is visible", () => {
+    // Arrange & Act & Assert
+    expect(treeTabStop({ order, disabled: new Set(), active: "guides" })).toBe("guides");
+  });
+
+  it("falls back to the first enabled visible item once the active one is hidden", () => {
+    // Arrange & Act & Assert
+    expect(treeTabStop({ order, disabled: new Set(["docs"]), active: "intro" })).toBe("guides");
+  });
+
+  it("is the first enabled item with no active one, and nothing when every item is disabled", () => {
+    // Arrange & Act & Assert
+    expect(treeTabStop({ order, disabled: new Set(), active: null })).toBe("docs");
+    expect(treeTabStop({ order, disabled: new Set(order), active: null })).toBeNull();
   });
 });

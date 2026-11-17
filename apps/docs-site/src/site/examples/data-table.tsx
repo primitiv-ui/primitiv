@@ -401,10 +401,20 @@ const cellText = (row: Row, key: ElementsColumn["key"]) => (key === "duration" ?
 const headerCell = (col: ElementsColumn) => {
   const align = col.end ? "end" : "start";
   if (!col.sort) return `<th class="primitiv-table__header primitiv-table__header--${align}" scope="col">${col.label}</th>`;
-  const mods = [col.end ? " primitiv-data-table__sort--end" : "", col.sort === "none" ? " primitiv-data-table__sort--unsorted" : ""].join("");
+  const mods = col.end ? " primitiv-data-table__sort--end" : "";
+  // All three glyphs, each marked with its direction: the header's aria-sort
+  // shows the matching one, so sorting means writing that one attribute.
+  const glyphs = (["none", "asc", "desc"] as const)
+    .map((direction) =>
+      glyph("primitiv-data-table__sort-icon", SORT_PATHS[direction]).replace(
+        "<svg ",
+        `<svg data-sort-direction="${ARIA_SORT[direction]}" `,
+      ),
+    )
+    .join("");
   return (
     `<th class="primitiv-table__header primitiv-table__header--${align}" scope="col" aria-sort="${ARIA_SORT[col.sort]}">` +
-    `<button type="button" class="primitiv-data-table__sort${mods}">${col.label}${glyph("primitiv-data-table__sort-icon", SORT_PATHS[col.sort])}</button></th>`
+    `<button type="button" class="primitiv-data-table__sort${mods}">${col.label}${glyphs}</button></th>`
   );
 };
 

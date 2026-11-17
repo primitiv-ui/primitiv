@@ -366,8 +366,22 @@
   }
 
   .primitiv-data-table__sort[aria-sort="none"] .primitiv-data-table__sort-icon,
-  .primitiv-data-table__sort--unsorted .primitiv-data-table__sort-icon {
+  .primitiv-data-table__sort--unsorted .primitiv-data-table__sort-icon,
+  [aria-sort="none"] > .primitiv-data-table__sort .primitiv-data-table__sort-icon {
     color: var(--primitiv-data-table-sort-idle-color, var(--primitiv-content-muted));
+  }
+
+  /* Markup written by hand (the custom elements) carries all three glyphs, each
+     marked with the direction it stands for, and the header's aria-sort shows
+     one: sorting a column on the server means writing one attribute. */
+  .primitiv-data-table__sort-icon[data-sort-direction] {
+    display: none;
+  }
+
+  [aria-sort="none"] > .primitiv-data-table__sort > .primitiv-data-table__sort-icon[data-sort-direction="none"],
+  [aria-sort="ascending"] > .primitiv-data-table__sort > .primitiv-data-table__sort-icon[data-sort-direction="ascending"],
+  [aria-sort="descending"] > .primitiv-data-table__sort > .primitiv-data-table__sort-icon[data-sort-direction="descending"] {
+    display: block;
   }
 
   /* The expander is a real ghost Button (composed through the headless

@@ -1,15 +1,15 @@
 <primitiv-stepper value="billing" class="primitiv-stepper primitiv-stepper--md">
   <primitiv-stepper-list label="Sign-up progress" class="primitiv-stepper__list">
-    <!-- A step's progress is its state attribute: upcoming (the default), complete or error. The marker shows what that state calls for: the step number, a tick for a complete step, a warning glyph for an errored one. -->
+    <!-- A step's progress is its state attribute: upcoming (the default), complete or error. The marker shows what that state calls for: a tick for a complete step (Account), a warning mark for an errored one (Billing), and the step number otherwise (Review). -->
     <primitiv-stepper-step value="account" state="complete">
       <button type="button" class="primitiv-stepper__step">
         <span class="primitiv-stepper__marker"><span class="primitiv-stepper__marker-mark"></span></span>
         <span class="primitiv-stepper__label">Account</span>
       </button>
     </primitiv-stepper-step>
-    <primitiv-stepper-step value="billing">
+    <primitiv-stepper-step value="billing" state="error">
       <button type="button" class="primitiv-stepper__step">
-        <span class="primitiv-stepper__marker"><span class="primitiv-stepper__marker-number">2</span></span>
+        <span class="primitiv-stepper__marker"><svg class="primitiv-stepper__marker-error" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="10.2" y="3.6" width="3.6" height="10.6" rx="1.8" /><circle cx="12" cy="18.6" r="2" /></svg></span>
         <span class="primitiv-stepper__label">Billing</span>
       </button>
     </primitiv-stepper-step>

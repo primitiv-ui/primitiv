@@ -196,8 +196,14 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
   // Every modifier class the styled markup can take, by part: the printed
   // example shows one of each (one placement, one size), so without this list
   // the rest are only findable in the copied stylesheet.
+  // A part whose class the Elements markup never uses (Drawer's Overlay, which
+  // a <dialog>'s ::backdrop replaces) is React's alone: listing it here would
+  // send a reader looking for markup that does not exist.
+  const inMarkup = (sub: (typeof docs.headless.subComponents)[number]) =>
+    !example || !sub.class || example.includes(sub.class);
   const styledParts = docs.headless.subComponents.filter(
-    (sub) => sub.class && (sub.contractProps ?? []).some((prop) => Object.keys(prop.classes).length > 0),
+    (sub) =>
+      inMarkup(sub) && sub.class && (sub.contractProps ?? []).some((prop) => Object.keys(prop.classes).length > 0),
   );
   const classes = styledParts.length
     ? [
@@ -226,7 +232,7 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
   // writes, from its contract — the same ones Primitiv's own stylesheet uses.
   // Grouped by part, because one attribute (Tabs' `data-orientation`) is often
   // written on several, and a flat table cannot say which.
-  const byPart = docs.headless.subComponents.filter((sub) => sub.dataAttributes.length);
+  const byPart = docs.headless.subComponents.filter((sub) => inMarkup(sub) && sub.dataAttributes.length);
   const hooks = byPart.length
     ? [
         "### Styling hooks",

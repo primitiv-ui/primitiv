@@ -573,10 +573,18 @@ const ComponentDocsBody = ({
             <DataAttributesTable
               groups={
                 inElements
-                  ? dataAttrGroups.map((group) => ({
-                      ...group,
-                      element: elementLabel(docs, group.part),
-                    }))
+                  ? dataAttrGroups
+                      /* A part whose class the Elements markup never uses
+                         (Drawer's Overlay, replaced by the <dialog>'s
+                         ::backdrop) is React's alone. */
+                      .filter(
+                        (group) =>
+                          !elements.example || !group.className || elements.example.includes(group.className),
+                      )
+                      .map((group) => ({
+                        ...group,
+                        element: elementLabel(docs, group.part),
+                      }))
                   : dataAttrGroups
               }
             />

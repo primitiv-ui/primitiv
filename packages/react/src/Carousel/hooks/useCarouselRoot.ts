@@ -31,9 +31,11 @@ function resolveAutoplay(autoplay: CarouselAutoplay | undefined): {
   enabled: boolean;
   delay: number;
 } {
-  if (autoplay === true) return { enabled: true, delay: CAROUSEL_AUTOPLAY_DELAY_MS };
-  if (typeof autoplay === "object") return { enabled: true, delay: autoplay.delay };
-  return { enabled: false, delay: CAROUSEL_AUTOPLAY_DELAY_MS };
+  const custom = typeof autoplay === "object";
+  return {
+    enabled: autoplay === true || custom,
+    delay: custom ? autoplay.delay : CAROUSEL_AUTOPLAY_DELAY_MS,
+  };
 }
 
 type UseCarouselRootProps = {
@@ -177,6 +179,7 @@ export function useCarouselRoot(
   const isPlayingControlled = playing !== undefined;
   const currentPlaying = isPlayingControlled ? playing : internalPlaying;
 
+  // Stryker disable ArrayDeclaration: equivalent — these callbacks read only refs and a state setter, so any constant dependency list keeps each one stable.
   const registerSlide = useCallback((key: string, element: HTMLDivElement | null) => {
     if (element) {
       slidesRef.current.set(key, element);
@@ -184,7 +187,6 @@ export function useCarouselRoot(
       slidesRef.current.delete(key);
     }
     setSlideKeys(Array.from(slidesRef.current.keys()));
-    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
 
   const rootRef = useRef<HTMLElement | null>(null);
@@ -194,24 +196,20 @@ export function useCarouselRoot(
   const tailClonesElementRef = useRef<HTMLDivElement | null>(null);
   const rootElementRef = useCallback((element: HTMLElement | null) => {
     rootRef.current = element;
-    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const viewportRef = useCallback((element: HTMLDivElement | null) => {
     viewportElementRef.current = element;
-    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const trackRef = useCallback((element: HTMLDivElement | null) => {
     trackElementRef.current = element;
-    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const headClonesRef = useCallback((element: HTMLDivElement | null) => {
     headClonesElementRef.current = element;
-    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const tailClonesRef = useCallback((element: HTMLDivElement | null) => {
     tailClonesElementRef.current = element;
-    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
+  // Stryker restore ArrayDeclaration
 
   const latest = useRef<Snapshot>(null as unknown as Snapshot);
   latest.current = {
@@ -256,10 +254,12 @@ export function useCarouselRoot(
       tailClonesElementRef.current?.replaceChildren(...tail);
     },
     changePage: (target) => {
+      // Stryker disable next-line OptionalChaining: unreachable — a controlled page requires onPageChange.
       if (latest.current.isControlled) latest.current.onPageChange?.(target);
       else setInternalPage(target);
     },
     changePlaying: (next) => {
+      // Stryker disable next-line OptionalChaining: unreachable — controlled playing requires onPlayingChange.
       if (latest.current.isPlayingControlled) latest.current.onPlayingChange?.(next);
       else setInternalPlaying(next);
     },

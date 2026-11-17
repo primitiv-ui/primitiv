@@ -1118,5 +1118,242 @@
   "figma": {
     "componentSetKey": "1028:24921"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "carousel",
+    "element": "section",
+    "wrapText": false,
+    "example": "<primitiv-carousel aria-label=\"Featured\" class=\"primitiv-carousel primitiv-carousel--peek-none primitiv-carousel--gap-md primitiv-carousel--padding-none primitiv-carousel--surface-none primitiv-carousel--radius-none primitiv-carousel--placement-external primitiv-carousel--side-after primitiv-carousel--distribution-group primitiv-carousel--align-center primitiv-carousel--cluster-split primitiv-carousel--indicators-dots primitiv-carousel--size-md primitiv-carousel--ratio-wide primitiv-carousel--slide-width-equal primitiv-carousel--effect-none primitiv-carousel--glide-medium\">\n  <primitiv-carousel-viewport class=\"primitiv-carousel__viewport\">\n    <primitiv-carousel-slide class=\"primitiv-carousel__slide primitiv-carousel__slide--radius-md primitiv-carousel__slide--fit-cover primitiv-carousel__slide--surface-none\">First slide</primitiv-carousel-slide>\n    <primitiv-carousel-slide class=\"primitiv-carousel__slide primitiv-carousel__slide--radius-md primitiv-carousel__slide--fit-cover primitiv-carousel__slide--surface-none\">Second slide</primitiv-carousel-slide>\n    <primitiv-carousel-slide class=\"primitiv-carousel__slide primitiv-carousel__slide--radius-md primitiv-carousel__slide--fit-cover primitiv-carousel__slide--surface-none\">Third slide</primitiv-carousel-slide>\n  </primitiv-carousel-viewport>\n  <primitiv-carousel-previous-trigger>\n    <button type=\"button\" class=\"primitiv-carousel__prev\" aria-label=\"Previous slide\"><!-- Insert your SVG icon here: chevron-left --></button>\n  </primitiv-carousel-previous-trigger>\n  <primitiv-carousel-next-trigger>\n    <button type=\"button\" class=\"primitiv-carousel__next\" aria-label=\"Next slide\"><!-- Insert your SVG icon here: chevron-right --></button>\n  </primitiv-carousel-next-trigger>\n  <primitiv-carousel-indicators label=\"Choose slide\" class=\"primitiv-carousel__indicator-group\">\n    <template><button type=\"button\" class=\"primitiv-carousel__indicator\"></button></template>\n  </primitiv-carousel-indicators>\n</primitiv-carousel>\n",
+    "api": [
+      {
+        "tag": "primitiv-carousel",
+        "description": "`<primitiv-carousel>` — the state owner of a WAI-ARIA carousel: a scroll-snap viewport of slides, paged by previous / next triggers, indicators, the keys, the wheel, a swipe or a mouse drag, with optional autoplay.\n\nThe root is the `region` (name it with `aria-label` or `aria-labelledby`) and hosts the shared `CarouselController` — the behaviour React's Carousel runs. It finds its own parts, so a carousel nested in a slide keeps its own, and reconciles every part from its reflected `page` and `playing` whenever a part arrives, leaves, or changes an attribute it reads. Like React's, it writes the measurements the styles read (`--carousel-progress`, `--slide-progress`, a multi-slide page's `scroll-margin`) and, for `loop=\"infinite\"`, translates the `<primitiv-carousel-track>` and fills it with inert copies of the slides.",
+        "attributes": [
+          {
+            "name": "page",
+            "type": "number",
+            "description": "The active page, zero-based. Reflected: it changes as the user pages, so a server re-render or a history snapshot sees the live page. An out-of-range page is held to the pages there are."
+          },
+          {
+            "name": "playing",
+            "type": "boolean",
+            "description": "Whether autoplay is playing. Reflected."
+          },
+          {
+            "name": "autoplay",
+            "type": "boolean",
+            "description": "Turns autoplay on: while `playing`, the page advances on a timer, paused by hover, focus or a touch inside the carousel unless the play control started it (WCAG 2.2.2)."
+          },
+          {
+            "name": "autoplay-delay",
+            "type": "number",
+            "description": "How long each page stays up while playing, in milliseconds. Default 4000."
+          },
+          {
+            "name": "slides-per-page",
+            "type": "number",
+            "description": "Slides shown per page. Default 1. With more than one, give the styled root `--primitiv-carousel-slides-per-page` too."
+          },
+          {
+            "name": "slides-per-move",
+            "type": "number | \"auto\"",
+            "description": "Slides a step advances: `auto` (the default) is a whole page; a number windows the page that many slides at a time."
+          },
+          {
+            "name": "transition",
+            "type": "\"slide\" | \"fade\" | \"none\"",
+            "description": "`slide` (the default) scrolls natively; `fade` and `none` scroll nothing and leave the change to CSS on each slide's `data-state`."
+          },
+          {
+            "name": "snap-align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "description": "Where a page rests in the viewport. Default `center`. Each slide's `snap-align` overrides it for that slide."
+          },
+          {
+            "name": "snap-type",
+            "type": "\"mandatory\" | \"proximity\"",
+            "description": "The scroll-snap strictness, mirrored on the viewport as `data-snap-type`. Default `mandatory`."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "The axis the carousel pages along, which picks the arrow keys. Default `horizontal`."
+          },
+          {
+            "name": "loop",
+            "type": "\"\" | \"wrap\" | \"infinite\"",
+            "description": "Navigation past either end: present (or `wrap`) rewinds to the other end; `infinite` glides on through copies of the slides, in a `<primitiv-carousel-track>`. Absent, the ends clamp."
+          },
+          {
+            "name": "allow-mouse-drag",
+            "type": "boolean",
+            "description": "Lets a mouse click-and-drag scroll the viewport. Touch and pen scroll natively either way."
+          },
+          {
+            "name": "in-view-threshold",
+            "type": "string",
+            "description": "The visibility ratio, or several separated by spaces, at which a slide counts as in view. Default 0.6."
+          },
+          {
+            "name": "slide-label",
+            "type": "string",
+            "description": "Each slide's name, from `{index}` and `{total}`. Default `{index} of {total}`."
+          },
+          {
+            "name": "indicator-label",
+            "type": "string",
+            "description": "Each indicator's name, from `{index}`. Default `Slide {index}`."
+          },
+          {
+            "name": "start-label",
+            "type": "string",
+            "description": "The play control's name while paused. Default `Start automatic slide show`."
+          },
+          {
+            "name": "stop-label",
+            "type": "string",
+            "description": "The play control's name while playing. Default `Stop automatic slide show`."
+          },
+          {
+            "name": "progress-label",
+            "type": "string",
+            "description": "The progress text, from `{page}` (one-based) and `{total}`. Default `{page} of {total}`."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-carousel-change",
+            "type": "CustomEvent<{ page: number }>",
+            "description": "Bubbles, cancelable, fired before a page change is applied — a trigger, an indicator, a key, a swipe or an autoplay tick. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-carousel-playing-change",
+            "type": "CustomEvent<{ playing: boolean }>",
+            "description": "Bubbles, cancelable, fired before the play control (or `play()` / `pause()`) changes `playing`."
+          },
+          {
+            "name": "primitiv-carousel-autoplay-status",
+            "type": "CustomEvent<CarouselAutoplayStatus>",
+            "description": "Bubbles as an autoplay session starts, ticks and stops."
+          },
+          {
+            "name": "primitiv-carousel-drag-status",
+            "type": "CustomEvent<CarouselDragStatus>",
+            "description": "Bubbles as a mouse drag starts, moves and ends."
+          },
+          {
+            "name": "primitiv-carousel-overscroll-status",
+            "type": "CustomEvent<CarouselOverscrollStatus>",
+            "description": "Bubbles when the keys, the wheel or a drag push past an end with nowhere further to go."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-carousel-viewport",
+        "description": "`<primitiv-carousel-viewport>` — the scroll container the slides sit in. Structural: the root makes it focusable, the live region for page changes (`aria-live` off while autoplay rotates), and the target of the arrow keys, the wheel and a mouse drag.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-track",
+        "description": "`<primitiv-carousel-track>` — the strip an infinite loop translates, a direct child of the viewport around the slides. Needed only for `loop=\"infinite\"`; the root fills it with inert, aria-hidden copies of the slides either side.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-slide",
+        "description": "`<primitiv-carousel-slide>` — one slide: a `group` with the role description \"slide\", named \"N of M\" unless it has a `label`.",
+        "attributes": [
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The slide's name, in place of the \"N of M\" the root writes."
+          },
+          {
+            "name": "snap-align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "description": "Where this slide rests, overriding the root's `snap-align`. Read only on a page's leading slide."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-previous-trigger",
+        "description": "`<primitiv-carousel-previous-trigger>` — an interactive part decorating the one `<button>` it holds: it retreats a page, and is disabled at the first (unless looping).",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Disables the control whatever the page."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-next-trigger",
+        "description": "`<primitiv-carousel-next-trigger>` — an interactive part decorating the one `<button>` it holds: it advances a page, and is disabled at the last (unless looping).",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Disables the control whatever the page."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-play-pause-trigger",
+        "description": "`<primitiv-carousel-play-pause-trigger>` — an interactive part decorating the one `<button>` it holds: it starts and stops autoplay, named for what it will do. Children of the button marked `data-play-state=\"playing\"` or `\"paused\"` show only in that state, for a glyph that swaps. Needs `autoplay` on the root.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-indicator-group",
+        "description": "`<primitiv-carousel-indicator-group>` — a `group` holding indicators you write yourself (thumbnails, custom marks).",
+        "attributes": [
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The group's name. Give it this or `aria-labelledby`."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-indicators",
+        "description": "`<primitiv-carousel-indicators>` — a `group` the root fills with one indicator per page, each a copy of its `<template>`'s first element, or a bare `<button>` without one. Indicators already inside are kept.",
+        "attributes": [
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The group's name. Give it this or `aria-labelledby`."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-indicator",
+        "description": "`<primitiv-carousel-indicator>` — an interactive part decorating the one `<button>` it holds: it jumps to its page, named \"Slide N\", and marked `aria-disabled` while its page is active.",
+        "attributes": [
+          {
+            "name": "index",
+            "type": "number",
+            "description": "The zero-based page it jumps to."
+          },
+          {
+            "name": "read-only",
+            "type": "boolean",
+            "description": "Shows the state but navigates nowhere, hidden from assistive technology."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-carousel-progress-text",
+        "description": "`<primitiv-carousel-progress-text>` — text the root keeps as \"N of M\", from the root's `progress-label`.",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

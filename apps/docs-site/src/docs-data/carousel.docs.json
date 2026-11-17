@@ -417,7 +417,7 @@
           {
             "name": "data-snap-type",
             "value": "mandatory | proximity",
-            "when": "the `snap` prop, mirrored so the scroll-snap CSS can read it"
+            "when": "the snap type (`mandatory` by default), mirrored so the scroll-snap CSS can read it"
           },
           {
             "name": "data-slides-per-page",
@@ -427,12 +427,12 @@
           {
             "name": "data-mouse-drag",
             "value": "",
-            "when": "`mouseDrag` is enabled, so pointer drag is bound as well as touch"
+            "when": "mouse drag is enabled, so a mouse can drag the viewport as well as touch"
           },
           {
             "name": "data-carousel-clones",
-            "value": "<number>",
-            "when": "how many cloned slides pad each end under infinite loop"
+            "value": "head | tail",
+            "when": "React only: the `display: contents` holder for the loop copies before (`head`) or after (`tail`) the real slides under `loop=\"infinite\"`; the elements place the copies beside the slides directly"
           },
           {
             "name": "data-dragging",
@@ -524,7 +524,7 @@
           {
             "name": "data-snap-align",
             "value": "start | center | end",
-            "when": "the `align` prop, mirrored so each slide's scroll-snap-align can read it"
+            "when": "this slide starts a page: its own snap alignment, or the root's, mirrored so its scroll-snap-align can read it"
           },
           {
             "name": "data-state",
@@ -1036,7 +1036,7 @@
       {
         "name": "data-snap-type",
         "value": "mandatory | proximity",
-        "when": "the `snap` prop, mirrored so the scroll-snap CSS can read it"
+        "when": "the snap type (`mandatory` by default), mirrored so the scroll-snap CSS can read it"
       },
       {
         "name": "data-slides-per-page",
@@ -1046,12 +1046,12 @@
       {
         "name": "data-mouse-drag",
         "value": "",
-        "when": "`mouseDrag` is enabled, so pointer drag is bound as well as touch"
+        "when": "mouse drag is enabled, so a mouse can drag the viewport as well as touch"
       },
       {
         "name": "data-carousel-clones",
-        "value": "<number>",
-        "when": "how many cloned slides pad each end under infinite loop"
+        "value": "head | tail",
+        "when": "React only: the `display: contents` holder for the loop copies before (`head`) or after (`tail`) the real slides under `loop=\"infinite\"`; the elements place the copies beside the slides directly"
       },
       {
         "name": "data-dragging",
@@ -1086,7 +1086,7 @@
       {
         "name": "data-snap-align",
         "value": "start | center | end",
-        "when": "the `align` prop, mirrored so each slide's scroll-snap-align can read it"
+        "when": "this slide starts a page: its own snap alignment, or the root's, mirrored so its scroll-snap-align can read it"
       },
       {
         "name": "data-state",

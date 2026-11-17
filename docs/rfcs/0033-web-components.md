@@ -809,7 +809,16 @@ into a second file a page would have to add. Navigation Menu came in at 4.2 KB
 (eight elements, hover intent with two timers, a shared viewport, and the
 indicator and viewport geometry it publishes, re-measured a frame later and on
 a font swap as React does), and the budget became **≤ 4.5 KB per component**
-on the same reasoning: the alternative was dropping a behaviour React has. The RFC also
+on the same reasoning: the alternative was dropping a behaviour React has.
+Carousel came in at **9.1 KB** — eleven elements over two scroll engines (native
+scroll-snap sync, and the infinite loop's transform track with drag, fling and
+seam copies), autoplay with its suspension rules, and the progress properties
+React writes — twice any other component. Raising the shared budget a third
+time would have doubled it for all of them and stopped the gate meaning
+anything, and splitting the loop into a second file is what Dropdown's submenus
+were spared, so Carousel alone carries **≤ 10 KB** (`OWN_BUDGETS` in the
+script, which also widens the all-in-one bundle's budget by the difference);
+every other component stays at 4.5 KB. The RFC also
 records, without gating on it, the React path for comparison:
 `@primitiv-ui/react` Tabs plus `react` and `react-dom`.
 

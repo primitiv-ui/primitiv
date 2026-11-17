@@ -12,10 +12,20 @@ import { gzipSync } from "node:zlib";
 // hover intent, a shared viewport and published geometry come to 4.2 KB with
 // their chunks, after Dropdown had already taken the opening 3 KB to 4 KB.
 const BUDGET = Number(process.env.PRIMITIV_WEB_BUDGET ?? 4608);
+// Carousel alone carries its own ceiling (RFC 0033 §7.3): eleven elements over
+// two scroll engines — native scroll-snap sync, and the infinite loop's
+// transform track with drag, fling and seam copies — plus autoplay and the
+// progress properties React writes, came to 9.1 KB, twice any other component.
+// Doubling the shared budget for it would stop the gate meaning anything for
+// the rest, and splitting the loop into a second file is what Dropdown's
+// submenus were spared.
+const OWN_BUDGETS = { "carousel.js": 10240 };
+const budgetFor = (name) => OWN_BUDGETS[name] ?? BUDGET;
 const components = readdirSync(new URL("../src/define/", import.meta.url)).filter(
   (file) => file.endsWith(".ts") && file !== "index.ts",
 ).length;
-const bundleBudget = BUDGET * components;
+const bundleBudget =
+  BUDGET * components + Object.values(OWN_BUDGETS).reduce((extra, own) => extra + own - BUDGET, 0);
 const file = new URL("../dist/primitiv-web.js", import.meta.url);
 const raw = readFileSync(file);
 const gzipped = gzipSync(raw, { level: 9 }).length;
@@ -36,9 +46,9 @@ for (const name of readdirSync(cdn).filter((file) => file.endsWith(".js"))) {
   const entry = readFileSync(new URL(name, cdn));
   const files = [entry, ...chunkImports(entry.toString()).map((path) => readFileSync(new URL(path, cdn)))];
   const size = files.reduce((total, code) => total + gzipSync(code, { level: 9 }).length, 0);
-  console.log(`cdn/${name}: ${size} B gzipped with its chunks (budget ${BUDGET} B)`);
-  if (size > BUDGET) {
-    console.error(`cdn/${name} is over budget by ${size - BUDGET} B`);
+  console.log(`cdn/${name}: ${size} B gzipped with its chunks (budget ${budgetFor(name)} B)`);
+  if (size > budgetFor(name)) {
+    console.error(`cdn/${name} is over budget by ${size - budgetFor(name)} B`);
     over = true;
   }
 }

@@ -269,11 +269,12 @@ export function useCarouselRoot(
   });
   const controller = controllerRef.current;
 
+  // Stryker disable ArrayDeclaration: equivalent — the controller is created once, so any constant dependency list runs this once per mount.
   useEffect(() => {
     controller.connect();
     return () => controller.disconnect();
-    // Stryker disable next-line ArrayDeclaration: equivalent — the controller is created once, so any constant dependency list runs this once per mount.
   }, [controller]);
+  // Stryker restore ArrayDeclaration
   // After every render, bring the behaviour in line with it; each part of the
   // controller reruns only when what it depends on has changed.
   useEffect(() => controller.sync());

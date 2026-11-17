@@ -233,14 +233,19 @@
 
   .primitiv-data-table__region--start {
     justify-content: flex-start;
+    /* Pinned to its own column, so an end region written straight after the
+       start one still lands at the end rather than in the middle. */
+    grid-column: 1;
   }
 
   .primitiv-data-table__region--center {
     justify-content: center;
+    grid-column: 2;
   }
 
   .primitiv-data-table__region--end {
     justify-content: flex-end;
+    grid-column: 3;
   }
 
   /* Cells centre their content on the block axis. A table cell's default
@@ -482,6 +487,8 @@
     .primitiv-data-table__region--center,
     .primitiv-data-table__region--end {
       justify-content: flex-start;
+      /* One column: the regions stack in source order. */
+      grid-column: auto;
     }
   }
 }

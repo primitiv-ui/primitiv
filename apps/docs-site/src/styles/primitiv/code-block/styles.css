@@ -198,10 +198,19 @@
     display: block;
   }
 
+  /* The <code> is the grid and each line a subgrid row of it, so every gutter
+     is as wide as the widest number: with a grid per line, line 10's extra
+     digit pushed its code one character right of lines 1-9. */
+  .primitiv-code-block__pre[data-line-numbers] > code {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--primitiv-code-block-padding);
+  }
+
   .primitiv-code-block__pre[data-line-numbers] .primitiv-code-block__line {
     display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: var(--primitiv-code-block-padding);
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
   }
 
   .primitiv-code-block__ln {

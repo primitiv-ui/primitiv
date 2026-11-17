@@ -108,9 +108,8 @@ export class PrimitivCodeBlockElement extends PrimitivRootElement {
  * one `<button>` you write, and puts the block's code on the clipboard when it
  * is pressed.
  *
- * **The highlighting is yours.** A block is the `<pre><code>` your server or
- * build step wrote — Prism's token classes are what the registry stylesheet
- * colours — so nothing here parses or highlights code.
+ * The copy button does no highlighting of its own: the block around it does
+ * (see `<primitiv-code-block>`), and the copy reads the code's text as written.
  *
  * The code it copies is the nearest one it can see: the first `<code>` in its
  * closest ancestor that holds one, skipping any inside a `hidden` element (so in

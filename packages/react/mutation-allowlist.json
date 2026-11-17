@@ -39,5 +39,6 @@
   "Slider",
   "Combobox",
   "Tree",
-  "MillerColumns"
+  "MillerColumns",
+  "Carousel"
 ]

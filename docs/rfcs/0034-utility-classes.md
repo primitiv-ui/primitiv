@@ -24,7 +24,7 @@ framework through.
 
 ## 2. What it is, and what it is not
 
-- **Small and fixed.** About 275 classes (§4), the same in every project. No
+- **Small and fixed.** About 280 classes (§4), the same in every project. No
   configuration, no prefix option, no purge step. If a page needs something the
   set does not have, that is what the page's own CSS is for.
 - **Every value is a token.** A utility is one declaration reading one
@@ -203,9 +203,22 @@ not be removed, and nothing spanned grid columns.
 - The alignment classes (`items-*`, `justify-*`) become responsive, so a row
   that stacks on a phone can also re-align (`md:items-center`).
 
-### 4.14 Size
+### 4.14 Trial 7 amendment (4 classes, 2026-11-17)
 
-183 base classes and 93 responsive ones since §4.13, about 275 rules:
+- Stacking: `z-10` `z-20`. A sticky header has to sit above the content that
+  scrolls under it, and a page with no CSS of its own had no way to say so.
+  There are no z-index tokens, so these are raw values, and two layers are
+  enough for a page; overlays use the top layer and need neither.
+- One-sided rules: `border-t` `border-b` (`border-block-start` / `-end`: 1px,
+  solid, `border/default`), for the header or footer ruled off on one side.
+  `border-subtle` and `border-strong` still recolour them.
+
+Responsive spacing was asked for in the same trial and left out: §4.10 keeps
+responsive variants to the classes that change a layout.
+
+### 4.15 Size
+
+187 base classes and 93 responsive ones since §4.14, about 280 rules:
 **≈ 19 KB, ≈ 2.7 KB gzipped.** Smaller
 than `tokens.css` by an order of magnitude, so there is no case for purging it.
 

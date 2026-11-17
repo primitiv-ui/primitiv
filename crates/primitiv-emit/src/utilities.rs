@@ -473,6 +473,22 @@ pub fn utility_rules() -> Vec<Rule> {
         ));
     }
 
+    // §4.14 Stacking and one-sided rules (trial 7): a sticky header has to sit
+    // above the content scrolling under it, and a header or footer is ruled off
+    // on one side only. There are no z-index tokens, so the two layers are raw.
+    rules.push(Rule::raw("z-10", &[("z-index", "10")]));
+    rules.push(Rule::raw("z-20", &[("z-index", "20")]));
+    for (class, side) in [("border-t", "start"), ("border-b", "end")] {
+        rules.push(Rule::new(
+            class,
+            vec![
+                (&format!("border-block-{side}-width"), token("border-width.1")),
+                (&format!("border-block-{side}-style"), raw("solid")),
+                (&format!("border-block-{side}-color"), token("border.default")),
+            ],
+        ));
+    }
+
     rules
 }
 

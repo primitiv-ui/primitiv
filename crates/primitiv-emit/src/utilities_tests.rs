@@ -297,6 +297,11 @@ fn rfc_classes() -> Vec<String> {
             "size-20",
             "size-24",
             "size-32",
+            // RFC 0034 §4.14 (trial 7): stacking and one-sided rules.
+            "z-10",
+            "z-20",
+            "border-t",
+            "border-b",
         ]
         .iter()
         .map(|c| c.to_string()),

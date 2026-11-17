@@ -814,7 +814,7 @@
   },
   {
    "id": "position",
-   "title": "Position and overflow",
+   "title": "Position, stacking and overflow",
    "classes": [
     {
      "name": "relative",
@@ -848,6 +848,20 @@
      "name": "overflow-hidden",
      "declarations": [
       "overflow: hidden"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "z-10",
+     "declarations": [
+      "z-index: 10"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "z-20",
+     "declarations": [
+      "z-index: 20"
      ],
      "responsive": false
     }
@@ -1384,6 +1398,24 @@
      "name": "shadow-modal",
      "declarations": [
       "box-shadow: var(--primitiv-elevation-modal)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "border-t",
+     "declarations": [
+      "border-block-start-width: var(--primitiv-border-width-1)",
+      "border-block-start-style: solid",
+      "border-block-start-color: var(--primitiv-border-default)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "border-b",
+     "declarations": [
+      "border-block-end-width: var(--primitiv-border-width-1)",
+      "border-block-end-style: solid",
+      "border-block-end-color: var(--primitiv-border-default)"
      ],
      "responsive": false
     }

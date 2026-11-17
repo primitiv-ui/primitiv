@@ -184,6 +184,10 @@
   .size-20 { inline-size: var(--primitiv-size-20); block-size: var(--primitiv-size-20); }
   .size-24 { inline-size: var(--primitiv-size-24); block-size: var(--primitiv-size-24); }
   .size-32 { inline-size: var(--primitiv-size-32); block-size: var(--primitiv-size-32); }
+  .z-10 { z-index: 10; }
+  .z-20 { z-index: 20; }
+  .border-t { border-block-start-width: var(--primitiv-border-width-1); border-block-start-style: solid; border-block-start-color: var(--primitiv-border-default); }
+  .border-b { border-block-end-width: var(--primitiv-border-width-1); border-block-end-style: solid; border-block-end-color: var(--primitiv-border-default); }
 
   @media (min-width: 40rem) {
     .sm\:block { display: block; }

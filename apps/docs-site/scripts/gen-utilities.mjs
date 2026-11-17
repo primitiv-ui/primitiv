@@ -32,12 +32,12 @@ const SECTIONS = [
     properties: ["gap", "padding", "padding-inline", "padding-block", "padding-block-start", "margin", "margin-inline", "margin-block-start", "margin-block-end"],
   },
   { id: "size", title: "Width and height", properties: ["inline-size", "max-inline-size", "block-size", "min-block-size"] },
-  { id: "position", title: "Position and overflow", properties: ["position", "inset-block-start", "overflow"] },
+  { id: "position", title: "Position, stacking and overflow", properties: ["position", "inset-block-start", "overflow", "z-index"] },
   { id: "text", title: "Text", properties: ["color", "font-family", "font-weight", "text-align", "text-decoration-line", "list-style"] },
   {
     id: "surface",
     title: "Surface, border, radius and shadow",
-    properties: ["background-color", "border-width", "border-color", "border-radius", "box-shadow"],
+    properties: ["background-color", "border-width", "border-color", "border-block-start-width", "border-block-end-width", "border-radius", "box-shadow"],
   },
   { id: "accessibility", title: "Accessibility", properties: [] },
 ];

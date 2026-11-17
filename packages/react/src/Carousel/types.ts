@@ -459,13 +459,6 @@ export type CarouselContextValue = {
    * extension that keeps native scroll-snap alignment consistent with the
    * programmatic scroll for `slidesPerPage > 1`. */
   maxOffset: number;
-  /** Start slide index of the currently-active window. In `"auto"`
-   * (paged) mode this is `currentPage * slidesPerPage` (the last page may
-   * be partial); in numeric (windowed) mode the last page is end-aligned
-   * — clamped to `total − slidesPerPage` — so every slide stays reachable
-   * even when the move doesn't divide the track evenly. Drives the slide
-   * `data-state` window and the viewport scroll target. */
-  currentPageOffset: number;
   /** Live total page count — `ceil(total / slidesPerPage)` in `"auto"`
    * mode (partial last page allowed), else
    * `floor((total - slidesPerPage) / effectiveSlidesPerMove) + 1`

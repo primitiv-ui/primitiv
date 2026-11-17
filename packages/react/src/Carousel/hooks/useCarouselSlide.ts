@@ -1,5 +1,7 @@
 import { useCallback, useId } from "react";
 
+import { carouselSlideActive, carouselSnapStart } from "@primitiv-ui/core";
+
 import type { CarouselSnapAlign } from "../types";
 import { useCarouselContext } from "./useCarouselContext";
 
@@ -24,8 +26,10 @@ export function useCarouselSlide(snapAlignOverride?: CarouselSnapAlign) {
     registerSlide,
     slideKeys,
     slidesPerPage,
-    currentPageOffset,
     effectiveSlidesPerMove,
+    maxOffset,
+    totalPages,
+    currentPage,
     snapAlign: rootSnapAlign,
   } = useCarouselContext();
   const slideKey = useId();
@@ -34,45 +38,35 @@ export function useCarouselSlide(snapAlignOverride?: CarouselSnapAlign) {
     (element: HTMLDivElement | null) => {
       registerSlide(slideKey, element);
     },
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependencies (a stable callback and this slide's own id).
     [registerSlide, slideKey],
   );
 
   const index = slideKeys.indexOf(slideKey);
   const total = slideKeys.length;
-  // The active page covers a window of slidesPerPage slides starting at
-  // currentPageOffset (computed by the Root — non-overlapping page groups
-  // in "auto" mode, overlapping/end-aligned windows with a numeric
-  // slidesPerMove).
-  const isActive =
-    index >= 0 &&
-    index >= currentPageOffset &&
-    index < currentPageOffset + slidesPerPage;
-  const state: "active" | "inactive" = isActive ? "active" : "inactive";
+  // The Root's page layout, which core reads both questions from — the same
+  // policy the `<primitiv-carousel>` elements use (RFC 0033).
+  const layout = {
+    total,
+    perPage: slidesPerPage,
+    move: effectiveSlidesPerMove,
+    maxOffset,
+    totalPages,
+  };
+  // The active page covers a window of slidesPerPage slides starting at its
+  // offset: non-overlapping groups in "auto" mode, overlapping and
+  // end-aligned windows with a numeric slidesPerMove. An unregistered slide
+  // (index -1) is never in it.
+  const state: "active" | "inactive" = carouselSlideActive(layout, currentPage, index)
+    ? "active"
+    : "inactive";
 
-  // Only a page's *leading* slide is a valid scroll-snap resting position.
-  // The Root's page offsets are `min(page * effectiveSlidesPerMove,
-  // maxOffset)` for each page — the same set an interior slide (any other
-  // index) is never a member of. Letting every slide snap (the old,
-  // unconditional CSS default) lets the browser rest scroll on an interior
-  // slide when slidesPerPage > 1, which has no valid page mapping: the
-  // viewport shows a straddled mix of two pages while currentPage/the
-  // indicators still claim one clean page is active. Mirrors the identical
-  // offset formula pageForSlideIndex inverts, so the two always agree.
-  const maxOffset = Math.max(0, total - slidesPerPage);
-  const isSnapStart =
-    index >= 0 &&
-    (index === maxOffset ||
-      (index <= maxOffset && index % effectiveSlidesPerMove === 0));
-  // The *value* mirrors the resolved root snapAlign (or this slide's own
-  // override, if set), not just a fixed "start" — so the native scroll-snap
-  // resting position agrees with where the programmatic scroll (Viewport's
-  // centerOffset maths, which reads this same value off the DOM) actually
-  // targets. Previously this was hardcoded to "start" regardless of
-  // snapAlign, so a user's own swipe/wheel/drag would snap back to the
-  // slide's leading edge even under snapAlign="center". Gated on
-  // isSnapStart either way — an interior slide of a multi-slide page must
-  // never snap, even if it carries its own snapAlign override.
-  const snapAlign = isSnapStart
+  // Only a page's *leading* slide is a valid scroll-snap resting position:
+  // letting an interior slide of a multi-slide page snap rests the viewport on
+  // a straddled mix of two pages while the indicators claim one. The *value*
+  // is this slide's own override or the root's snapAlign, so the native
+  // resting position agrees with where the programmatic scroll aims.
+  const snapAlign = carouselSnapStart(layout, index)
     ? (snapAlignOverride ?? rootSnapAlign)
     : undefined;
 

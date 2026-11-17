@@ -7,7 +7,6 @@ import {
   carouselClampPage,
   carouselLayout,
   carouselLoopMode,
-  carouselPageOffset,
 } from "@primitiv-ui/core";
 import { CarouselController, type CarouselControllerState } from "@primitiv-ui/web";
 
@@ -33,7 +32,7 @@ function resolveAutoplay(autoplay: CarouselAutoplay | undefined): {
   delay: number;
 } {
   if (autoplay === true) return { enabled: true, delay: CAROUSEL_AUTOPLAY_DELAY_MS };
-  if (autoplay && typeof autoplay === "object") return { enabled: true, delay: autoplay.delay };
+  if (typeof autoplay === "object") return { enabled: true, delay: autoplay.delay };
   return { enabled: false, delay: CAROUSEL_AUTOPLAY_DELAY_MS };
 }
 
@@ -168,7 +167,6 @@ export function useCarouselRoot(
     throw new Error(`Carousel: page index ${rawPage} is out of range (totalPages: ${totalPages})`);
   }
   const currentPage = isControlled ? rawPage : carouselClampPage(rawPage, totalPages);
-  const currentPageOffset = carouselPageOffset(layout, currentPage);
   const { previous: canGoPrevious, next: canGoNext } = carouselBounds({
     page: currentPage,
     totalPages,
@@ -186,6 +184,7 @@ export function useCarouselRoot(
       slidesRef.current.delete(key);
     }
     setSlideKeys(Array.from(slidesRef.current.keys()));
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
 
   const rootRef = useRef<HTMLElement | null>(null);
@@ -195,18 +194,23 @@ export function useCarouselRoot(
   const tailClonesElementRef = useRef<HTMLDivElement | null>(null);
   const rootElementRef = useCallback((element: HTMLElement | null) => {
     rootRef.current = element;
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const viewportRef = useCallback((element: HTMLDivElement | null) => {
     viewportElementRef.current = element;
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const trackRef = useCallback((element: HTMLDivElement | null) => {
     trackElementRef.current = element;
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const headClonesRef = useCallback((element: HTMLDivElement | null) => {
     headClonesElementRef.current = element;
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
   const tailClonesRef = useCallback((element: HTMLDivElement | null) => {
     tailClonesElementRef.current = element;
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list keeps this one callback.
   }, []);
 
   const latest = useRef<Snapshot>(null as unknown as Snapshot);
@@ -268,15 +272,18 @@ export function useCarouselRoot(
   useEffect(() => {
     controller.connect();
     return () => controller.disconnect();
+    // Stryker disable next-line ArrayDeclaration: equivalent — the controller is created once, so any constant dependency list runs this once per mount.
   }, [controller]);
   // After every render, bring the behaviour in line with it; each part of the
   // controller reruns only when what it depends on has changed.
   useEffect(() => controller.sync());
 
+  // Stryker disable ArrayDeclaration: equivalent — stable dependency (the controller is created once).
   const next = useCallback((instant?: boolean) => controller.next(instant), [controller]);
   const previous = useCallback((instant?: boolean) => controller.previous(instant), [controller]);
   const goTo = useCallback((target: number, instant?: boolean) => controller.goTo(target, instant), [controller]);
   const togglePlaying = useCallback(() => controller.togglePlaying(), [controller]);
+  // Stryker restore ArrayDeclaration
 
   useImperativeHandle(
     imperativeRef,
@@ -296,6 +303,7 @@ export function useCarouselRoot(
       getScrollProgress: () => controller.getScrollProgress(),
       getSlideProgress: (slideIndex) => controller.getSlideProgress(slideIndex),
     }),
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependencies.
     [controller, next, previous, goTo],
   );
 
@@ -313,7 +321,6 @@ export function useCarouselRoot(
       slidesPerPage: layout.perPage,
       effectiveSlidesPerMove: layout.move,
       maxOffset: layout.maxOffset,
-      currentPageOffset,
       totalPages,
       currentPage,
       canGoNext,
@@ -345,7 +352,6 @@ export function useCarouselRoot(
       layout.perPage,
       layout.move,
       layout.maxOffset,
-      currentPageOffset,
       totalPages,
       currentPage,
       canGoNext,

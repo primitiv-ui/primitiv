@@ -157,13 +157,9 @@ export const CarouselRoot: ForwardRefExoticComponent<
         data-transition={contextValue.transition}
         data-loop={contextValue.loop}
         className={className}
-        {...(ariaLabel !== undefined && { "aria-label": ariaLabel })}
-        {...(ariaLabelledBy !== undefined && {
-          "aria-labelledby": ariaLabelledBy,
-        })}
-        {...(contextValue.ids.root !== undefined && {
-          id: contextValue.ids.root,
-        })}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        id={contextValue.ids.root}
         {...rest}
       >
         {children}
@@ -172,6 +168,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
   );
 });
 
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 CarouselRoot.displayName = "CarouselRoot";
 
 /**
@@ -299,7 +296,7 @@ export function CarouselViewport({
       className={className}
       aria-live={isAutoRotating ? "off" : "polite"}
       {...(allowMouseDrag && { "data-mouse-drag": "" })}
-      {...(ids.viewport !== undefined && { id: ids.viewport })}
+      id={ids.viewport}
       {...rest}
     >
       {isInfinite ? (
@@ -404,10 +401,10 @@ export function CarouselSlide({
     useCarouselSlide(snapAlignOverride);
   const { translations } = useCarouselContext();
 
+  // A slide not yet registered (a server render, or its first client render)
+  // has no position to name.
   const autoLabel =
-    index >= 0 && total > 0
-      ? translations.slideLabel({ index: index + 1, total })
-      : undefined;
+    index >= 0 ? translations.slideLabel({ index: index + 1, total }) : undefined;
   const label = ariaLabel ?? autoLabel;
 
   return (
@@ -420,8 +417,8 @@ export function CarouselSlide({
       data-total={total}
       data-state={state}
       className={className}
-      {...(label !== undefined && { "aria-label": label })}
-      {...(snapAlign !== undefined && { "data-snap-align": snapAlign })}
+      aria-label={label}
+      data-snap-align={snapAlign}
       {...rest}
     >
       {children}
@@ -484,7 +481,7 @@ export function CarouselNextTrigger({
     onClick: handleClick,
     disabled: isDisabled,
     "aria-disabled": isDisabled,
-    ...(ids.nextTrigger !== undefined && { id: ids.nextTrigger }),
+    id: ids.nextTrigger,
     ...rest,
   };
 
@@ -549,7 +546,7 @@ export function CarouselPreviousTrigger({
     onClick: handleClick,
     disabled: isDisabled,
     "aria-disabled": isDisabled,
-    ...(ids.previousTrigger !== undefined && { id: ids.previousTrigger }),
+    id: ids.previousTrigger,
     ...rest,
   };
 
@@ -609,11 +606,9 @@ export function CarouselIndicatorGroup({
     <div
       role="group"
       className={className}
-      {...(label !== undefined && { "aria-label": label })}
-      {...(ariaLabelledBy !== undefined && {
-        "aria-labelledby": ariaLabelledBy,
-      })}
-      {...(ids.indicatorGroup !== undefined && { id: ids.indicatorGroup })}
+      aria-label={label}
+      aria-labelledby={ariaLabelledBy}
+      id={ids.indicatorGroup}
       {...rest}
     >
       {children}
@@ -826,7 +821,7 @@ export function CarouselPlayPauseTrigger({
       : translations.startSlideshow,
     "data-state": playing ? "playing" : "paused",
     onClick: handleClick,
-    ...(ids.playPauseTrigger !== undefined && { id: ids.playPauseTrigger }),
+    id: ids.playPauseTrigger,
     ...rest,
   };
 

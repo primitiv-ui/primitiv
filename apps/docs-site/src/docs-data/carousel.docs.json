@@ -1152,7 +1152,7 @@
           {
             "name": "slides-per-page",
             "type": "number",
-            "description": "Slides shown per page. Default 1. With more than one, give the styled root `--primitiv-carousel-slides-per-page` too."
+            "description": "Slides shown per page. Default 1. The element publishes it as `--primitiv-carousel-slides-per-page`, which the styled slide width reads; to change the count per breakpoint, change this attribute (a `matchMedia` listener does it)."
           },
           {
             "name": "slides-per-move",

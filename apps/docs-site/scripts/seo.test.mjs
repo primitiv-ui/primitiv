@@ -17,6 +17,12 @@ import { fileURLToPath } from "node:url";
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), "../out");
 const ORIGIN = "https://primitiv-ui.dev";
 
+/* The icon-name map the site's code tabs and Markdown read, keyed the same way. */
+const ICON_NAMES = JSON.parse(
+  readFileSync(new URL("../src/content/icon-names.generated.json", import.meta.url), "utf8"),
+);
+const pathKey = (svg) => [...svg.matchAll(/\sd="([^"]{0,16})/g)].map((m) => m[1]).join("|");
+
 if (!existsSync(OUT)) {
   throw new Error("No out/ directory — run `pnpm build` first.");
 }
@@ -289,11 +295,20 @@ test("every component with Elements carries them in its Markdown mirror", () => 
     }
     assert.ok(section.includes(`npx primitiv-ui@latest add ${docs.id}`), `${path}: CLI`);
     if (example) {
+      // The markup blocks only: prose may name an `<svg>` in passing.
+      const blocks = [...section.matchAll(/```html\n([\s\S]*?)\n```/g)].map((m) => m[1]).join("\n");
       // Glyphs are named rather than drawn: path data is noise to a reader.
-      assert.doesNotMatch(section, /<path\s/, `${path}: raw SVG path data`);
+      // An icon from the set is always a named slot, never path data.
+      for (const svg of blocks.match(/<svg[\s>][\s\S]*?<\/svg>/g) ?? []) {
+        assert.ok(!(pathKey(svg) in ICON_NAMES), `${path}: an icon left as path data`);
+      }
+      // Every glyph in the example comes out as a named icon slot or, for a
+      // shape that is no icon (a sort arrow), as the SVG it was — in each form.
       const slot = /<!-- Insert your SVG icon here: [a-z-]+ -->/g;
       const glyphs = (example.match(/<svg[\s>]|<!-- Insert your SVG icon here/g) ?? []).length;
-      assert.equal((section.match(slot) ?? []).length, glyphs * (pkg ? 2 : 1), `${path}: every glyph named, in each markup form`);
+      const shown = (blocks.match(slot) ?? []).length + (blocks.match(/<svg[\s>]/g) ?? []).length;
+      assert.equal(shown, glyphs * (pkg ? 2 : 1), `${path}: every glyph named or kept, in each markup form`);
+      assert.doesNotMatch(section, /Insert your SVG icon here: icon -->/, `${path}: an unnamed icon slot`);
       const shape = (markup) =>
         markup.replace(/<svg[\s>][\s\S]*?<\/svg>|<!-- Insert your SVG icon here: [a-z-]+ -->/g, "<svg/>").trimEnd();
       assert.ok(shape(section).includes(shape(example)), `${path}: styled markup`);

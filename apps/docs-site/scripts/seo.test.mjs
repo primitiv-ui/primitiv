@@ -298,9 +298,11 @@ test("every component with Elements carries them in its Markdown mirror", () => 
       // The markup blocks only: prose may name an `<svg>` in passing.
       const blocks = [...section.matchAll(/```html\n([\s\S]*?)\n```/g)].map((m) => m[1]).join("\n");
       // Glyphs are named rather than drawn: path data is noise to a reader.
-      // An icon from the set is always a named slot, never path data.
+      // An icon from the set is a named slot, never path data, unless the SVG
+      // carries state or a class the element reads (Code Block's copy glyphs).
       for (const svg of blocks.match(/<svg[\s>][\s\S]*?<\/svg>/g) ?? []) {
-        assert.ok(!(pathKey(svg) in ICON_NAMES), `${path}: an icon left as path data`);
+        const stateful = /\s(?:data-[\w-]+|hidden|class)(?=[\s=]|$)/.test(/^<svg([^>]*)>/.exec(svg)?.[1] ?? "");
+        assert.ok(stateful || !(pathKey(svg) in ICON_NAMES), `${path}: an icon left as path data`);
       }
       // Every glyph in the example comes out as a named icon slot or, for a
       // shape that is no icon (a sort arrow), as the SVG it was — in each form.

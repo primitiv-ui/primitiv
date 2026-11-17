@@ -10,3 +10,22 @@
   return `Hello, ${name}`;
 }</code></pre>
 </primitiv-code-block>
+
+<!-- Tabbed: one step in several tools. The Tabs elements wear the code block's classes (load tabs.js too), every panel is highlighted, and the copy control copies the panel that is shown. -->
+<primitiv-code-block language="bash">
+  <primitiv-tabs value="npm" class="primitiv-code-block primitiv-code-block--md primitiv-tabs primitiv-tabs--md">
+    <div class="primitiv-code-block__header">
+      <primitiv-tabs-list label="Install with" class="primitiv-tabs__list">
+        <primitiv-tabs-trigger value="npm"><button type="button" class="primitiv-tabs__trigger"><span class="primitiv-tabs__trigger-label">npm</span></button></primitiv-tabs-trigger>
+        <primitiv-tabs-trigger value="pnpm"><button type="button" class="primitiv-tabs__trigger"><span class="primitiv-tabs__trigger-label">pnpm</span></button></primitiv-tabs-trigger>
+        <primitiv-tabs-trigger value="yarn"><button type="button" class="primitiv-tabs__trigger"><span class="primitiv-tabs__trigger-label">yarn</span></button></primitiv-tabs-trigger>
+      </primitiv-tabs-list>
+      <primitiv-code-block-copy>
+        <button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--sm primitiv-code-block__copy" aria-label="Copy code"><svg data-copy-state="idle" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.75 7.25v13.5H7.25V7.25zm-12 12h10.5V8.75H8.75z" /><path d="M15.25 4.75H4.75v10.5h4v1.5h-5.5V3.25h13.5v5.5h-1.5z" /></svg><svg data-copy-state="copied" hidden viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946z" /></svg></button>
+      </primitiv-code-block-copy>
+    </div>
+    <primitiv-tabs-content value="npm" class="primitiv-code-block__panel"><pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code">npm i @primitiv-ui/web</code></pre></primitiv-tabs-content>
+    <primitiv-tabs-content value="pnpm" class="primitiv-code-block__panel" hidden><pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code">pnpm add @primitiv-ui/web</code></pre></primitiv-tabs-content>
+    <primitiv-tabs-content value="yarn" class="primitiv-code-block__panel" hidden><pre class="primitiv-code-block__pre"><code class="primitiv-code-block__code">yarn add @primitiv-ui/web</code></pre></primitiv-tabs-content>
+  </primitiv-tabs>
+</primitiv-code-block>

@@ -19,6 +19,11 @@ export const iconPlaceholders = (markup: string): string =>
   markup.replace(/<svg[\s>][\s\S]*?<\/svg>/g, (svg) => {
     /* The page examples already name their glyph (examples/glyphs.ts) and draw
        it only in the preview; anything else is recognised by its paths. */
+    // An SVG with its own state (Code Block's copy glyphs carry
+    // `data-copy-state` and `hidden`) or class is part of the markup's API:
+    // turning it into a comment would drop what the element reads.
+    const opening = /^<svg([^>]*)>/.exec(svg)?.[1] ?? "";
+    if (/\s(?:data-[\w-]+|hidden|class)(?=[\s=]|$)/.test(opening)) return svg;
     const named = /<!-- ([a-z-]+) glyph -->/.exec(svg)?.[1] ?? NAMES[pathKey(svg)];
     // An SVG that is no icon from the set (Data Table's sort arrows, Stepper's
     // warning mark) is part of the component's own drawing: it stays as written.

@@ -44,6 +44,7 @@ export default defineConfig({
     alias: [
       { find: /^@primitiv-ui\/web\/define\/tabs$/, replacement: workspace("web/src/define/tabs.ts") },
       { find: /^@primitiv-ui\/web\/define\/accordion$/, replacement: workspace("web/src/define/accordion.ts") },
+      { find: /^@primitiv-ui\/web\/define\/carousel$/, replacement: workspace("web/src/define/carousel.ts") },
       { find: /^@primitiv-ui\/web\/define\/collapsible$/, replacement: workspace("web/src/define/collapsible.ts") },
       { find: /^@primitiv-ui\/web\/define\/table$/, replacement: workspace("web/src/define/table.ts") },
       { find: /^@primitiv-ui\/web\/define\/code-block$/, replacement: workspace("web/src/define/code-block.ts") },

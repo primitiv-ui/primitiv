@@ -3,6 +3,7 @@
  * place of a real backend. Each is what a server-rendered app would send.
  */
 import { accordionHtml } from "./accordion-fixture.ts";
+import { carouselHtml } from "./carousel-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { tableHtml, tableRowHtml } from "./table-fixture.ts";
 import { codeBlockHtml, preHtml } from "./code-block-fixture.ts";
@@ -52,6 +53,7 @@ let radioCardEchoes = 0;
 let checkboxCardEchoes = 0;
 let splitButtonEchoes = 0;
 let sliderEchoes = 0;
+let carouselEchoes = 0;
 let listboxEchoes = 0;
 let selectEchoes = 0;
 let comboboxEchoes = 0;
@@ -269,6 +271,15 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "split-button-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++splitButtonEchoes})</span>`,
   "split-button-rtl": `<div dir="rtl">${splitButtonHtml({}, "rtl", "Rtl")}</div>`,
+  // The Carousel page's cases (carousel-htmx.html), named to match.
+  carousel: carouselHtml({ page: "1" }, "swapped"),
+  "carousel-oob-slide":
+    '<div hx-swap-oob="beforeend:#oob primitiv-carousel-viewport"><primitiv-carousel-slide style="display:block;flex:0 0 300px;height:100px;scroll-snap-align:center">oob slide 4</primitiv-carousel-slide></div>',
+  "carousel-oob-page": `<div hx-swap-oob="outerHTML:#rerendered">${carouselHtml({ page: "2" }, "rerendered")}</div>`,
+  "carousel-preserve": `<div id="preserve-region"><p>Swapped region</p>${carouselHtml({}, "preserved").replace("<primitiv-carousel ", '<primitiv-carousel hx-preserve="true" ')}</div>`,
+  "carousel-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("page")} (${++carouselEchoes})</span>`,
+  "carousel-nested": carouselHtml({}, "outer").replace("outer slide 1", carouselHtml({}, "inner", 2)),
   // The Slider page's cases (slider-htmx.html), named to match.
   slider: sliderHtml({ value: "30" }, "swapped"),
   "slider-oob-thumb":

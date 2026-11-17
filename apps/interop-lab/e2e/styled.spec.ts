@@ -543,6 +543,35 @@ test("the printed slider is styled and working: the thumb sits at its value and 
   expect(Math.abs(range.x + range.width - (box.x + box.width * 0.8))).toBeLessThan(2);
 });
 
+test("add carousel printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-carousel-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@0\.2\.(1[6-9]|[2-9]\d)[\d.]*\/dist\/cdn\/carousel\.js/);
+});
+
+test("the printed carousel lays out as React's: a grid around a full-width viewport, its wrappers boxless", async ({ page }) => {
+  const root = page.locator("primitiv-carousel");
+  await root.scrollIntoViewIfNeeded();
+  await expect(root).toHaveCSS("display", "grid");
+  await expect(page.locator("primitiv-carousel-next-trigger")).toHaveCSS("display", "contents");
+  await expect(page.locator("primitiv-carousel-indicator").first()).toHaveCSS("display", "contents");
+  const viewport = (await page.locator("primitiv-carousel-viewport").boundingBox())!;
+  const slide = (await page.locator("primitiv-carousel-slide").first().boundingBox())!;
+  expect(Math.abs(slide.width - viewport.width)).toBeLessThan(2);
+  await expect(page.locator("primitiv-carousel-indicators button.primitiv-carousel__indicator")).toHaveCount(3);
+});
+
+test("the printed carousel is working: next scrolls its viewport and the dots follow", async ({ page }) => {
+  const root = page.locator("primitiv-carousel");
+  await root.scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Next slide" }).click();
+  await expect(root).toHaveAttribute("page", "1");
+  await expect(page.getByRole("button", { name: "Slide 2", exact: true })).toHaveAttribute("data-state", "active");
+  await expect
+    .poll(() => page.locator("primitiv-carousel-viewport").evaluate((viewport) => Math.round(viewport.scrollLeft / viewport.clientWidth)))
+    .toBe(1);
+  await expect(page.getByRole("button", { name: "Previous slide" })).toBeEnabled();
+});
+
 test("add breadcrumb-overflow loads Dropdown's script: its menu is the Dropdown elements", () => {
   const output = readFileSync("styled-site/add-breadcrumb-overflow-output.txt", "utf8");
   expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/dropdown\.js/);

@@ -423,17 +423,17 @@ describe("<primitiv-carousel> scroll", () => {
 
   it("follows a vertical swipe by its block target, and ignores a target that is not a slide or is already the page", async () => {
     // Arrange
-    await mount(carouselHtml({ attrs: 'orientation="vertical"' }));
+    await mount(carouselHtml({ attrs: 'orientation="vertical" page="1"' }));
     const changes = record("primitiv-carousel-change");
 
     // Act
-    viewport().dispatchEvent(Object.assign(new Event("scrollsnapchange"), { snapTargetInline: slides()[1], snapTargetBlock: viewport() }));
-    viewport().dispatchEvent(Object.assign(new Event("scrollsnapchange"), { snapTargetBlock: slides()[0] }));
+    viewport().dispatchEvent(Object.assign(new Event("scrollsnapchange"), { snapTargetInline: slides()[2], snapTargetBlock: viewport() }));
     viewport().dispatchEvent(Object.assign(new Event("scrollsnapchange"), { snapTargetBlock: slides()[1] }));
+    viewport().dispatchEvent(Object.assign(new Event("scrollsnapchange"), { snapTargetBlock: slides()[0] }));
     await settle();
 
     // Assert
-    expect(changes).toEqual([{ page: 1 }]);
+    expect(changes).toEqual([{ page: 0 }]);
   });
 
   it("follows the first slide in view where there is no scrollsnapchange, once a programmatic scroll has settled", async () => {

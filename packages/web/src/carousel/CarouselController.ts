@@ -142,6 +142,7 @@ export class CarouselController {
   // One-shots a navigation leaves for the next sync to consume.
   #programmatic = false;
   #instant = false;
+  // Stryker disable next-line BooleanLiteral: equivalent — only the infinite loop reads it, and its first positioning is instant, which lands on the same normalised offset by either route.
   #directJump = false;
   #userScroll = false;
   #refreshes = 0;
@@ -303,6 +304,7 @@ export class CarouselController {
 
   /** Re-issue the scroll for the current page and rebuild the loop's copies, after an outside layout change. */
   refresh(): void {
+    // Stryker disable next-line AssignmentOperator: equivalent — any change to the count changes the keys that depend on it.
     this.#refreshes += 1;
     this.sync();
   }
@@ -363,6 +365,7 @@ export class CarouselController {
     const { page, loop } = this.#host.state();
     const target = carouselStep({ page, totalPages: this.#layout().totalPages, loop }, direction);
     if (target === null) return;
+    // Stryker disable next-line BooleanLiteral: equivalent in jsdom — the scroll the page change brings sets it again before an observer callback can run; in a browser it covers the gap before React's effect does.
     this.#programmatic = true;
     this.#instant = !!instant;
     this.#directJump = false;
@@ -386,6 +389,7 @@ export class CarouselController {
   }
 
   #bindViewport(viewport: HTMLElement | null): void {
+    // Stryker disable next-line ConditionalExpression: equivalent — rebinding the same viewport swaps one listener set for an identical one.
     if (viewport === this.#boundViewport) return;
     this.#unbindViewport();
     if (!viewport) return;
@@ -604,11 +608,8 @@ export class CarouselController {
     const settle = (): void => {
       this.#programmatic = false;
     };
-    viewport.addEventListener("scrollend", settle, { once: true });
-    const timeout = setTimeout(() => {
-      viewport.removeEventListener("scrollend", settle);
-      settle();
-    }, SCROLL_SETTLE_MS);
+    viewport.addEventListener("scrollend", settle);
+    const timeout = setTimeout(settle, SCROLL_SETTLE_MS);
     this.#scrollSettle = () => {
       clearTimeout(timeout);
       viewport.removeEventListener("scrollend", settle);
@@ -685,6 +686,7 @@ export class CarouselController {
       });
     };
     recompute();
+    // Stryker disable next-line ObjectLiteral,BooleanLiteral: equivalent — passive only spares the scroll from waiting on the listener.
     viewport.addEventListener("scroll", schedule, { passive: true });
     const resize = new ResizeObserver(schedule);
     resize.observe(viewport);

@@ -228,4 +228,36 @@ describe("<primitiv-carousel> autoplay", () => {
     expect(carousel.page).toBe(1);
     expect(slides()).toEqual([]);
   });
+
+  it("stops listening once it has left the page", async () => {
+    // Arrange
+    await mount(carouselHtml({ attrs: 'autoplay playing autoplay-delay="1000"' }));
+    const carousel = root();
+    carousel.remove();
+
+    // Act — anything that would restart the timer, arriving after it left.
+    fireEvent.focusOut(carousel);
+    carousel.dispatchEvent(pointer("pointerup", "touch"));
+    carousel.dispatchEvent(pointer("pointercancel", "touch"));
+    vi.advanceTimersByTime(5000);
+
+    // Assert
+    expect(carousel.page).toBe(0);
+  });
+
+  it("forgets a touch that landed while it was away", async () => {
+    // Arrange
+    await mount(carouselHtml({ attrs: 'autoplay playing autoplay-delay="1000"' }));
+    const carousel = root();
+    carousel.remove();
+    carousel.dispatchEvent(pointer("pointerdown", "touch"));
+
+    // Act
+    document.body.append(carousel);
+    await settle();
+    vi.advanceTimersByTime(1000);
+
+    // Assert
+    expect(carousel.page).toBe(1);
+  });
 });

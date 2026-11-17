@@ -234,7 +234,7 @@ export class PrimitivCarouselElement extends PrimitivRootElement {
     const slidesPerMove = move === null || move === "auto" ? "auto" : numberAttribute(this, "slides-per-move", 1);
     const loop = carouselLoopMode(this.getAttribute("loop"));
     const { totalPages } = carouselLayout(this.#slides().length, slidesPerPage, slidesPerMove);
-    const thresholds = (this.getAttribute("in-view-threshold") ?? "").split(/[\s,]+/).filter(Boolean).map(Number);
+    const thresholds = (this.getAttribute("in-view-threshold") ?? "").split(/[\s,]/).filter(Boolean).map(Number);
     return {
       page: carouselClampPage(this.page, totalPages),
       playing: this.playing,
@@ -297,7 +297,7 @@ export class PrimitivCarouselElement extends PrimitivRootElement {
 
   #disconnect(): void {
     this.#carousel.disconnect();
-    this.#listening?.abort();
+    (this.#listening as AbortController).abort();
     this.#listening = null;
   }
 

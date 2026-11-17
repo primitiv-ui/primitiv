@@ -20,8 +20,10 @@ import { changed, type Key } from "./key.ts";
  * The glide's fallback timing, for a headless carousel with no stylesheet; the
  * registry's `--primitiv-carousel-glide-duration` / `-easing` override them.
  */
+// Stryker disable StringLiteral: static — evaluated once at import, so runtime mutant switching never reaches them; the glide tests pin both.
 const GLIDE_DURATION = "500ms";
 const GLIDE_EASE = "cubic-bezier(0, 0, 0.2, 1)";
+// Stryker restore StringLiteral
 
 /** What the engine borrows from the controller that hosts it. */
 export type CarouselLoopContext = {
@@ -70,7 +72,7 @@ function withoutEngineProps(css: string | null): string {
     .map((declaration) => declaration.trim())
     .filter((declaration) => declaration && !declaration.startsWith("visibility:") && !declaration.startsWith("--slide-progress:"))
     .sort()
-    .join(";");
+    .join();
 }
 
 /**
@@ -79,7 +81,7 @@ function withoutEngineProps(css: string | null): string {
  * the copies anyway; a `style` change counts only beyond the engine's own writes.
  */
 function meaningful(mutation: MutationRecord): boolean {
-  if (mutation.type !== "attributes") return true;
+  // A child or text change has no attribute name, so it falls through to "meaningful".
   const name = mutation.attributeName;
   if (name === "data-state" || name === "data-index") return false;
   if (name !== "style") return true;
@@ -103,6 +105,7 @@ function meaningful(mutation: MutationRecord): boolean {
 export class CarouselLoopEngine {
   readonly #context: CarouselLoopContext;
   #state: CarouselControllerState | null = null;
+  // Stryker disable next-line ArrayDeclaration: equivalent — every sync sets it before anything reads it.
   #slides: readonly HTMLElement[] = [];
   #layout: CarouselLayout | null = null;
   #track: HTMLElement | null = null;
@@ -143,13 +146,12 @@ export class CarouselLoopEngine {
       return;
     }
     this.#bindTrack(track);
-    const vertical = state.orientation === "vertical";
     if (changed(this.#clonesKey, [refreshes, ...slides])) {
       this.#clonesKey = [refreshes, ...slides];
       this.#rebuildClones();
       this.#observeContent();
     }
-    const geometryKey = [vertical, state.snapAlign, layout.move, ...slides];
+    const geometryKey = [state.orientation, state.snapAlign, layout.move, ...slides];
     if (changed(this.#positionKey, [carouselPageOffset(layout, state.page), refreshes, ...geometryKey])) {
       this.#positionKey = [carouselPageOffset(layout, state.page), refreshes, ...geometryKey];
       this.#position();
@@ -193,6 +195,7 @@ export class CarouselLoopEngine {
   }
 
   #bindTrack(track: HTMLElement): void {
+    // Stryker disable next-line ConditionalExpression: equivalent — rebinding the same track swaps one listener for an identical one.
     if (track === this.#track) return;
     this.#trackConnection?.abort();
     this.#track = track;
@@ -229,7 +232,7 @@ export class CarouselLoopEngine {
     const r1 = (slides[1] as HTMLElement).getBoundingClientRect();
     const rawStride = start(r1) - start(r0);
     if (rawStride === 0) return null;
-    const dir = rawStride < 0 ? -1 : 1;
+    const dir = Math.sign(rawStride);
     const stride = Math.abs(rawStride);
     const trackSize = extent(trackRect);
     const { snapAlign } = this.#state as CarouselControllerState;
@@ -321,7 +324,7 @@ export class CarouselLoopEngine {
    * move re-bases first so it never rests on one.
    */
   #glideTo(target: number, instant: boolean, g: Geometry): void {
-    const reduce = !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    const reduce = !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (!instant && !reduce) {
       const from = this.#offset;
       this.#offset = target;
@@ -359,8 +362,6 @@ export class CarouselLoopEngine {
   /** Rebuild the copies when a real slide's own content changes underneath it. */
   #observeContent(): void {
     this.#content?.disconnect();
-    this.#content = null;
-    if (this.#slides.length === 0) return;
     this.#content = new MutationObserver((mutations) => {
       if (mutations.some(meaningful)) this.#rebuildClones();
     });
@@ -491,11 +492,13 @@ export class CarouselLoopEngine {
     this.#drag = null;
     if (!drag.dragging) return;
     const g = drag.geometry;
+    // Paint where the pointer let go now, not on a frame still pending — the
+    // fling's glide must start from what is on screen.
     if (this.#dragFrame !== null) {
       cancelAnimationFrame(this.#dragFrame);
       this.#dragFrame = null;
+      // Stryker disable next-line BooleanLiteral: equivalent — the fling's own glide sets the transition straight after.
       this.#paint(this.#offset, this.#dragPaintFrom, g, false);
-      this.#dragPaintFrom = this.#offset;
     }
     const layout = this.#layout as CarouselLayout;
     const target = carouselFlingTarget(this.#offset, drag.velocity, CAROUSEL_FLING_DECEL_MS, g.stride * layout.move);

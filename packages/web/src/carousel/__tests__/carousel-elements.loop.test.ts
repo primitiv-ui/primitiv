@@ -1,5 +1,5 @@
 import { carouselHtml } from "./carousel.fixtures";
-import { TestResizeObserver } from "./jsdom";
+import { TestIntersectionObserver, TestResizeObserver } from "./jsdom";
 import { mount, root, settle, slides, viewport } from "./mount";
 
 /**
@@ -625,5 +625,448 @@ describe("<primitiv-carousel loop=infinite> dragging", () => {
 
     // Assert
     expect(cancel).toHaveBeenCalledWith(9);
+  });
+});
+
+describe("<primitiv-carousel loop=infinite> edges", () => {
+  it("leaves a fading infinite carousel's track alone", async () => {
+    // Arrange & Act
+    layout();
+    await mount(carouselHtml({ track: true, attrs: 'loop="infinite" transition="fade"' }));
+
+    // Assert
+    expect(clones()).toEqual([]);
+    expect(transform()).toBe("");
+  });
+
+  it("loops two slides", async () => {
+    // Arrange & Act
+    await loop("", 2);
+    root().next();
+    await settle();
+
+    // Assert
+    expect(clones()).toHaveLength(4);
+    expect(transform()).toBe("translate(-100px, 0px)");
+  });
+
+  it("marks each copy inert and as a copy, with empty attributes", async () => {
+    // Arrange & Act
+    await loop();
+
+    // Assert
+    expect(clones().every((clone) => clone.getAttribute("inert") === "" && clone.getAttribute("data-carousel-clone") === "")).toBe(true);
+  });
+
+  it("re-positions when the orientation changes", async () => {
+    // Arrange
+    await loop('page="1"');
+
+    // Act
+    root().setAttribute("orientation", "vertical");
+    await settle();
+
+    // Assert
+    expect(transform()).toBe("translate(0px, -100px)");
+  });
+
+  it("keeps its resize observer through a page change", async () => {
+    // Arrange
+    await loop();
+    const count = TestResizeObserver.instances.length;
+
+    // Act
+    root().next();
+    await settle();
+
+    // Assert
+    expect(TestResizeObserver.instances.length).toBe(count);
+  });
+
+  it("leaves nothing of its copies behind, and positions at once when it starts again", async () => {
+    // Arrange
+    await loop();
+    root().removeAttribute("loop");
+    await settle();
+
+    // Assert
+    expect(track().textContent).toBe(slides().map((slide) => slide.textContent).join(""));
+
+    // Act
+    root().setAttribute("loop", "infinite");
+    await settle();
+
+    // Assert
+    expect(track().style.transition).toBe("none");
+  });
+
+  it("stops listening for a glide's end once the loop ends", async () => {
+    // Arrange
+    await loop();
+    root().removeAttribute("loop");
+    await settle();
+
+    // Act
+    settleGlide();
+
+    // Assert
+    expect(transform()).toBe("");
+  });
+
+  it("measures where the track starts, where the real slides start in it, and how a page is aligned", async () => {
+    // Arrange — the track starts at 10, the real slides after 3 copies (300 in), in a 300px track.
+    layout({ track: 300, start: (index) => 10 + (index + 3) * 100 });
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const index = this.getAttribute("data-index");
+      if (this.localName === "primitiv-carousel-track" || this.localName === "primitiv-carousel-viewport") {
+        return { left: 10, top: 10, width: 300, height: 300, right: 310, bottom: 310 } as DOMRect;
+      }
+      const at = index === null ? 10 : 10 + (Number(index) + 3) * 100;
+      return { left: at, top: at, width: 100, height: 100, right: at + 100, bottom: at + 100 } as DOMRect;
+    });
+
+    // Act
+    await mount(carouselHtml({ slides: 7, track: true, attrs: 'loop="infinite"' }));
+
+    // Assert — slide 0 centred: 100 (align) − 300 (base); slide i rests at 100 + i × 100, painted to 600.
+    expect(transform()).toBe("translate(-200px, 0px)");
+    expect(slides().map((slide) => slide.style.visibility)).toEqual(["", "", "", "", "", "", "hidden"]);
+    expect(slides().map((slide) => slide.style.getPropertyValue("--slide-progress")).slice(0, 3)).toEqual(["0", "0.6666666666666666", "1"]);
+  });
+
+  it("sets each slide's progress for where it rests after an instant move", async () => {
+    // Arrange
+    await loop();
+
+    // Act
+    root().goTo(1, true);
+    await settle();
+
+    // Assert
+    expect(slides().map((slide) => slide.style.getPropertyValue("--slide-progress"))).toEqual(["-1", "0", "1"]);
+  });
+
+  it("trims the glide's custom properties", async () => {
+    // Arrange
+    await loop();
+    vi.spyOn(window, "getComputedStyle").mockReturnValue({
+      getPropertyValue: (name: string) => (name.endsWith("duration") ? " 300ms " : " ease-in "),
+    } as CSSStyleDeclaration);
+
+    // Act
+    root().next();
+    await settle();
+
+    // Assert
+    expect(track().style.transition).toBe("transform 300ms ease-in");
+  });
+
+  it("reads the live position from each slide's centre", async () => {
+    // Arrange
+    await loop();
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => frames.push(callback));
+
+    // Act
+    root().next();
+    await settle();
+    frames.shift()?.(0);
+
+    // Assert
+    expect(slides()[0]?.style.getPropertyValue("--slide-progress")).toBe("0");
+  });
+
+  it("asks for reduced motion by its own query", async () => {
+    // Arrange
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: query === "(prefers-reduced-motion: reduce)" }));
+    await loop();
+
+    // Act
+    root().next();
+    await settle();
+
+    // Assert
+    expect(track().style.transition).toBe("none");
+    vi.unstubAllGlobals();
+  });
+
+  it("stops the live position ticker by its own frame", async () => {
+    // Arrange
+    await loop();
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(() => 42);
+    const cancel = vi.spyOn(window, "cancelAnimationFrame");
+
+    // Act
+    root().next();
+    await settle();
+    settleGlide();
+
+    // Assert
+    expect(cancel).toHaveBeenCalledWith(42);
+  });
+
+  it("travels the literal distance for a jump from a page other than the first", async () => {
+    // Arrange
+    await loop('page="1"');
+
+    // Act
+    root().goTo(2);
+    await settle();
+
+    // Assert
+    expect(transform()).toBe("translate(-200px, 0px)");
+  });
+
+  it("takes the short way for a page change from outside, after a jump", async () => {
+    // Arrange
+    await loop();
+    root().goTo(2);
+    await settle();
+    settleGlide();
+
+    // Act
+    root().page = 0;
+    await settle();
+
+    // Assert
+    expect(transform()).toBe("translate(-300px, 0px)");
+  });
+});
+
+describe("<primitiv-carousel loop=infinite> copies follow their slides", () => {
+  it("does not rebuild for a style that only reorders", async () => {
+    // Arrange
+    await loop();
+    slides()[1]?.setAttribute("style", "color: red; background: blue");
+    await settle();
+    const before = clones()[1];
+
+    // Act
+    slides()[1]?.setAttribute("style", "background: blue; color: red");
+    await settle();
+
+    // Assert
+    expect(clones()[1]).toBe(before);
+  });
+
+  it("does not rebuild for a slide's index, but does for a new attribute", async () => {
+    // Arrange
+    await loop();
+    const before = clones()[1];
+
+    // Act
+    slides()[1]?.setAttribute("data-index", "9");
+    await settle();
+    const unchanged = clones()[1];
+    slides()[2]?.setAttribute("title", "Named");
+    await settle();
+
+    // Assert
+    expect(unchanged).toBe(before);
+    expect(clones()[1]).not.toBe(before);
+  });
+
+  it("rebuilds when one of several changes in a batch is meaningful", async () => {
+    // Arrange
+    await loop();
+    const before = clones()[1];
+
+    // Act
+    slides()[1]?.setAttribute("data-state", "x");
+    (slides()[1] as HTMLElement).append("!");
+    await settle();
+
+    // Assert
+    expect(clones()[1]).not.toBe(before);
+  });
+
+  it("rebuilds for text and elements deep inside a slide", async () => {
+    // Arrange
+    layout();
+    await mount(carouselHtml({ track: true, attrs: 'loop="infinite"' }).replace("Slide content 2", "<span>Deep</span>"));
+    const before = clones()[1];
+
+    // Act
+    ((slides()[1]?.querySelector("span") as HTMLElement).firstChild as Text).data = "Deeper";
+    await settle();
+    const afterText = clones()[1];
+    slides()[1]?.querySelector("span")?.append(document.createElement("b"));
+    await settle();
+
+    // Assert
+    expect(afterText).not.toBe(before);
+    expect(clones()[1]).not.toBe(afterText);
+  });
+
+  it("does not rebuild for its own paint on a slide that has a style of its own", async () => {
+    // Arrange
+    layout();
+    await mount(carouselHtml({ track: true, attrs: 'loop="infinite"' }).replace("<primitiv-carousel-slide>", '<primitiv-carousel-slide style="color: red">'));
+    const before = clones()[0];
+
+    // Act
+    root().goTo(2, true);
+    await settle();
+
+    // Assert
+    expect(clones()[0]).toBe(before);
+  });
+});
+
+describe("<primitiv-carousel loop=infinite> drag edges", () => {
+  /** Mount, with requestAnimationFrame held so the test runs each frame. */
+  async function held(attrs = "", count = 3): Promise<FrameRequestCallback[]> {
+    await loop(attrs, count);
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => frames.push(callback));
+    return frames;
+  }
+
+  it("does not start a drag below or at the threshold, nor fling a press it never dragged", async () => {
+    // Arrange
+    const frames = await held();
+
+    // Act
+    pointer("pointerdown", 200);
+    pointer("pointermove", 198, { time: 10 });
+    pointer("pointermove", 197, { time: 20 });
+    pointer("pointerup", 197, { time: 30 });
+    await settle();
+
+    // Assert
+    expect(frames).toEqual([]);
+    expect(track().style.transition).toBe("none");
+  });
+
+  it("paints a drag without a transition", async () => {
+    // Arrange
+    const frames = await held();
+
+    // Act
+    pointer("pointerdown", 200);
+    pointer("pointermove", 150, { time: 10 });
+    frames.shift()?.(0);
+
+    // Assert
+    expect(track().style.transition).toBe("none");
+  });
+
+  it("ignores another pointer's moves and release", async () => {
+    // Arrange
+    const frames = await held();
+    pointer("pointerdown", 200);
+    pointer("pointermove", 150, { time: 10 });
+    frames.shift()?.(0);
+    const dragged = transform();
+
+    // Act
+    pointer("pointermove", 50, { id: 2, time: 20 });
+    pointer("pointerup", 50, { id: 2, time: 30 });
+    await settle();
+
+    // Assert
+    expect(frames).toEqual([]);
+    expect(transform()).toBe(dragged);
+    expect(track().style.transition).toBe("none");
+  });
+
+  it("ignores a move from another pointer before the drag starts", async () => {
+    // Arrange
+    const frames = await held();
+
+    // Act
+    pointer("pointerdown", 200);
+    pointer("pointermove", 100, { id: 2, time: 10 });
+
+    // Assert
+    expect(frames).toEqual([]);
+  });
+
+  it("does not fling on a velocity it could not measure", async () => {
+    // Arrange
+    await held();
+
+    // Act
+    pointer("pointerdown", 200, { time: 5 });
+    pointer("pointermove", 170, { time: 5 });
+    pointer("pointerup", 170, { time: 5 });
+    await settle();
+
+    // Assert
+    expect(transform()).toBe("translate(0px, 0px)");
+  });
+
+  it("flings by whole pages of several slides", async () => {
+    // Arrange — 2 a page: a 200px page, centred in the 100px track at −50.
+    await held('slides-per-page="2"', 4);
+
+    // Act — 30 + 1 × 120 = 150, which a 200px page rounds to 200.
+    pointer("pointerdown", 200, { time: 0 });
+    pointer("pointermove", 190, { time: 10 });
+    pointer("pointermove", 170, { time: 30 });
+    pointer("pointerup", 170, { time: 30 });
+    await settle();
+
+    // Assert
+    expect(transform()).toBe("translate(-250px, 0px)");
+  });
+
+  it("glides again on the next navigation after a fling that changed the page", async () => {
+    // Arrange
+    await held();
+    pointer("pointerdown", 200, { time: 0 });
+    pointer("pointermove", 170, { time: 10 });
+    pointer("pointermove", 140, { time: 20 });
+    pointer("pointerup", 140, { time: 30 });
+    await settle();
+
+    // Act
+    root().next();
+    await settle();
+
+    // Assert
+    expect(root().page).toBe(2);
+    expect(transform()).toBe("translate(-200px, 0px)");
+  });
+});
+
+describe("<primitiv-carousel loop=infinite> animation frames", () => {
+  it("cancels only frames it asked for, through a drag released without a pending frame and a loop that ends", async () => {
+    // Arrange
+    await loop();
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => frames.push(callback));
+    const cancel = vi.spyOn(window, "cancelAnimationFrame");
+
+    // Act
+    pointer("pointerdown", 200);
+    pointer("pointermove", 150, { time: 10 });
+    frames.shift()?.(0);
+    pointer("pointerup", 150, { time: 20 });
+    await settle();
+    settleGlide();
+    root().removeAttribute("loop");
+    await settle();
+
+    // Assert — the glide's ticker frame, and nothing that was never requested.
+    expect(cancel.mock.calls.every(([frame]) => typeof frame === "number")).toBe(true);
+  });
+});
+
+describe("<primitiv-carousel loop=infinite> what is in view", () => {
+  it("reports what is in view without letting it move the page", async () => {
+    // Arrange
+    await mount(carouselHtml({ track: true, attrs: 'loop="infinite"' }));
+    const changes: unknown[] = [];
+    root().addEventListener("primitiv-carousel-change", (event) => changes.push((event as CustomEvent).detail));
+    viewport().dispatchEvent(new Event("scrollend"));
+
+    // Act
+    TestIntersectionObserver.latest.fire([{ target: slides()[2] as Element, ratio: 1 }]);
+    await settle();
+
+    // Assert
+    expect(root().isInView(2)).toBe(true);
+    expect(changes).toEqual([]);
   });
 });

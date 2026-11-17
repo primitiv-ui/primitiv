@@ -503,8 +503,10 @@ export class PrimitivCarouselNextTriggerElement extends ElementBase {}
 /**
  * `<primitiv-carousel-play-pause-trigger>` — an interactive part decorating the
  * one `<button>` it holds: it starts and stops autoplay, named for what it will
- * do. Children of the button marked `data-play-state="playing"` or `"paused"`
- * show only in that state, for a glyph that swaps. Needs `autoplay` on the root.
+ * do. Elements inside the button marked `data-play-state="playing"` or
+ * `"paused"` show only in that state, for a glyph that swaps; they are hidden
+ * with `hidden`, which an `<svg>` ignores, so mark a `<span>` around each glyph.
+ * Needs `autoplay` on the root.
  *
  * @customElement primitiv-carousel-play-pause-trigger
  */

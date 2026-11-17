@@ -65,8 +65,11 @@ const noteSite = (name, file, src, index) => {
   sites.set(name, list);
 };
 
-/** Every `data-*` attribute NAME a source tree sets. */
-const emittedBy = (dir) => {
+/**
+ * Every `data-*` attribute NAME a source tree sets, skipping any file `skip`
+ * names.
+ */
+const emittedBy = (dir, skip = []) => {
   const found = new Set();
   if (!existsSync(dir)) return null;
   const walk = (d) => {
@@ -77,7 +80,7 @@ const emittedBy = (dir) => {
         walk(p);
         continue;
       }
-      if (!/\.tsx?$/.test(entry) || /\.test\./.test(entry)) continue;
+      if (!/\.tsx?$/.test(entry) || /\.test\./.test(entry) || skip.includes(entry)) continue;
       const src = readFileSync(p, "utf8");
       /* Assignment shapes only — a bare mention in a comment or a README is not
          an emission, and counting those was the first version's mistake. */
@@ -185,10 +188,16 @@ for (const id of Object.keys(registry.components).sort()) {
      which the first version of this script missed and reported as an orphan. */
   const fromHeadless = emittedBy(join(ROOT, "packages/react/src", headlessDir(id)));
   const fromRegistry = emittedBy(join(ROOT, `registry/components/${id}`));
+  /* And the shared controller a primitive hosts (RFC 0033): it stamps attributes
+     on the DOM React renders — Carousel's `data-overscroll` and loop copies'
+     `data-carousel-clone` moved there with the behaviour. Only when React has
+     the component, and never `elements.ts`, whose hooks are the elements' own. */
+  const fromController =
+    fromHeadless === null ? null : emittedBy(join(ROOT, "packages/web/src", id), ["elements.ts"]);
   const emitted =
     fromHeadless === null && fromRegistry === null
       ? null
-      : new Set([...(fromHeadless ?? []), ...(fromRegistry ?? [])]);
+      : new Set([...(fromHeadless ?? []), ...(fromRegistry ?? []), ...(fromController ?? [])]);
   /* No headless directory: a hand-authored, primitive-less registry leaf (badge,
      kbd, prose...). Nothing to compare against, so undeclared/orphan cannot be
      judged — say that rather than reporting a clean bill. */

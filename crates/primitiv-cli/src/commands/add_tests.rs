@@ -580,7 +580,7 @@ fn pulls_in_transitive_component_dependencies() {
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
-        "Resolved 3 components to add:\n  button  0.1.0\n  field   0.3.0\n  label   0.1.0\n",
+        "Resolved 3 components to add:\n  button  0.1.0  (for field)\n  field   0.3.0\n  label   0.1.0  (for field)\n",
     );
 }
 
@@ -611,7 +611,7 @@ fn deduplicates_a_component_requested_and_pulled_in_as_a_dependency() {
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
-        "Resolved 3 components to add:\n  button  0.1.0\n  field   0.3.0\n  label   0.1.0\n",
+        "Resolved 3 components to add:\n  button  0.1.0\n  field   0.3.0\n  label   0.1.0  (for field)\n",
     );
 }
 

@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
 use crate::config::{self, Config, Surface};
@@ -294,7 +294,7 @@ pub fn add(
     let plan = if *json {
         render_json(&index, &resolved, surface, refresh_files.as_deref())
     } else {
-        render(&index, &resolved, surface, cdn_only)
+        render(&index, requested, &resolved, surface, cdn_only)
     };
     output.write_stdout(plan.as_bytes())?;
     // When dry-running in human mode, append the "Refresh plan:" section after the
@@ -1080,13 +1080,26 @@ fn resolve(index: &RegistryIndex, requested: &[String]) -> Result<Vec<String>, C
 /// ensure:` the components pull in. Both lists are sorted; the package list is
 /// the deduplicated union across the resolved components (RFC 0005 §4.4). A
 /// `cdn_only` run installs nothing, so it lists no packages either.
-fn render(index: &RegistryIndex, resolved: &[String], surface: Surface, cdn_only: bool) -> String {
+fn render(
+    index: &RegistryIndex,
+    requested: &[String],
+    resolved: &[String],
+    surface: Surface,
+    cdn_only: bool,
+) -> String {
     let plural = if resolved.len() == 1 { "" } else { "s" };
     let width = resolved.iter().map(String::len).max().unwrap_or(0);
     let mut plan = format!("Resolved {} component{plural} to add:\n", resolved.len());
     for name in resolved {
         let version = &index.components[name].version;
-        plan.push_str(&format!("  {name:<width$}  {version}\n"));
+        // A dependency nobody asked for by name says what brought it in.
+        let brought_by = resolved
+            .iter()
+            .filter(|_| !requested.contains(name))
+            .find(|other| index.components[*other].depends_on.components.contains(name))
+            .map(|other| format!("  (for {other})"))
+            .unwrap_or_default();
+        plan.push_str(&format!("  {name:<width$}  {version}{brought_by}\n"));
     }
     let packages = packages(index, resolved, surface);
     if !cdn_only && !packages.is_empty() {
@@ -1229,26 +1242,39 @@ fn print_cdn_scripts(
         return Ok(());
     }
     let spec = format!("{WEB_PACKAGE}@{}", web_release(index, resolved));
-    let scripts: BTreeSet<String> = resolved
-        .iter()
-        .filter(needs_web)
-        .map(|name| {
-            let defined_by = index.components[name]
-                .elements
-                .as_ref()
-                .and_then(|elements| elements.defined_by.as_deref());
-            format!("{spec}/dist/cdn/{}.js", defined_by.unwrap_or(name))
-        })
-        .collect();
+    // Each file, with the components it loads for: Drawer and ConfirmDialog run
+    // on modal.js, so a line serving anything but its namesake names them.
+    let mut scripts: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
+    for name in resolved.iter().filter(needs_web) {
+        let file = index.components[name]
+            .elements
+            .as_ref()
+            .and_then(|elements| elements.defined_by.as_deref())
+            .unwrap_or(name);
+        scripts.entry(file).or_default().push(name);
+    }
     let mut message =
         "\nNo package.json here, so nothing was installed. Load the elements with:\n\n".to_string();
-    for script in scripts {
+    for (file, names) in scripts {
+        let note = if names == [file] {
+            String::new()
+        } else {
+            format!(" <!-- for {} -->", and_list(&names))
+        };
         message.push_str(&format!(
-            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/{script}\"></script>\n"
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/{spec}/dist/cdn/{file}.js\"></script>{note}\n"
         ));
     }
     output.write_stdout(message.as_bytes())?;
     Ok(())
+}
+
+/// `a`, `a and b`, `a, b and c`.
+fn and_list(names: &[&str]) -> String {
+    match names.split_last() {
+        Some((last, rest)) if !rest.is_empty() => format!("{} and {last}", rest.join(", ")),
+        _ => names.join(""),
+    }
 }
 
 /// A `name@1.2.3` spec's version as numbers, so `0.1.10` sorts after `0.1.9`.

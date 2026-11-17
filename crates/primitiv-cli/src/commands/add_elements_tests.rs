@@ -450,12 +450,55 @@ fn loads_the_script_of_the_component_whose_elements_the_markup_uses() {
     let captured = String::from_utf8(output.captured()).unwrap();
     assert!(
         captured.contains(&format!(
-            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@{}/dist/cdn/modal.js\"></script>\n",
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@{}/dist/cdn/modal.js\"></script> <!-- for confirm-dialog -->\n",
             env!("CARGO_PKG_VERSION")
         )),
         "{captured}"
     );
     assert!(!captured.contains("confirm-dialog.js"), "{captured}");
+}
+
+#[test]
+fn names_every_component_a_shared_script_loads_for() {
+    // Drawer and ConfirmDialog both run on modal.js: one line, naming both, so
+    // a reader does not hunt for drawer.js.
+    let registry = InMemoryRegistry::new(
+        br##"{
+  "version": "0.1.0",
+  "components": {
+    "confirm-dialog": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.54" }], "definedBy": "modal", "example": "confirm-dialog.html" } },
+    "drawer": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.54" }], "definedBy": "modal", "example": "drawer.html" } },
+    "modal": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.54" }], "example": "modal.html" } }
+  }
+}"##,
+    )
+    .with_file("confirm-dialog", "confirm-dialog.html", b"<primitiv-modal></primitiv-modal>\n")
+    .with_file("drawer", "drawer.html", b"<primitiv-modal></primitiv-modal>\n")
+    .with_file("modal", "modal.html", b"<primitiv-modal></primitiv-modal>\n");
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["drawer".into(), "confirm-dialog".into(), "modal".into()],
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        captured.contains("/dist/cdn/modal.js\"></script> <!-- for confirm-dialog, drawer and modal -->\n"),
+        "{captured}"
+    );
+    assert_eq!(captured.matches("modal.js").count(), 1, "{captured}");
 }
 
 #[test]

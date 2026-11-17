@@ -28,6 +28,7 @@ on:
       - "apps/docs-site/src/site/Playground.tsx"
       - "apps/docs-site/src/site/examples/tabs.tsx"
       - "apps/docs-site/src/site/examples/button.tsx"
+      - "apps/docs-site/src/site/examples/glyphs.ts"
       - "apps/docs-site/src/site/examples/modal.tsx"
       - "apps/docs-site/src/site/examples/navigation-menu.tsx"
       - "apps/docs-site/src/site/examples/tree.tsx"

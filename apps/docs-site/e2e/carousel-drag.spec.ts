@@ -123,95 +123,141 @@ async function dragViewport(
   await page.mouse.up();
 }
 
-test.beforeEach(async ({ page }) => {
-  await page.goto("/components/carousel/");
-  await infiniteDragCell(page).locator(".primitiv-carousel__viewport").waitFor();
-});
+/**
+ * Both surfaces run the same loop on the same page: React mode mounts the
+ * React Carousel, Elements mode the `<primitiv-carousel>` elements — one shared
+ * controller behind both (RFC 0033), so both must settle the same way.
+ */
+const FRAMEWORK_KEY = "primitiv-docs-framework";
 
-test("a slow drag past the halfway point advances one page", async ({
-  page,
-}) => {
-  const c = infiniteDragCell(page);
-  await expectSettledOn(c, 0);
-  // A single slide fills the viewport, so half a stride is ~half the width. Drag
-  // 70% of the way with a slow last leg (small fling), well past the halfway
-  // point → it settles on the next slide.
-  const box = (await c
-    .locator(".primitiv-carousel__viewport")
-    .boundingBox())!;
-  await dragViewport(page, c, { dx: -box.width * 0.7, steps: 12, delay: 25 });
-  await expectSettledOn(c, 1);
-});
+for (const framework of ["react", "elements"] as const) {
+  test.describe(framework, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript(
+        ([key, value]) => localStorage.setItem(key, JSON.stringify(value)),
+        [FRAMEWORK_KEY, framework],
+      );
+      await page.goto("/components/carousel/");
+      await infiniteDragCell(page)
+        // The loop has started once its copies are in: React places them on
+        // hydration, the elements once their definition loads (on demand).
+        .locator("[data-carousel-clone]")
+        .first()
+        .waitFor({ state: "attached" });
+    });
 
-test("a small slow drag settles back to the start", async ({ page }) => {
-  const c = infiniteDragCell(page);
-  await expectSettledOn(c, 0);
-  const box = (await c
-    .locator(".primitiv-carousel__viewport")
-    .boundingBox())!;
-  // Well under half a stride, released with a slow last leg → snaps back home.
-  await dragViewport(page, c, { dx: -box.width * 0.2, steps: 12, delay: 25 });
-  await expectSettledOn(c, 0);
-});
+    test("a slow drag past the halfway point advances one page", async ({
+      page,
+    }) => {
+      const c = infiniteDragCell(page);
+      await expectSettledOn(c, 0);
+      // A single slide fills the viewport, so half a stride is ~half the width. Drag
+      // 70% of the way with a slow last leg (small fling), well past the halfway
+      // point → it settles on the next slide.
+      const box = (await c
+        .locator(".primitiv-carousel__viewport")
+        .boundingBox())!;
+      await dragViewport(page, c, {
+        dx: -box.width * 0.7,
+        steps: 12,
+        delay: 25,
+      });
+      await expectSettledOn(c, 1);
+    });
 
-test("a fast flick advances forward and settles cleanly on a real slide", async ({
-  page,
-}) => {
-  const c = infiniteDragCell(page);
-  await expectSettledOn(c, 0);
-  const box = (await c
-    .locator(".primitiv-carousel__viewport")
-    .boundingBox())!;
-  // A short, quick leftward flick: the distance alone is under half a stride, so a
-  // forward advance proves the velocity-projected fling carried it. The short
-  // per-move delay bounds the velocity so it advances a slide or two rather than
-  // wrapping unpredictably; direction is deterministic, exact landing isn't, so
-  // assert only that it advanced off slide 0 and settled dead-centre on a real one.
-  await dragViewport(page, c, { dx: -box.width * 0.4, steps: 5, delay: 10 });
-  const landed = await expectSettledClean(c);
-  expect(landed).not.toBe(0);
-});
+    test("a small slow drag settles back to the start", async ({ page }) => {
+      const c = infiniteDragCell(page);
+      await expectSettledOn(c, 0);
+      const box = (await c
+        .locator(".primitiv-carousel__viewport")
+        .boundingBox())!;
+      // Well under half a stride, released with a slow last leg → snaps back home.
+      await dragViewport(page, c, {
+        dx: -box.width * 0.2,
+        steps: 12,
+        delay: 25,
+      });
+      await expectSettledOn(c, 0);
+    });
 
-test("the end buttons still wrap when the drag layer is enabled", async ({
-  page,
-}) => {
-  const c = infiniteDragCell(page);
-  await expectSettledOn(c, 0);
-  // Prev / Next live outside the viewport, so the pointer-drag handlers must not
-  // shadow them: Prev from the first slide wraps to the real last, and Next from
-  // the last wraps back to the real first.
-  await c.getByLabel("Previous slide").click();
-  await expectSettledOn(c, 3);
-  await c.getByLabel("Next slide").click();
-  await expectSettledOn(c, 0);
-});
+    test("a fast flick advances forward and settles cleanly on a real slide", async ({
+      page,
+    }) => {
+      const c = infiniteDragCell(page);
+      await expectSettledOn(c, 0);
+      const box = (await c
+        .locator(".primitiv-carousel__viewport")
+        .boundingBox())!;
+      // A short, quick leftward flick: the distance alone is under half a stride, so a
+      // forward advance proves the velocity-projected fling carried it. The short
+      // per-move delay bounds the velocity so it advances a slide or two rather than
+      // wrapping unpredictably; direction is deterministic, exact landing isn't, so
+      // assert only that it advanced off slide 0 and settled dead-centre on a real one.
+      await dragViewport(page, c, {
+        dx: -box.width * 0.4,
+        steps: 5,
+        delay: 10,
+      });
+      const landed = await expectSettledClean(c);
+      expect(landed).not.toBe(0);
+    });
 
-test("a tap on a linked slide reaches the link", async ({ page }) => {
-  const c = linkedCell(page);
-  await c.locator(".primitiv-carousel__viewport").waitFor();
-  await expectSettledOn(c, 0);
-  // A tap (no pointer travel) is under the drag threshold, so the click is never
-  // suppressed and the slide's anchor navigates. Scope to the REAL slide's link —
-  // the clone copies repeat it (their parent slide has no data-index).
-  await c
-    .locator("[data-carousel-slide][data-index] a", { hasText: "Slide 1" })
-    .click();
-  await expect(page).toHaveURL(/#slide-1$/);
-});
+    test("the end buttons still wrap when the drag layer is enabled", async ({
+      page,
+    }) => {
+      const c = infiniteDragCell(page);
+      await expectSettledOn(c, 0);
+      // Prev / Next live outside the viewport, so the pointer-drag handlers must not
+      // shadow them: Prev from the first slide wraps to the real last, and Next from
+      // the last wraps back to the real first.
+      await c.getByLabel("Previous slide").click();
+      await expectSettledOn(c, 3);
+      await c.getByLabel("Next slide").click();
+      await expectSettledOn(c, 0);
+    });
 
-test("a drag that starts on a linked slide steers the track, not the link", async ({
-  page,
-}) => {
-  const c = linkedCell(page);
-  await c.locator(".primitiv-carousel__viewport").waitFor();
-  await expectSettledOn(c, 0);
-  const box = (await c
-    .locator(".primitiv-carousel__viewport")
-    .boundingBox())!;
-  // Press ON the link and drag past the threshold: the gesture must steer the
-  // carousel (advance a page) and suppress the anchor's click — the URL keeps no
-  // #slide hash.
-  await dragViewport(page, c, { dx: -box.width * 0.7, steps: 12, delay: 25 });
-  await expectSettledOn(c, 1);
-  expect(page.url()).not.toContain("#slide");
-});
+    test("a tap on a linked slide reaches the link", async ({ page }) => {
+      const c = linkedCell(page);
+      await c
+        // The loop has started once its copies are in: React places them on
+        // hydration, the elements once their definition loads (on demand).
+        .locator("[data-carousel-clone]")
+        .first()
+        .waitFor({ state: "attached" });
+      await expectSettledOn(c, 0);
+      // A tap (no pointer travel) is under the drag threshold, so the click is never
+      // suppressed and the slide's anchor navigates. Scope to the REAL slide's link —
+      // the clone copies repeat it (their parent slide has no data-index).
+      await c
+        .locator("[data-carousel-slide][data-index] a", { hasText: "Slide 1" })
+        .click();
+      await expect(page).toHaveURL(/#slide-1$/);
+    });
+
+    test("a drag that starts on a linked slide steers the track, not the link", async ({
+      page,
+    }) => {
+      const c = linkedCell(page);
+      await c
+        // The loop has started once its copies are in: React places them on
+        // hydration, the elements once their definition loads (on demand).
+        .locator("[data-carousel-clone]")
+        .first()
+        .waitFor({ state: "attached" });
+      await expectSettledOn(c, 0);
+      const box = (await c
+        .locator(".primitiv-carousel__viewport")
+        .boundingBox())!;
+      // Press ON the link and drag past the threshold: the gesture must steer the
+      // carousel (advance a page) and suppress the anchor's click — the URL keeps no
+      // #slide hash.
+      await dragViewport(page, c, {
+        dx: -box.width * 0.7,
+        steps: 12,
+        delay: 25,
+      });
+      await expectSettledOn(c, 1);
+      expect(page.url()).not.toContain("#slide");
+    });
+  });
+}

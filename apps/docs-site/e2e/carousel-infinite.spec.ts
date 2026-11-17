@@ -77,64 +77,84 @@ async function expectSettledOn(cell: Locator, index: number): Promise<void> {
   }).toPass({ timeout: 5_000 });
 }
 
-test.beforeEach(async ({ page }) => {
-  await page.goto("/components/carousel/");
-  await infiniteCell(page).locator(".primitiv-carousel__viewport").waitFor();
-});
+/**
+ * Both surfaces run the same loop on the same page: React mode mounts the
+ * React Carousel, Elements mode the `<primitiv-carousel>` elements — one shared
+ * controller behind both (RFC 0033), so both must settle the same way.
+ */
+const FRAMEWORK_KEY = "primitiv-docs-framework";
 
-test("starts positioned on the real first slide, not a leading clone", async ({
-  page,
-}) => {
-  await expectSettledOn(infiniteCell(page), 0);
-});
+for (const framework of ["react", "elements"] as const) {
+  test.describe(framework, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript(
+        ([key, value]) => localStorage.setItem(key, JSON.stringify(value)),
+        [FRAMEWORK_KEY, framework],
+      );
+      await page.goto("/components/carousel/");
+      await infiniteCell(page)
+        // The loop has started once its copies are in: React places them on
+        // hydration, the elements once their definition loads (on demand).
+        .locator("[data-carousel-clone]")
+        .first()
+        .waitFor({ state: "attached" });
+    });
 
-test("Next past the last slide wraps onto the REAL first slide", async ({
-  page,
-}) => {
-  const cell = infiniteCell(page);
-  const next = cell.getByLabel("Next slide");
-  // 4 real slides: 0→1→2→3, then the 4th Next wraps 3→0. Settle between clicks
-  // so each starts from a real resting position, like a user tapping through.
-  for (let target = 1; target <= 4; target++) {
-    await next.click();
-    await expectSettledOn(cell, target % 4);
-  }
-});
+    test("starts positioned on the real first slide, not a leading clone", async ({
+      page,
+    }) => {
+      await expectSettledOn(infiniteCell(page), 0);
+    });
 
-test("Previous before the first slide wraps onto the REAL last slide", async ({
-  page,
-}) => {
-  const cell = infiniteCell(page);
-  await cell.getByLabel("Previous slide").click();
-  // The crux of the iOS bug: Previous from the first slide must land on the REAL
-  // last slide, never stranded on a clone in the buffer.
-  await expectSettledOn(cell, 3);
-});
+    test("Next past the last slide wraps onto the REAL first slide", async ({
+      page,
+    }) => {
+      const cell = infiniteCell(page);
+      const next = cell.getByLabel("Next slide");
+      // 4 real slides: 0→1→2→3, then the 4th Next wraps 3→0. Settle between clicks
+      // so each starts from a real resting position, like a user tapping through.
+      for (let target = 1; target <= 4; target++) {
+        await next.click();
+        await expectSettledOn(cell, target % 4);
+      }
+    });
 
-test("clicking all the way around returns to a real slide every step", async ({
-  page,
-}) => {
-  const cell = infiniteCell(page);
-  const next = cell.getByLabel("Next slide");
-  // Two full laps — every settle must land on a real slide (no drift into the
-  // clone buffer as the active page cycles 0..3 twice).
-  for (let step = 1; step <= 8; step++) {
-    await next.click();
-    await expectSettledOn(cell, step % 4);
-  }
-});
+    test("Previous before the first slide wraps onto the REAL last slide", async ({
+      page,
+    }) => {
+      const cell = infiniteCell(page);
+      await cell.getByLabel("Previous slide").click();
+      // The crux of the iOS bug: Previous from the first slide must land on the REAL
+      // last slide, never stranded on a clone in the buffer.
+      await expectSettledOn(cell, 3);
+    });
 
-test("rapid Next clicks stay rendered and settle on a real slide", async ({
-  page,
-}) => {
-  const cell = infiniteCell(page);
-  const next = cell.getByLabel("Next slide");
-  await expectSettledOn(cell, 0);
-  // Fire ten clicks WITHOUT waiting for each glide to settle — this retargets the
-  // transition before it ends, so the settle re-base never fires. The start-of-
-  // glide re-base must keep the offset within the clone buffer; otherwise the
-  // track translates off the painted strip and goes blank until you pause.
-  for (let i = 0; i < 10; i++) await next.click({ noWaitAfter: true });
-  // 10 Nexts from slide 0 on a 4-slide loop → slide 2, rendered dead-centre.
-  await expectSettledOn(cell, 2);
-});
+    test("clicking all the way around returns to a real slide every step", async ({
+      page,
+    }) => {
+      const cell = infiniteCell(page);
+      const next = cell.getByLabel("Next slide");
+      // Two full laps — every settle must land on a real slide (no drift into the
+      // clone buffer as the active page cycles 0..3 twice).
+      for (let step = 1; step <= 8; step++) {
+        await next.click();
+        await expectSettledOn(cell, step % 4);
+      }
+    });
+
+    test("rapid Next clicks stay rendered and settle on a real slide", async ({
+      page,
+    }) => {
+      const cell = infiniteCell(page);
+      const next = cell.getByLabel("Next slide");
+      await expectSettledOn(cell, 0);
+      // Fire ten clicks WITHOUT waiting for each glide to settle — this retargets the
+      // transition before it ends, so the settle re-base never fires. The start-of-
+      // glide re-base must keep the offset within the clone buffer; otherwise the
+      // track translates off the painted strip and goes blank until you pause.
+      for (let i = 0; i < 10; i++) await next.click({ noWaitAfter: true });
+      // 10 Nexts from slide 0 on a 4-slide loop → slide 2, rendered dead-centre.
+      await expectSettledOn(cell, 2);
+    });
+  });
+}

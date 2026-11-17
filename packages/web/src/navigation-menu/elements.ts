@@ -69,6 +69,14 @@ type Scan = {
  * every part from its reflected `value` whenever a part arrives, leaves, or
  * changes an attribute it reads (the lifecycle is `PrimitivRootElement`'s).
  *
+ * There is no mobile mode. Compose the small-screen nav from elements that
+ * already exist: a `<primitiv-modal>` dressed as a Drawer, a
+ * `<primitiv-collapsible>` per section, and the same
+ * `<primitiv-navigation-menu-link>` rows inside a second
+ * `<primitiv-navigation-menu>` with its own `aria-label`, so `active` marks the
+ * current page in both. Load `modal.js` and `collapsible.js` beside
+ * `navigation-menu.js`, and show one nav or the other by breakpoint.
+ *
  * @customElement primitiv-navigation-menu
  * @summary The state owner of a disclosure site navigation.
  * @attr {string} value - The open entry's `value`, or absent while nothing is open. Reflected: it changes as the user opens and closes panels, so a server re-render or a history snapshot sees the live state. Set it (or the `value` property, where `""` closes) to open an entry from script.

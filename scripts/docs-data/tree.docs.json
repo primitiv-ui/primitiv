@@ -722,7 +722,7 @@
       },
       {
         "tag": "primitiv-tree-branch-control",
-        "description": "`<primitiv-tree-branch-control>` — a branch's row. A click on it toggles the branch and selects it; it gets an id the branch is labelled by.",
+        "description": "`<primitiv-tree-branch-control>` — a branch's row. A click on it toggles the branch and selects it; it gets an id the branch is labelled by.\n\nThe two are separate events, so each can be vetoed alone. A page outline whose branches are section headings, never selected, cancels `primitiv-tree-change` when its value names a branch; the branch still toggles, because `primitiv-tree-expanded-change` is not cancelled.",
         "attributes": [],
         "events": []
       },
@@ -746,7 +746,7 @@
       },
       {
         "tag": "primitiv-tree-selection-path",
-        "description": "`<primitiv-tree-selection-path>` — the selected items' ancestry, one breadcrumb trail per selected item, rebuilt as the selection changes. It renders React's headless Breadcrumb markup — a `<nav>` of an `<ol>` whose crumbs carry `data-tree-selection-segment`, the last `aria-current=\"page\"` — or, given a `<template>` child holding one `<nav>` with a crumb, a current crumb and a `role=\"presentation\"` separator, clones of yours. It carries `data-empty` while nothing is selected.",
+        "description": "`<primitiv-tree-selection-path>` — the selected items' ancestry, one breadcrumb trail per selected item, rebuilt as the selection changes. It renders React's headless Breadcrumb markup — a `<nav>` of an `<ol>` whose crumbs carry `data-tree-selection-segment`, the last `aria-current=\"page\"` — or, given a `<template>` child holding one `<nav>` with a crumb, a current crumb and a `role=\"presentation\"` separator, clones of yours. It carries `data-empty` while nothing is selected.\n\nIt must be a descendant of its `<primitiv-tree>`, which is what finds it. To show the path somewhere else on the page, listen for `primitiv-tree-change` and render a Breadcrumb from its `value` yourself.",
         "attributes": [],
         "events": []
       }

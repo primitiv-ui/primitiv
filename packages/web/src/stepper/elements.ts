@@ -21,6 +21,10 @@ const PANEL = "primitiv-stepper-panel";
  * changes step, so nothing half-typed in a panel is lost), and each step's
  * progress written onto its button as `data-step-state`.
  *
+ * For a server-validated form, cancel `primitiv-stepper-change`, post the
+ * step, and let the response move the user on: set `value` to the next step,
+ * and `state="complete"` or `state="error"` on the one just submitted.
+ *
  * @customElement primitiv-stepper
  * @summary A step rail for a multi-step form, on the Tabs behaviour.
  * @attr {string} value - The current step's value. Reflected: it moves as the user changes step, so a server re-render or a history snapshot sees the live step.

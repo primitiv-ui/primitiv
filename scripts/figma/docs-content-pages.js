@@ -124,6 +124,7 @@ const PAGES = {
           ['Django', 'static/primitiv inside an app, served at /static/primitiv with the default STATIC_URL.'],
           ['Plain HTML', 'primitiv, beside your pages, linked as primitiv/.'],
         ]],
+        ['p', 'In a Thymeleaf template, a double underscore inside a th: attribute marks preprocessing, so a Primitiv class written in th:class or th:classappend has to escape it: primitiv-card\\_\\_title. Plain class attributes need nothing.', ['th:', 'th:class', 'th:classappend', 'primitiv-card\\_\\_title', 'class']],
         ['group', 'flow/normal', [
           ['h3', 'Just the base styles'],
           ['p', 'init on its own already gives a page Primitiv\'s look with no components at all: the body text face, colour and background, headings, paragraphs, lists, links, tables, code, and form controls that take your type. It ends by printing the link line for tokens.css and a second one for the three fonts the tokens name. Without the fonts, text falls back to your system\'s sans-serif.', ['init', 'tokens.css']],

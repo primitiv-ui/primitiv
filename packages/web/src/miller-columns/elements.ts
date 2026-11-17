@@ -41,6 +41,13 @@ type Column = { element: HTMLElement; depth: number; items: MillerColumnsControl
  * (`primitiv-miller-columns-show`), and the root never moves a node it did not
  * write.
  *
+ * **To load a branch lazily, render its column empty.** An item is a branch only
+ * while a column names it, so a branch whose children are fetched later still
+ * needs `<primitiv-miller-columns-column parent="…"></primitiv-miller-columns-column>`
+ * in the markup up front; without it the item reads as a leaf and never opens.
+ * Listen for `primitiv-miller-columns-show` on the strip, and when it comes from
+ * an empty column, fetch and append its items.
+ *
  * The strip scrolls to its inline end when a column opens (not on first
  * render). Resize handles keep each depth's width, so a column opened at a
  * resized depth takes that width, as React's do.

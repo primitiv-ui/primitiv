@@ -79,7 +79,7 @@ function decoratable(part: HTMLElement): HTMLElement | null {
  * @summary The state owner of a carousel: the active page, autoplay and every paging behaviour.
  * @attr {number} page - The active page, zero-based. Reflected: it changes as the user pages, so a server re-render or a history snapshot sees the live page. An out-of-range page is held to the pages there are.
  * @attr {boolean} playing - Whether autoplay is playing. Reflected.
- * @attr {boolean} autoplay - Turns autoplay on: while `playing`, the page advances on a timer, paused by hover, focus or a touch inside the carousel unless the play control started it (WCAG 2.2.2).
+ * @attr {boolean} autoplay - Turns autoplay on, but on its own it does not play: write `autoplay playing` to start on load, or leave `playing` off for a carousel the user starts. While `playing`, the page advances on a timer, paused by hover, focus or a touch inside the carousel unless the play control started it (WCAG 2.2.2).
  * @attr {number} autoplay-delay - How long each page stays up while playing, in milliseconds. Default 4000.
  * @attr {number} slides-per-page - Slides shown per page. Default 1. The element publishes it as `--primitiv-carousel-slides-per-page`, which the styled slide width reads; to change the count per breakpoint, change this attribute (a `matchMedia` listener does it).
  * @attr {number | "auto"} slides-per-move - Slides a step advances: `auto` (the default) is a whole page; a number windows the page that many slides at a time.

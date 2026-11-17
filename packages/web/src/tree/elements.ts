@@ -323,6 +323,11 @@ export class PrimitivTreeBranchElement extends ElementBase {}
  * `<primitiv-tree-branch-control>` — a branch's row. A click on it toggles the
  * branch and selects it; it gets an id the branch is labelled by.
  *
+ * The two are separate events, so each can be vetoed alone. A page outline
+ * whose branches are section headings, never selected, cancels
+ * `primitiv-tree-change` when its value names a branch; the branch still
+ * toggles, because `primitiv-tree-expanded-change` is not cancelled.
+ *
  * @customElement primitiv-tree-branch-control
  */
 export class PrimitivTreeBranchControlElement extends ElementBase {}
@@ -354,6 +359,10 @@ export class PrimitivTreeBranchIndicatorElement extends ElementBase {}
  * or, given a `<template>` child holding one `<nav>` with a crumb, a current
  * crumb and a `role="presentation"` separator, clones of yours. It carries
  * `data-empty` while nothing is selected.
+ *
+ * It must be a descendant of its `<primitiv-tree>`, which is what finds it. To
+ * show the path somewhere else on the page, listen for `primitiv-tree-change`
+ * and render a Breadcrumb from its `value` yourself.
  *
  * @customElement primitiv-tree-selection-path
  */

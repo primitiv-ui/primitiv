@@ -1142,7 +1142,7 @@
           {
             "name": "autoplay",
             "type": "boolean",
-            "description": "Turns autoplay on: while `playing`, the page advances on a timer, paused by hover, focus or a touch inside the carousel unless the play control started it (WCAG 2.2.2)."
+            "description": "Turns autoplay on, but on its own it does not play: write `autoplay playing` to start on load, or leave `playing` off for a carousel the user starts. While `playing`, the page advances on a timer, paused by hover, focus or a touch inside the carousel unless the play control started it (WCAG 2.2.2)."
           },
           {
             "name": "autoplay-delay",

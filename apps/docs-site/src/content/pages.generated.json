@@ -166,6 +166,17 @@
             ]
           },
           {
+            "kind": "p",
+            "text": "In a Thymeleaf template, a double underscore inside a th: attribute marks preprocessing, so a Primitiv class written in th:class or th:classappend has to escape it: primitiv-card\\_\\_title. Plain class attributes need nothing.",
+            "code": [
+              "th:",
+              "th:class",
+              "th:classappend",
+              "primitiv-card\\_\\_title",
+              "class"
+            ]
+          },
+          {
             "kind": "group",
             "gap": "flow/normal",
             "blocks": [

@@ -473,7 +473,7 @@
     "api": [
       {
         "tag": "primitiv-stepper",
-        "description": "`<primitiv-stepper>` — a step rail for a multi-step form. The behaviour is a WAI-ARIA tab set's, exactly as React's registry Stepper composes Tabs: each step's `<button>` becomes a tab, so activation, `aria-selected`, the roving `tabindex`, Home / End and `disabled` are all Tabs'. What the stepper adds is its own names, `manual` activation by default (browsing the steps never changes step, so nothing half-typed in a panel is lost), and each step's progress written onto its button as `data-step-state`.",
+        "description": "`<primitiv-stepper>` — a step rail for a multi-step form. The behaviour is a WAI-ARIA tab set's, exactly as React's registry Stepper composes Tabs: each step's `<button>` becomes a tab, so activation, `aria-selected`, the roving `tabindex`, Home / End and `disabled` are all Tabs'. What the stepper adds is its own names, `manual` activation by default (browsing the steps never changes step, so nothing half-typed in a panel is lost), and each step's progress written onto its button as `data-step-state`.\n\nFor a server-validated form, cancel `primitiv-stepper-change`, post the step, and let the response move the user on: set `value` to the next step, and `state=\"complete\"` or `state=\"error\"` on the one just submitted.",
         "attributes": [
           {
             "name": "value",

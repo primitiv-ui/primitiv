@@ -81,6 +81,18 @@ override), and the viewport's `aria-live` region flips between
 `"polite"` and `"off"` so assistive tech doesn't announce every
 auto-rotation tick.
 
+**One behaviour, two surfaces.** Everything the hooks used to do in effects —
+scrolling the viewport to the page and following the user's swipes back, the
+keys, wheel and mouse drag, the progress signals, autoplay and its pause, and
+the infinite loop's transform engine — runs in `@primitiv-ui/web`'s
+`CarouselController`, the same code the `<primitiv-carousel>` custom elements
+run (RFC 0033 §3.4). React keeps the page and playing state and answers it, so
+`page` / `onPageChange` and `playing` / `onPlayingChange` work as before. Its
+listeners are native, on the Root and the Viewport, so an `onKeyDown` or
+pointer handler you pass the Viewport now runs alongside the built-in one —
+it used to replace it, since your props spread over the hook's — and runs
+after it, the order every component on the shared controllers has.
+
 ## JS vs CSS responsibilities
 
 The component ships zero styles, but a few features sit on the line

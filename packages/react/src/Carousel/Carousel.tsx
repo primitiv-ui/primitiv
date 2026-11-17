@@ -10,10 +10,8 @@ import { Slot } from "../Slot/index.ts";
 import { CarouselProvider } from "./CarouselContext";
 import {
   useCarouselContext,
-  useCarouselLoop,
   useCarouselRoot,
   useCarouselSlide,
-  useCarouselViewport,
 } from "./hooks/index.ts";
 import type {
   CarouselImperativeApi,
@@ -123,7 +121,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
   },
   imperativeRef,
 ) {
-  const { contextValue, rootHandlers } = useCarouselRoot(
+  const { contextValue, rootRef } = useCarouselRoot(
     {
       defaultPage,
       page,
@@ -153,6 +151,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
   return (
     <CarouselProvider value={contextValue}>
       <section
+        ref={rootRef}
         aria-roledescription="carousel"
         data-orientation={contextValue.orientation}
         data-transition={contextValue.transition}
@@ -165,7 +164,6 @@ export const CarouselRoot: ForwardRefExoticComponent<
         {...(contextValue.ids.root !== undefined && {
           id: contextValue.ids.root,
         })}
-        {...rootHandlers}
         {...rest}
       >
         {children}
@@ -270,35 +268,27 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids, allowMouseDrag, snapType, slidesPerPage } =
-    useCarouselContext();
   const {
+    isAutoRotating,
+    ids,
+    allowMouseDrag,
+    snapType,
+    slidesPerPage,
+    loop,
+    transition,
     viewportRef,
-    onKeyDown,
-    onDragStart,
-    onPointerDown,
-    onPointerMove,
-    onPointerUp,
-    onPointerCancel,
-    onClickCapture,
-  } = useCarouselViewport();
+    trackRef,
+    headClonesRef,
+    tailClonesRef,
+  } = useCarouselContext();
   // Infinite loop swaps the native scroll-snap viewport for a JS transform track
-  // (RFC 0018, clone-strip revision): the engine translates one contiguous track
-  // whose real slides are flanked by a full period of aria-hidden clones, so every
-  // seam is already-painted DOM and a settle-time re-base is invisible (no per-slide
-  // shifts, no native snap to fight — the two things that flashed on iOS). Every
-  // other mode renders the slides straight into the scroll viewport as before.
-  const { trackRef, headCloneRef, tailCloneRef, isInfinite, dragHandlers } =
-    useCarouselLoop();
-  // Infinite is transform-driven, so its own pointer engine (drag → fling) owns
-  // the pointer events; the scroll-snap modes keep useCarouselViewport's
-  // mouse-drag handlers.
-  const pointerHandlers = dragHandlers ?? {
-    onPointerDown,
-    onPointerMove,
-    onPointerUp,
-    onPointerCancel,
-  };
+  // (RFC 0018, clone-strip revision): the shared controller's engine translates
+  // one contiguous track whose real slides are flanked by a full period of
+  // aria-hidden clones, so every seam is already-painted DOM and a settle-time
+  // re-base is invisible. Every other mode renders the slides straight into the
+  // scroll viewport. The keys, the wheel and the pointer are the controller's
+  // own listeners on this element.
+  const isInfinite = loop === "infinite" && transition === "slide";
 
   return (
     <div
@@ -308,10 +298,6 @@ export function CarouselViewport({
       tabIndex={0}
       className={className}
       aria-live={isAutoRotating ? "off" : "polite"}
-      onKeyDown={onKeyDown}
-      onDragStart={onDragStart}
-      {...pointerHandlers}
-      onClickCapture={onClickCapture}
       {...(allowMouseDrag && { "data-mouse-drag": "" })}
       {...(ids.viewport !== undefined && { id: ids.viewport })}
       {...rest}
@@ -330,14 +316,14 @@ export function CarouselViewport({
             data-carousel-clones="head"
             aria-hidden="true"
             style={{ display: "contents" }}
-            ref={headCloneRef}
+            ref={headClonesRef}
           />
           {children}
           <div
             data-carousel-clones="tail"
             aria-hidden="true"
             style={{ display: "contents" }}
-            ref={tailCloneRef}
+            ref={tailClonesRef}
           />
         </div>
       ) : (

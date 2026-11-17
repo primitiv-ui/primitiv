@@ -1,14 +1,15 @@
+import { Ref, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+
 import {
-  FocusEvent,
-  PointerEvent,
-  Ref,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+  CAROUSEL_AUTOPLAY_DELAY_MS,
+  CAROUSEL_LABELS,
+  carouselBounds,
+  carouselClampPage,
+  carouselLayout,
+  carouselLoopMode,
+  carouselPageOffset,
+} from "@primitiv-ui/core";
+import { CarouselController, type CarouselControllerState } from "@primitiv-ui/web";
 
 import type {
   CarouselAutoplay,
@@ -17,7 +18,6 @@ import type {
   CarouselDragStatus,
   CarouselIds,
   CarouselImperativeApi,
-  CarouselLoopMode,
   CarouselOrientation,
   CarouselOverscrollStatus,
   CarouselSnapAlign,
@@ -28,36 +28,13 @@ import type {
 
 const EMPTY_IDS: CarouselIds = {};
 
-const DEFAULT_AUTOPLAY_DELAY_MS = 4000;
-
-const DEFAULT_TRANSLATIONS: Required<CarouselTranslations> = {
-  slideLabel: ({ index, total }) => `${index} of ${total}`,
-  indicatorLabel: ({ index }) => `Slide ${index}`,
-  startSlideshow: "Start automatic slide show",
-  stopSlideshow: "Stop automatic slide show",
-  progressText: ({ page, totalPages }) => `${page + 1} of ${totalPages}`,
-};
-
-/**
- * Coerce a consumer-supplied layout count to a safe integer ≥ `min`. The
- * slide count and `slidesPerPage` / `slidesPerMove` come from the consumer,
- * so 0, negative, fractional, or non-finite values must degrade to a sane
- * integer — otherwise the page maths divides by zero (Infinity pages → a
- * thrown RangeError from the indicator map) or the carousel goes inert.
- */
-function clampCount(n: number, min: number): number {
-  return Number.isFinite(n) ? Math.max(min, Math.floor(n)) : min;
-}
-
 function resolveAutoplay(autoplay: CarouselAutoplay | undefined): {
   enabled: boolean;
   delay: number;
 } {
-  if (autoplay === true)
-    return { enabled: true, delay: DEFAULT_AUTOPLAY_DELAY_MS };
-  if (autoplay && typeof autoplay === "object")
-    return { enabled: true, delay: autoplay.delay };
-  return { enabled: false, delay: DEFAULT_AUTOPLAY_DELAY_MS };
+  if (autoplay === true) return { enabled: true, delay: CAROUSEL_AUTOPLAY_DELAY_MS };
+  if (autoplay && typeof autoplay === "object") return { enabled: true, delay: autoplay.delay };
+  return { enabled: false, delay: CAROUSEL_AUTOPLAY_DELAY_MS };
 }
 
 type UseCarouselRootProps = {
@@ -119,29 +96,34 @@ type UseCarouselRootProps = {
   snapType?: CarouselSnapType;
 };
 
+/** What the hosted controller reads through `latest()`: the render's state and callbacks. */
+type Snapshot = {
+  state: CarouselControllerState;
+  slideKeys: string[];
+  isControlled: boolean;
+  isPlayingControlled: boolean;
+  onPageChange?: (page: number) => void;
+  onPlayingChange?: (playing: boolean) => void;
+  onAutoplayStatusChange?: (status: CarouselAutoplayStatus) => void;
+  onDragStatusChange?: (status: CarouselDragStatus) => void;
+  onOverscrollStatusChange?: (status: CarouselOverscrollStatus) => void;
+};
+
 /**
- * Owns the Root-side state for a Carousel: the slide registration map,
- * the ordered list of registered slide keys, and the active page.
+ * Owns the Root-side state for a Carousel — the slide registration, the
+ * active page and the playing flag, each controlled or uncontrolled — and
+ * hosts the shared `CarouselController` (`@primitiv-ui/web`, RFC 0033 D30),
+ * the same behaviour `<primitiv-carousel>` runs: scrolling the viewport to the
+ * page and following the user's swipes back, the keys, wheel and mouse drag,
+ * the progress signals, autoplay and its hover / focus / touch pause, and the
+ * infinite loop's transform engine. React keeps the state and answers the
+ * controller; every change goes through `onPageChange` / `onPlayingChange`.
  *
- * Slide keys are tracked as `useState` so registration and unregistration
- * trigger a re-render — descendants that depend on slide order, count, or
- * the active page (e.g. each `Carousel.Slide`'s `data-index` /
- * `data-total` / `data-state`, and the prev/next triggers' `disabled`
- * attribute) update automatically when slides mount and unmount.
- *
- * The active page supports two modes, statically discriminated at the
- * `CarouselRootProps` level:
- *
- * - **Uncontrolled** — pass `defaultPage` (or omit it for `0`); the hook
- *   owns updates internally via the `next` / `previous` callbacks.
- * - **Controlled** — pass `page` and `onPageChange`; the hook defers
- *   every change back through `onPageChange` and reads the live value
- *   from the `page` prop on every render.
- *
- * `next` and `previous` clamp at the ends — `next` is a no-op on the
- * last page and `previous` a no-op on the first. `canGoNext` /
- * `canGoPrevious` on the published context drive the `disabled`
- * attribute on the prev/next triggers.
+ * Slide keys are `useState`, so registration re-renders every slide's
+ * `data-index` / `data-total` / `data-state` and the triggers' `disabled`.
+ * In controlled mode an out-of-range `page` throws once slides exist; in
+ * uncontrolled mode it is clamped, since the page can briefly outlive the
+ * page count while slides re-register one by one.
  */
 export function useCarouselRoot(
   {
@@ -169,441 +151,132 @@ export function useCarouselRoot(
   }: UseCarouselRootProps = {},
   imperativeRef?: Ref<CarouselImperativeApi>,
 ) {
-  const { enabled: autoplayEnabled, delay: autoplayDelay } =
-    resolveAutoplay(autoplay);
+  const { enabled: autoplayEnabled, delay: autoplayDelay } = resolveAutoplay(autoplay);
   const slidesRef = useRef<Map<string, HTMLDivElement>>(new Map());
   const [slideKeys, setSlideKeys] = useState<string[]>([]);
   const [internalPage, setInternalPage] = useState(defaultPage);
   const isControlled = page !== undefined;
   const rawPage = isControlled ? (page as number) : internalPage;
-  const total = slideKeys.length;
-  // Resolve the ergonomic boolean/named `loop` prop to a single mode.
-  // `true` is sugar for `"wrap"`; `false`/omitted is `"none"`. `"wrap"` and
-  // `"infinite"` share the page model below (`looping`), differing only in
-  // the scroll/clone layer the styled surface keys off `data-loop`.
-  const loopMode: CarouselLoopMode =
-    loop === true ? "wrap" : loop === false ? "none" : loop;
-  const looping = loopMode !== "none";
-  // Guard the layout counts (see clampCount). perPage is an integer ≥ 1; a
-  // numeric slidesPerMove is additionally clamped to ≤ perPage so a move can
-  // never skip past a page and orphan the slides in the gap. "auto" moves a
-  // full page.
-  const perPage = clampCount(slidesPerPage, 1);
-  // Slides advanced per page step: a full page in "auto" mode, else the numeric
-  // move clamped to ≤ perPage so a move can never skip past a page and orphan
-  // the slides in the gap.
-  const effectiveSlidesPerMove =
-    slidesPerMove === "auto"
-      ? perPage
-      : Math.min(perPage, clampCount(slidesPerMove, 1));
-  // Pages step by `effectiveSlidesPerMove` from 0, and the **last page always
-  // end-aligns** to `maxOffset` (the track end minus a full page). This is the
-  // single offset model for both modes: it guarantees every page is a full
-  // window that can start-snap cleanly, so a total that isn't a whole number of
-  // pages can't leave a partial last page whose leading slide can't reach the
-  // viewport start (which desyncs the active page against the scroll). The
-  // formula is identical to `ceil(total / perPage)` when the step is a full
-  // page, so the page *count* is unchanged — only the last page's offset shifts
-  // back to keep its window full.
-  const maxOffset = Math.max(0, total - perPage);
-  const totalPages =
-    total === 0
-      ? 0
-      : total <= perPage
-        ? 1
-        : Math.ceil(maxOffset / effectiveSlidesPerMove) + 1;
+  const loopMode = carouselLoopMode(loop);
+  const layout = carouselLayout(slideKeys.length, slidesPerPage, slidesPerMove);
+  const { totalPages } = layout;
 
   // In controlled mode an out-of-range page prop is a consumer error —
   // throw loudly so it surfaces during development rather than shipping
   // as a silent no-op carousel.
   if (isControlled && totalPages > 0 && (rawPage < 0 || rawPage >= totalPages)) {
-    throw new Error(
-      `Carousel: page index ${rawPage} is out of range (totalPages: ${totalPages})`,
-    );
+    throw new Error(`Carousel: page index ${rawPage} is out of range (totalPages: ${totalPages})`);
   }
-  // In uncontrolled mode, clamp silently: the page can temporarily
-  // outlive totalPages during slide re-registration (HMR, tab switch)
-  // where slides unmount and re-register one by one, briefly lowering
-  // totalPages below the previously-valid current page.
-  const currentPage =
-    !isControlled && totalPages > 0
-      ? Math.max(0, Math.min(rawPage, totalPages - 1))
-      : rawPage;
-
-  // Start slide index of the active window: step by move, but the last page
-  // end-aligns (clamped to maxOffset) so its window is always full.
-  const currentPageOffset = Math.min(
-    currentPage * effectiveSlidesPerMove,
-    maxOffset,
-  );
-
-  // Inverse of the offset model: which page does a leading slide index belong
-  // to? Because the last page end-aligns, the offsets aren't a clean multiple
-  // series (the final step is short), so round/floor can't invert them — pick
-  // the page whose start offset is nearest the slide. Ties favour the earlier
-  // page (`<`). Returns 0 for the empty carousel (the loop runs zero times) —
-  // pageForSlideIndex is only called once slides exist anyway.
-  const pageForSlideIndex = useCallback(
-    (slideIndex: number) => {
-      let best = 0;
-      let bestDistance = Infinity;
-      for (let page = 0; page < totalPages; page++) {
-        const offset = Math.min(page * effectiveSlidesPerMove, maxOffset);
-        const distance = Math.abs(offset - slideIndex);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          best = page;
-        }
-      }
-      return best;
-    },
-    [effectiveSlidesPerMove, maxOffset, totalPages],
-  );
+  const currentPage = isControlled ? rawPage : carouselClampPage(rawPage, totalPages);
+  const currentPageOffset = carouselPageOffset(layout, currentPage);
+  const { previous: canGoPrevious, next: canGoNext } = carouselBounds({
+    page: currentPage,
+    totalPages,
+    loop: loopMode,
+  });
 
   const [internalPlaying, setInternalPlaying] = useState(defaultPlaying);
   const isPlayingControlled = playing !== undefined;
   const currentPlaying = isPlayingControlled ? playing : internalPlaying;
 
-  // Tracked separately so a focus move between two descendants of the
-  // Root (e.g. tabbing from Prev to Next) doesn't release the pause —
-  // mouseLeave only fires when the pointer exits the Root's outer
-  // boundary, and onBlur's relatedTarget tells us whether focus is
-  // still inside.
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
-  // Touch is tracked separately because mouseenter doesn't always
-  // fire on touch devices, and pointerdown/up are filtered to
-  // pointerType === "touch" so mouse interaction stays on the
-  // hover-pause path.
-  const [touchActive, setTouchActive] = useState(false);
-
-  // Per the WAI-ARIA APG carousel example: when the user explicitly
-  // resumes the slideshow via PlayPauseTrigger, the hover/focus pause
-  // is suspended for the lifetime of that playing session — otherwise
-  // they'd fight a pause every time the pointer was already over the
-  // carousel. The ref is set inside togglePlaying() on a false→true
-  // transition and reset by the effect below when playing flips back
-  // to false. External (non-trigger) playing changes don't set it.
-  const userInitiatedPlayRef = useRef(false);
-  const suspended =
-    (hovered || focused || touchActive) && !userInitiatedPlayRef.current;
-
-  // Boundary derivation: navigation requires at least one page. Without
-  // loop the ends clamp at the last page (which, with slidesPerPage > 1,
-  // is generally before the last slide). With loop, navigation wraps, so
-  // both directions stay available as long as there's more than one page
-  // to wrap between — a single page has no wrap target.
-  const canGoPrevious = looping
-    ? totalPages > 1
-    : totalPages > 0 && currentPage > 0;
-  const canGoNext = looping
-    ? totalPages > 1
-    : totalPages > 0 && currentPage < totalPages - 1;
-
-  const registerSlide = useCallback(
-    (key: string, element: HTMLDivElement | null) => {
-      if (element) {
-        slidesRef.current.set(key, element);
-      } else {
-        slidesRef.current.delete(key);
-      }
-      setSlideKeys(Array.from(slidesRef.current.keys()));
-    },
-    [],
-  );
-
-  // next/previous are only reachable via Carousel.NextTrigger /
-  // Carousel.PreviousTrigger — both are disabled by the HTML disabled
-  // attribute when canGoNext / canGoPrevious is false, so the click
-  // never fires at boundaries. Guards become reachable (and necessary)
-  // once the imperative API or autoplay land; they're added then.
-  const isProgrammaticScrollRef = useRef(false);
-
-  // One-shot override for the resolved smooth/reduced-motion scrollBehavior,
-  // consumed by the Viewport hook's scroll effect on the very next run and
-  // reset immediately after (see useCarouselViewport.ts) — so it never
-  // outlives the single call that requested it.
-  const instantScrollRef = useRef(false);
-
-  // One-shot hint for the infinite-loop engine (useCarouselLoop), consumed and
-  // reset the same way as instantScrollRef above. `next()`/`previous()` are a
-  // relative step, so under looping they should always take the wrap
-  // shortcut — continuing forward off the last slide onto the clone, not
-  // rewinding across the whole strip. `goTo()` (and `scrollToIndex`, which
-  // calls it) is an absolute jump to a *specific* page, most visibly from an
-  // indicator/thumbnail click — there, the wrap shortcut reads wrong: picking
-  // the last thumbnail from the first should visibly travel forward through
-  // every slide in between, matching the indicators' own left-to-right
-  // reading order, not silently take the one-step-back route around the ring
-  // just because it happens to be shorter. See RFC 0018 (loop navigation).
-  const directJumpRef = useRef(false);
-
-  const next = useCallback(
-    (instant?: boolean) => {
-      // At the last page: clamp (no-op) normally, or wrap to the first when
-      // looping (provided there's more than one page to wrap between).
-      if (currentPage >= totalPages - 1 && !(looping && totalPages > 1)) return;
-      isProgrammaticScrollRef.current = true;
-      instantScrollRef.current = !!instant;
-      directJumpRef.current = false;
-      const target = looping
-        ? (currentPage + 1) % totalPages
-        : currentPage + 1;
-      if (isControlled) {
-        onPageChange?.(target);
-      } else {
-        setInternalPage(target);
-      }
-    },
-    [currentPage, totalPages, looping, isControlled, onPageChange],
-  );
-
-  const previous = useCallback(
-    (instant?: boolean) => {
-      // At the first page: clamp (no-op) normally, or wrap to the last when
-      // looping (provided there's more than one page to wrap between).
-      if (currentPage <= 0 && !(looping && totalPages > 1)) return;
-      isProgrammaticScrollRef.current = true;
-      instantScrollRef.current = !!instant;
-      directJumpRef.current = false;
-      const target = looping
-        ? (currentPage - 1 + totalPages) % totalPages
-        : currentPage - 1;
-      if (isControlled) {
-        onPageChange?.(target);
-      } else {
-        setInternalPage(target);
-      }
-    },
-    [currentPage, totalPages, looping, isControlled, onPageChange],
-  );
-
-  const goTo = useCallback(
-    (target: number, instant?: boolean) => {
-      instantScrollRef.current = !!instant;
-      directJumpRef.current = true;
-      if (isControlled) {
-        onPageChange?.(target);
-      } else {
-        setInternalPage(target);
-      }
-    },
-    [isControlled, onPageChange],
-  );
-
-  // Slide-granularity counterpart to page-granularity goTo — maps the
-  // target slide index to its containing page via pageForSlideIndex (a
-  // multi-slide page's interior slides aren't independently reachable,
-  // so this always lands on the page start closest to slideIndex) and
-  // defers to the same goTo the trigger components use. Matches Ark UI's
-  // scrollToIndex(index, instant?).
-  const scrollToIndex = useCallback(
-    (slideIndex: number, instant?: boolean) => {
-      goTo(pageForSlideIndex(slideIndex), instant);
-    },
-    [goTo, pageForSlideIndex],
-  );
-
-  // Autoplay timer. Schedules a single setTimeout per active page; when
-  // next() runs it bumps currentPage, which retriggers the effect with
-  // a fresh timer. canGoNext gates the schedule so autoplay stops at
-  // the last page.
-  // The suspended flag pauses the timer while the user is hovering or
-  // has focus inside the Root, per WCAG 2.2.2.
-  // isAutoplayRunningRef edge-triggers onAutoplayStatusChange's
-  // "autoplay.start"/"autoplay.stop" pair around a running session — the
-  // effect reruns on every page change (autoplayRunning stays true, so no
-  // duplicate "start"), and "autoplay" fires once per tick from inside the
-  // scheduled callback, right before next() advances the page.
-  const isAutoplayRunningRef = useRef(false);
-  useEffect(() => {
-    const eligible =
-      autoplayEnabled && currentPlaying && canGoNext && !suspended;
-    if (!eligible) {
-      if (isAutoplayRunningRef.current) {
-        isAutoplayRunningRef.current = false;
-        onAutoplayStatusChange?.({
-          type: "autoplay.stop",
-          page: currentPage,
-          isPlaying: false,
-        });
-      }
-      return;
-    }
-    if (!isAutoplayRunningRef.current) {
-      isAutoplayRunningRef.current = true;
-      onAutoplayStatusChange?.({
-        type: "autoplay.start",
-        page: currentPage,
-        isPlaying: true,
-      });
-    }
-    const id = setTimeout(() => {
-      onAutoplayStatusChange?.({
-        type: "autoplay",
-        page: currentPage,
-        isPlaying: true,
-      });
-      next();
-    }, autoplayDelay);
-    return () => clearTimeout(id);
-  }, [
-    autoplayEnabled,
-    currentPlaying,
-    canGoNext,
-    suspended,
-    autoplayDelay,
-    next,
-    currentPage,
-    onAutoplayStatusChange,
-  ]);
-
-  // Handlers spread onto the Root <section>. mouseEnter / mouseLeave
-  // fire once at the outer boundary (they don't bubble through inner
-  // hovers). onFocus / onBlur in React do bubble; relatedTarget on
-  // onBlur tells us whether focus is moving to another descendant —
-  // in which case we keep `focused` true.
-  const onMouseEnter = useCallback(() => setHovered(true), []);
-  const onMouseLeave = useCallback(() => setHovered(false), []);
-  const onFocus = useCallback(() => setFocused(true), []);
-  const onBlur = useCallback((event: FocusEvent<HTMLElement>) => {
-    const next = event.relatedTarget;
-    if (!next || !event.currentTarget.contains(next)) {
-      setFocused(false);
-    }
-  }, []);
-  const onPointerDown = useCallback((event: PointerEvent<HTMLElement>) => {
-    if (event.pointerType === "touch") setTouchActive(true);
-  }, []);
-  // pointerup / pointercancel always release the suspension — only
-  // pointerdown is gated on pointerType, so a non-touch release is a
-  // no-op anyway (touchActive was already false).
-  const onPointerUp = useCallback(() => setTouchActive(false), []);
-  const onPointerCancel = useCallback(() => setTouchActive(false), []);
-
-  const rootHandlers = useMemo(
-    () => ({
-      onMouseEnter,
-      onMouseLeave,
-      onFocus,
-      onBlur,
-      onPointerDown,
-      onPointerUp,
-      onPointerCancel,
-    }),
-    [
-      onMouseEnter,
-      onMouseLeave,
-      onFocus,
-      onBlur,
-      onPointerDown,
-      onPointerUp,
-      onPointerCancel,
-    ],
-  );
-
-  const play = useCallback(() => {
-    userInitiatedPlayRef.current = true;
-    if (isPlayingControlled) {
-      onPlayingChange?.(true);
+  const registerSlide = useCallback((key: string, element: HTMLDivElement | null) => {
+    if (element) {
+      slidesRef.current.set(key, element);
     } else {
-      setInternalPlaying(true);
+      slidesRef.current.delete(key);
     }
-  }, [isPlayingControlled, onPlayingChange]);
+    setSlideKeys(Array.from(slidesRef.current.keys()));
+  }, []);
 
-  const pause = useCallback(() => {
-    if (isPlayingControlled) {
-      onPlayingChange?.(false);
-    } else {
-      setInternalPlaying(false);
-    }
-  }, [isPlayingControlled, onPlayingChange]);
+  const rootRef = useRef<HTMLElement | null>(null);
+  const viewportElementRef = useRef<HTMLDivElement | null>(null);
+  const trackElementRef = useRef<HTMLDivElement | null>(null);
+  const headClonesElementRef = useRef<HTMLDivElement | null>(null);
+  const tailClonesElementRef = useRef<HTMLDivElement | null>(null);
+  const rootElementRef = useCallback((element: HTMLElement | null) => {
+    rootRef.current = element;
+  }, []);
+  const viewportRef = useCallback((element: HTMLDivElement | null) => {
+    viewportElementRef.current = element;
+  }, []);
+  const trackRef = useCallback((element: HTMLDivElement | null) => {
+    trackElementRef.current = element;
+  }, []);
+  const headClonesRef = useCallback((element: HTMLDivElement | null) => {
+    headClonesElementRef.current = element;
+  }, []);
+  const tailClonesRef = useCallback((element: HTMLDivElement | null) => {
+    tailClonesElementRef.current = element;
+  }, []);
 
-  const togglePlaying = useCallback(() => {
-    if (currentPlaying) pause();
-    else play();
-  }, [currentPlaying, play, pause]);
-
-  const [refreshTick, setRefreshTick] = useState(0);
-  const refresh = useCallback(() => setRefreshTick((t) => t + 1), []);
-
-  const getProgress = useCallback(
-    () => ({
+  const latest = useRef<Snapshot>(null as unknown as Snapshot);
+  latest.current = {
+    state: {
       page: currentPage,
-      totalPages,
-      value: totalPages > 1 ? currentPage / (totalPages - 1) : 0,
-    }),
-    [currentPage, totalPages],
-  );
-
-  // The same offset formula `currentPageOffset` uses for the active page,
-  // computed for every page — the leading slide index each page snaps to.
-  // Exposed so a consumer can build a custom progress bar / indicator from
-  // the raw offsets instead of re-deriving the end-align math themselves.
-  const getPageSnapPoints = useCallback(
-    () =>
-      Array.from({ length: totalPages }, (_, page) =>
-        Math.min(page * effectiveSlidesPerMove, maxOffset),
-      ),
-    [totalPages, effectiveSlidesPerMove, maxOffset],
-  );
-
-  // Visibility tracking is a ref (not state) because callers read on
-  // demand via isInView() and the IO callback in useCarouselViewport
-  // mutates many entries per tick — re-rendering on each addition
-  // would be wasteful and unnecessary.
-  const visibleSlideIndicesRef = useRef<Set<number>>(new Set());
-  const setSlideInView = useCallback((slideIndex: number, inView: boolean) => {
-    if (inView) visibleSlideIndicesRef.current.add(slideIndex);
-    else visibleSlideIndicesRef.current.delete(slideIndex);
-  }, []);
-  const isInView = useCallback(
-    (slideIndex: number) => visibleSlideIndicesRef.current.has(slideIndex),
-    [],
-  );
-
-  // Same ref-not-state reasoning as visibility tracking above: isDragging()
-  // is read on demand, and the Viewport hook's pointermove handler would
-  // otherwise re-render on every tick of a drag for no benefit (the DOM
-  // data-dragging hook already handles the visual).
-  const isDraggingRef = useRef(false);
-  const setDragging = useCallback((value: boolean) => {
-    isDraggingRef.current = value;
-  }, []);
-  const isDragging = useCallback(() => isDraggingRef.current, []);
-
-  // Same ref-not-state reasoning again: isOverscrolling() is read on
-  // demand, and set/cleared from inside the Viewport hook's pointermove
-  // handler on every tick of a drag-overscroll (the data-overscroll DOM
-  // hook already handles the visual).
-  const isOverscrollingRef = useRef(false);
-  const setOverscrolling = useCallback((value: boolean) => {
-    isOverscrollingRef.current = value;
-  }, []);
-  const isOverscrolling = useCallback(() => isOverscrollingRef.current, []);
-
-  // Same ref-not-state reasoning again: getScrollProgress()/
-  // getSlideProgress() are read on demand, and the Viewport hook's
-  // scroll/resize recompute would otherwise re-render on every tick for
-  // no benefit (the --carousel-progress/--slide-progress CSS custom
-  // properties already handle the visual).
-  const scrollProgressRef = useRef(0);
-  const setScrollProgress = useCallback((value: number) => {
-    scrollProgressRef.current = value;
-  }, []);
-  const getScrollProgress = useCallback(() => scrollProgressRef.current, []);
-
-  const slideProgressRef = useRef<Map<number, number>>(new Map());
-  const setSlideProgress = useCallback(
-    (slideIndex: number, value: number) => {
-      slideProgressRef.current.set(slideIndex, value);
+      playing: currentPlaying,
+      autoplay: autoplayEnabled,
+      autoplayDelay,
+      slidesPerPage,
+      slidesPerMove,
+      transition,
+      snapAlign,
+      orientation,
+      loop: loopMode,
+      allowMouseDrag,
+      inViewThreshold,
     },
-    [],
-  );
-  const getSlideProgress = useCallback(
-    (slideIndex: number) => slideProgressRef.current.get(slideIndex) ?? 0,
-    [],
-  );
+    slideKeys,
+    isControlled,
+    isPlayingControlled,
+    onPageChange,
+    onPlayingChange,
+    onAutoplayStatusChange,
+    onDragStatusChange,
+    onOverscrollStatusChange,
+  };
+
+  // Built once, on the first render, so the imperative API and the triggers
+  // can reach it before the first effect; it listens only while mounted.
+  const controllerRef = useRef<CarouselController | null>(null);
+  controllerRef.current ??= new CarouselController({
+    state: () => latest.current.state,
+    root: () => rootRef.current as HTMLElement,
+    viewport: () => viewportElementRef.current,
+    track: () => trackElementRef.current,
+    slides: () =>
+      latest.current.slideKeys
+        .map((key) => slidesRef.current.get(key))
+        .filter((element): element is HTMLDivElement => element !== undefined),
+    placeClones: (head, tail) => {
+      headClonesElementRef.current?.replaceChildren(...head);
+      tailClonesElementRef.current?.replaceChildren(...tail);
+    },
+    changePage: (target) => {
+      if (latest.current.isControlled) latest.current.onPageChange?.(target);
+      else setInternalPage(target);
+    },
+    changePlaying: (next) => {
+      if (latest.current.isPlayingControlled) latest.current.onPlayingChange?.(next);
+      else setInternalPlaying(next);
+    },
+    autoplayStatus: (status) => latest.current.onAutoplayStatusChange?.(status),
+    dragStatus: (status) => latest.current.onDragStatusChange?.(status),
+    overscrollStatus: (status) => latest.current.onOverscrollStatusChange?.(status),
+  });
+  const controller = controllerRef.current;
+
+  useEffect(() => {
+    controller.connect();
+    return () => controller.disconnect();
+  }, [controller]);
+  // After every render, bring the behaviour in line with it; each part of the
+  // controller reruns only when what it depends on has changed.
+  useEffect(() => controller.sync());
+
+  const next = useCallback((instant?: boolean) => controller.next(instant), [controller]);
+  const previous = useCallback((instant?: boolean) => controller.previous(instant), [controller]);
+  const goTo = useCallback((target: number, instant?: boolean) => controller.goTo(target, instant), [controller]);
+  const togglePlaying = useCallback(() => controller.togglePlaying(), [controller]);
 
   useImperativeHandle(
     imperativeRef,
@@ -611,62 +284,36 @@ export function useCarouselRoot(
       next,
       previous,
       goTo,
-      scrollToIndex,
-      play,
-      pause,
-      refresh,
-      getProgress,
-      isInView,
-      getPageSnapPoints,
-      isDragging,
-      isOverscrolling,
-      getScrollProgress,
-      getSlideProgress,
+      scrollToIndex: (slideIndex, instant) => controller.scrollToIndex(slideIndex, instant),
+      play: () => controller.play(),
+      pause: () => controller.pause(),
+      refresh: () => controller.refresh(),
+      getProgress: () => controller.getProgress(),
+      isInView: (slideIndex) => controller.isInView(slideIndex),
+      getPageSnapPoints: () => controller.getPageSnapPoints(),
+      isDragging: () => controller.isDragging(),
+      isOverscrolling: () => controller.isOverscrolling(),
+      getScrollProgress: () => controller.getScrollProgress(),
+      getSlideProgress: (slideIndex) => controller.getSlideProgress(slideIndex),
     }),
-    [
-      next,
-      previous,
-      goTo,
-      scrollToIndex,
-      play,
-      pause,
-      refresh,
-      getProgress,
-      isInView,
-      getPageSnapPoints,
-      isDragging,
-      isOverscrolling,
-      getScrollProgress,
-      getSlideProgress,
-    ],
+    [controller, next, previous, goTo],
   );
-
-  // Reset the user-initiated flag when the playing session ends, so a
-  // subsequent external (non-trigger) flip to playing=true doesn't
-  // inherit the bypass.
-  useEffect(() => {
-    if (!currentPlaying) {
-      userInitiatedPlayRef.current = false;
-    }
-  }, [currentPlaying]);
 
   const isAutoRotating = autoplayEnabled && currentPlaying;
 
   const resolvedTranslations = useMemo<Required<CarouselTranslations>>(
-    () => ({ ...DEFAULT_TRANSLATIONS, ...translations }),
+    () => ({ ...CAROUSEL_LABELS, ...translations }),
     [translations],
   );
 
   const contextValue = useMemo<CarouselContextValue>(
     () => ({
       registerSlide,
-      slidesRef,
       slideKeys,
-      slidesPerPage: perPage,
-      effectiveSlidesPerMove,
-      maxOffset,
+      slidesPerPage: layout.perPage,
+      effectiveSlidesPerMove: layout.move,
+      maxOffset: layout.maxOffset,
       currentPageOffset,
-      pageForSlideIndex,
       totalPages,
       currentPage,
       canGoNext,
@@ -685,32 +332,20 @@ export function useCarouselRoot(
       orientation,
       loop: loopMode,
       allowMouseDrag,
-      onDragStatusChange,
-      onOverscrollStatusChange,
       inViewThreshold,
       snapType,
-      refreshTick,
-      visibleSlideIndicesRef,
-      setSlideInView,
-      isProgrammaticScrollRef,
-      instantScrollRef,
-      directJumpRef,
-      isDraggingRef,
-      setDragging,
-      isOverscrollingRef,
-      setOverscrolling,
-      setScrollProgress,
-      setSlideProgress,
+      viewportRef,
+      trackRef,
+      headClonesRef,
+      tailClonesRef,
     }),
     [
       registerSlide,
-      slidesRef,
       slideKeys,
-      perPage,
-      effectiveSlidesPerMove,
-      maxOffset,
+      layout.perPage,
+      layout.move,
+      layout.maxOffset,
       currentPageOffset,
-      pageForSlideIndex,
       totalPages,
       currentPage,
       canGoNext,
@@ -729,18 +364,14 @@ export function useCarouselRoot(
       orientation,
       loopMode,
       allowMouseDrag,
-      onDragStatusChange,
-      onOverscrollStatusChange,
       inViewThreshold,
       snapType,
-      refreshTick,
-      setSlideInView,
-      setDragging,
-      setOverscrolling,
-      setScrollProgress,
-      setSlideProgress,
+      viewportRef,
+      trackRef,
+      headClonesRef,
+      tailClonesRef,
     ],
   );
 
-  return { contextValue, rootHandlers };
+  return { contextValue, rootRef: rootElementRef };
 }

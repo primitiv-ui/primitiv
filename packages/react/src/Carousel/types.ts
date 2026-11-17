@@ -1,4 +1,4 @@
-import { ComponentProps, ReactNode, RefObject } from "react";
+import { ComponentProps, ReactNode } from "react";
 
 /**
  * Discriminated label shape for `Carousel.Root` — exactly one of
@@ -441,10 +441,6 @@ export type CarouselContextValue = {
   /** Self-registers a slide. Called as a callback ref by `Carousel.Slide`
    * with the rendered DOM node on mount and `null` on unmount. */
   registerSlide: (key: string, element: HTMLDivElement | null) => void;
-  /** Live map from slide key to rendered DOM node. Used by the
-   * Viewport to read `getBoundingClientRect` on the first slide of
-   * the target page when programmatically scrolling. */
-  slidesRef: RefObject<Map<string, HTMLDivElement>>;
   /** Ordered list of currently-mounted slide keys. The slide's index is
    * its position in this array; the array's length is the total. */
   slideKeys: string[];
@@ -470,11 +466,6 @@ export type CarouselContextValue = {
    * even when the move doesn't divide the track evenly. Drives the slide
    * `data-state` window and the viewport scroll target. */
   currentPageOffset: number;
-  /** Map a leading slide index (e.g. a user swipe's snap target) back to
-   * its page index, clamped into `[0, totalPages − 1]`. Paged mode groups
-   * by `slidesPerPage`; windowed mode inverts the move offset to the
-   * nearest window start. */
-  pageForSlideIndex: (slideIndex: number) => number;
   /** Live total page count — `ceil(total / slidesPerPage)` in `"auto"`
    * mode (partial last page allowed), else
    * `floor((total - slidesPerPage) / effectiveSlidesPerMove) + 1`
@@ -545,64 +536,17 @@ export type CarouselContextValue = {
   inViewThreshold: number | number[];
   /** Resolved `scroll-snap-type` strictness (defaults to `"mandatory"`). */
   snapType: CarouselSnapType;
-  /** Bumped by `refresh()` to force the viewport's scroll-align
-   * effect to re-run without a page change. */
-  refreshTick: number;
-  /** Live set of slide indices currently visible per IntersectionObserver
-   * (≥ 60% intersection). Mutated by the Viewport hook and read by
-   * the imperative `isInView`. */
-  visibleSlideIndicesRef: RefObject<Set<number>>;
-  /** Used by the Viewport hook to record visibility transitions. */
-  setSlideInView: (slideIndex: number, inView: boolean) => void;
-  /** Used by the Viewport hook to report the live continuous scroll
-   * position, read on demand by the imperative `getScrollProgress()`. */
-  setScrollProgress: (value: number) => void;
-  /** Used by the Viewport hook to report a slide's live continuous
-   * center-distance, read on demand by the imperative
-   * `getSlideProgress()`. */
-  setSlideProgress: (slideIndex: number, value: number) => void;
-  /** Set to `true` by `next()` and `previous()` the moment programmatic
-   * navigation begins, and cleared by the Viewport hook once the scroll
-   * animation settles (`scrollend` or a timeout fallback). The
-   * IntersectionObserver callback checks this flag before calling `goTo`
-   * so that IO entries firing mid-animation cannot undo the navigation. */
-  isProgrammaticScrollRef: RefObject<boolean>;
-  /** One-shot override of the resolved smooth/reduced-motion
-   * `scrollBehavior`, set by `next()` / `previous()` / `goTo()` on every
-   * call (`true` when their optional `instant` argument was passed,
-   * `false` otherwise) and consumed — then reset to `false` — by the
-   * Viewport hook's scroll effect on its very next run, so an instant
-   * jump never outlives the single call that requested it. */
-  instantScrollRef: RefObject<boolean>;
-  /** One-shot hint for the infinite-loop engine, set to `true` by `goTo()` /
-   * `scrollToIndex()` (an absolute jump to a specific page — most visibly an
-   * indicator/thumbnail click) and to `false` by `next()` / `previous()` (a
-   * relative step, which should always take the loop's wrap shortcut).
-   * Consumed and reset by the engine's positioning effect on its very next
-   * run, so it never outlives the single navigation that requested it. */
-  directJumpRef: RefObject<boolean>;
-  /** Live mouse-drag state (only ever `true` when `allowMouseDrag` is
-   * `true`). Mutated by the Viewport hook and read by the imperative
-   * `isDragging()`. */
-  isDraggingRef: RefObject<boolean>;
-  /** Used by the Viewport hook to record drag start/end transitions. */
-  setDragging: (value: boolean) => void;
-  /** The consumer's `onDragStatusChange`, if provided — called by the
-   * Viewport hook on every drag status transition. */
-  onDragStatusChange?: (status: CarouselDragStatus) => void;
-  /** Live mouse-drag overscroll state (only ever `true` mid-drag, when
-   * `allowMouseDrag` is `true` and the drag is currently pushing past a
-   * boundary). Mutated by the Viewport hook and read by the imperative
-   * `isOverscrolling()`. Keyboard/wheel overscroll taps never set this —
-   * they're instantaneous, not a sustained state. */
-  isOverscrollingRef: RefObject<boolean>;
-  /** Used by the Viewport hook to record drag-overscroll start/end
-   * transitions. */
-  setOverscrolling: (value: boolean) => void;
-  /** The consumer's `onOverscrollStatusChange`, if provided — called by
-   * the Viewport hook whenever the keyboard, wheel, or a mouse drag
-   * pushes against a boundary with nowhere further to go. */
-  onOverscrollStatusChange?: (status: CarouselOverscrollStatus) => void;
+  /** Attaches the rendered viewport — the element the shared
+   * `CarouselController` (`@primitiv-ui/web`, RFC 0033 D30) scrolls and
+   * listens on for keys, the wheel and a mouse drag. */
+  viewportRef: (element: HTMLDivElement | null) => void;
+  /** Attaches the infinite loop's transform track, rendered only for
+   * `loop="infinite"` with the slide transition. */
+  trackRef: (element: HTMLDivElement | null) => void;
+  /** Attach the infinite loop's two `display: contents` holders, which the
+   * controller fills with a full period of slide copies each side. */
+  headClonesRef: (element: HTMLDivElement | null) => void;
+  tailClonesRef: (element: HTMLDivElement | null) => void;
 };
 
 /** Props for `Carousel.Viewport` — the scroll-snap slide container; accepts all native `<div>` props. */

@@ -558,6 +558,13 @@ test("the printed carousel lays out as React's: a grid around a full-width viewp
   const slide = (await page.locator("primitiv-carousel-slide").first().boundingBox())!;
   expect(Math.abs(slide.width - viewport.width)).toBeLessThan(2);
   await expect(page.locator("primitiv-carousel-indicators button.primitiv-carousel__indicator")).toHaveCount(3);
+  // The default split cluster: previous and next flank the viewport, the dots sit below it.
+  const previous = (await page.getByRole("button", { name: "Previous slide" }).boundingBox())!;
+  const next = (await page.getByRole("button", { name: "Next slide" }).boundingBox())!;
+  const dots = (await page.locator("primitiv-carousel-indicators").boundingBox())!;
+  expect(previous.x + previous.width).toBeLessThanOrEqual(viewport.x + 1);
+  expect(next.x).toBeGreaterThanOrEqual(viewport.x + viewport.width - 1);
+  expect(dots.y).toBeGreaterThanOrEqual(viewport.y + viewport.height - 1);
 });
 
 test("the printed carousel is working: next scrolls its viewport and the dots follow", async ({ page }) => {

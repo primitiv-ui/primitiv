@@ -785,6 +785,31 @@ test("the Tree previews are <primitiv-tree> elements: a click selects, and the c
   await expect(controlled.getByRole("treeitem", { name: "app.tsx" })).toHaveCount(0);
 });
 
+test("the Carousel previews are <primitiv-carousel> elements: the controls page them, and the play control swaps its glyph", async ({ page }) => {
+  await page.goto("/components/carousel/");
+  await expect(page.getByText(/dist\/cdn\/carousel\.js/).first()).toBeVisible();
+  const basic = cell(page, "basic");
+  const carousel = basic.locator("primitiv-carousel");
+  // The definition loads on demand: wait for the element to have named its slides.
+  await expect(basic.getByRole("group", { name: "1 of 4" })).toHaveAttribute("data-state", "active");
+  await expect(carousel).toHaveAttribute("class", /primitiv-carousel--cluster-split/);
+  await basic.getByRole("button", { name: "Next slide" }).click();
+  await expect(carousel).toHaveAttribute("page", "1");
+  await expect(basic.getByRole("button", { name: "Slide 2" })).toHaveAttribute("aria-disabled", "true");
+
+  // The play control shows the glyph for what pressing it will do, and only that one.
+  const autoplay = cell(page, "loop-autoplay");
+  const play = autoplay.getByRole("button", { name: "Start automatic slide show" });
+  await expect(play.locator('[data-play-state="paused"]')).toBeVisible();
+  await expect(play.locator('[data-play-state="playing"]')).toBeHidden();
+  await play.click();
+  const stop = autoplay.getByRole("button", { name: "Stop automatic slide show" });
+  await expect(stop.locator('[data-play-state="playing"]')).toBeVisible();
+  await expect(stop.locator('[data-play-state="paused"]')).toBeHidden();
+  await stop.click();
+  await expect(autoplay.locator("primitiv-carousel")).not.toHaveAttribute("playing");
+});
+
 test("the Data Table previews load table.js, and the expandable rows are <primitiv-table-expand-trigger> elements", async ({ page }) => {
   await page.goto("/components/data-table/");
   await expect(page.getByText(/dist\/cdn\/table\.js/).first()).toBeVisible();

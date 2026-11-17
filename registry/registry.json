@@ -496,7 +496,21 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.2.16"
+          }
+        ],
+        "example": "carousel.html",
+        "omits": [
+          "controls",
+          "slide-content",
+          "progress-text"
+        ]
+      }
     },
     "center": {
       "version": "0.1.0",

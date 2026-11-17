@@ -28,6 +28,19 @@
  * the token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+@layer primitiv.reset {
+  /* The elements surface's interactive parts wrap the control you write, and
+     take no box of their own (RFC 0033 §5.6.1). */
+  :where(
+      primitiv-carousel-previous-trigger,
+      primitiv-carousel-next-trigger,
+      primitiv-carousel-play-pause-trigger,
+      primitiv-carousel-indicator
+    ) {
+    display: contents;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-carousel {
     /* Per-component API — the themable knobs. Consumers override any one

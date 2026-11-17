@@ -456,6 +456,20 @@ describe("<primitiv-carousel> scroll", () => {
     expect(changes).toEqual([{ page: 2 }]);
   });
 
+  it("stays on its page when the slide in view leaves it with nothing yet in its place", async () => {
+    // Arrange
+    await mount(carouselHtml({ attrs: 'page="1"' }));
+    const changes = record("primitiv-carousel-change");
+    viewport().dispatchEvent(new Event("scrollend"));
+
+    // Act
+    TestIntersectionObserver.latest.fire([{ target: slides()[1] as Element, ratio: 0 }]);
+    await settle();
+
+    // Assert
+    expect(changes).toEqual([]);
+  });
+
   it("does not follow what is in view while a programmatic scroll is still running", async () => {
     // Arrange
     await mount(carouselHtml());

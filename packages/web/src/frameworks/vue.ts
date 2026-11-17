@@ -32,6 +32,11 @@ import type {
   PrimitivDropdownSelectEvent,
   PrimitivDropdownSubChangeEvent,
   PrimitivDropdownValueChangeEvent,
+  PrimitivCarouselChangeEvent,
+  PrimitivCarouselPlayingChangeEvent,
+  PrimitivCarouselAutoplayStatusEvent,
+  PrimitivCarouselDragStatusEvent,
+  PrimitivCarouselOverscrollStatusEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
@@ -88,6 +93,17 @@ declare module "vue" {
       { "primitiv-accordion-show": (event: CustomEvent) => void }
     >;
     "primitiv-accordion-trigger-icon": Tag<Record<never, never>>;
+    "primitiv-carousel": Tag<{ page?: number; playing?: boolean | ""; autoplay?: boolean | ""; autoplayDelay?: number; slidesPerPage?: number; slidesPerMove?: number | "auto"; transition?: "slide" | "fade" | "none"; snapAlign?: "start" | "center" | "end"; snapType?: "mandatory" | "proximity"; orientation?: "horizontal" | "vertical"; loop?: boolean | "wrap" | "infinite"; allowMouseDrag?: boolean | ""; inViewThreshold?: string | number; slideLabel?: string; indicatorLabel?: string; startLabel?: string; stopLabel?: string; progressLabel?: string }, { "primitiv-carousel-change": (event: PrimitivCarouselChangeEvent) => void; "primitiv-carousel-playing-change": (event: PrimitivCarouselPlayingChangeEvent) => void; "primitiv-carousel-autoplay-status": (event: PrimitivCarouselAutoplayStatusEvent) => void; "primitiv-carousel-drag-status": (event: PrimitivCarouselDragStatusEvent) => void; "primitiv-carousel-overscroll-status": (event: PrimitivCarouselOverscrollStatusEvent) => void }>;
+    "primitiv-carousel-viewport": Tag<Record<never, never>>;
+    "primitiv-carousel-track": Tag<Record<never, never>>;
+    "primitiv-carousel-slide": Tag<{ label?: string; snapAlign?: "start" | "center" | "end" }>;
+    "primitiv-carousel-previous-trigger": Tag<{ disabled?: boolean | "" }>;
+    "primitiv-carousel-next-trigger": Tag<{ disabled?: boolean | "" }>;
+    "primitiv-carousel-play-pause-trigger": Tag<Record<never, never>>;
+    "primitiv-carousel-indicator-group": Tag<{ label?: string }>;
+    "primitiv-carousel-indicators": Tag<{ label?: string }>;
+    "primitiv-carousel-indicator": Tag<{ index?: number; readOnly?: boolean | "" }>;
+    "primitiv-carousel-progress-text": Tag<Record<never, never>>;
     "primitiv-collapsible": Tag<
       { open?: boolean | ""; disabled?: boolean | "" },
       { "primitiv-collapsible-change": (event: PrimitivCollapsibleChangeEvent) => void }

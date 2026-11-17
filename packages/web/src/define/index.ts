@@ -4,6 +4,7 @@
  */
 import "./accordion.ts";
 import "./checkbox-card.ts";
+import "./carousel.ts";
 import "./collapsible.ts";
 import "./context-menu.ts";
 import "./dropdown.ts";

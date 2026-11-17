@@ -26,6 +26,19 @@ import type {
   PrimitivAccordionTriggerIconElement,
 } from "../accordion/elements.ts";
 import type {
+  PrimitivCarouselElement,
+  PrimitivCarouselIndicatorElement,
+  PrimitivCarouselIndicatorGroupElement,
+  PrimitivCarouselIndicatorsElement,
+  PrimitivCarouselNextTriggerElement,
+  PrimitivCarouselPlayPauseTriggerElement,
+  PrimitivCarouselPreviousTriggerElement,
+  PrimitivCarouselProgressTextElement,
+  PrimitivCarouselSlideElement,
+  PrimitivCarouselTrackElement,
+  PrimitivCarouselViewportElement,
+} from "../carousel/elements.ts";
+import type {
   PrimitivCollapsibleContentElement,
   PrimitivCollapsibleElement,
   PrimitivCollapsibleTriggerElement,
@@ -182,6 +195,11 @@ import type {
   PrimitivDropdownSelectEvent,
   PrimitivDropdownSubChangeEvent,
   PrimitivDropdownValueChangeEvent,
+  PrimitivCarouselChangeEvent,
+  PrimitivCarouselPlayingChangeEvent,
+  PrimitivCarouselAutoplayStatusEvent,
+  PrimitivCarouselDragStatusEvent,
+  PrimitivCarouselOverscrollStatusEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
@@ -231,6 +249,55 @@ declare module "svelte/elements" {
       "onprimitiv-accordion-show"?: (event: CustomEvent) => void;
     };
     "primitiv-accordion-trigger-icon": Attributes<PrimitivAccordionTriggerIconElement>;
+    "primitiv-carousel": Attributes<PrimitivCarouselElement> & {
+      page?: number;
+      playing?: boolean;
+      autoplay?: boolean;
+      "autoplay-delay"?: number;
+      "slides-per-page"?: number;
+      "slides-per-move"?: number | "auto";
+      transition?: "slide" | "fade" | "none";
+      "snap-align"?: "start" | "center" | "end";
+      "snap-type"?: "mandatory" | "proximity";
+      orientation?: "horizontal" | "vertical";
+      loop?: boolean | "wrap" | "infinite";
+      "allow-mouse-drag"?: boolean;
+      "in-view-threshold"?: string | number;
+      "slide-label"?: string;
+      "indicator-label"?: string;
+      "start-label"?: string;
+      "stop-label"?: string;
+      "progress-label"?: string;
+      "onprimitiv-carousel-change"?: (event: PrimitivCarouselChangeEvent) => void;
+      "onprimitiv-carousel-playing-change"?: (event: PrimitivCarouselPlayingChangeEvent) => void;
+      "onprimitiv-carousel-autoplay-status"?: (event: PrimitivCarouselAutoplayStatusEvent) => void;
+      "onprimitiv-carousel-drag-status"?: (event: PrimitivCarouselDragStatusEvent) => void;
+      "onprimitiv-carousel-overscroll-status"?: (event: PrimitivCarouselOverscrollStatusEvent) => void;
+    };
+    "primitiv-carousel-viewport": Attributes<PrimitivCarouselViewportElement>;
+    "primitiv-carousel-track": Attributes<PrimitivCarouselTrackElement>;
+    "primitiv-carousel-slide": Attributes<PrimitivCarouselSlideElement> & {
+      label?: string;
+      "snap-align"?: "start" | "center" | "end";
+    };
+    "primitiv-carousel-previous-trigger": Attributes<PrimitivCarouselPreviousTriggerElement> & {
+      disabled?: boolean;
+    };
+    "primitiv-carousel-next-trigger": Attributes<PrimitivCarouselNextTriggerElement> & {
+      disabled?: boolean;
+    };
+    "primitiv-carousel-play-pause-trigger": Attributes<PrimitivCarouselPlayPauseTriggerElement>;
+    "primitiv-carousel-indicator-group": Attributes<PrimitivCarouselIndicatorGroupElement> & {
+      label?: string;
+    };
+    "primitiv-carousel-indicators": Attributes<PrimitivCarouselIndicatorsElement> & {
+      label?: string;
+    };
+    "primitiv-carousel-indicator": Attributes<PrimitivCarouselIndicatorElement> & {
+      index?: number;
+      "read-only"?: boolean;
+    };
+    "primitiv-carousel-progress-text": Attributes<PrimitivCarouselProgressTextElement>;
     "primitiv-collapsible": Attributes<PrimitivCollapsibleElement> & {
       open?: boolean;
       disabled?: boolean;

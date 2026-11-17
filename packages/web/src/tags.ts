@@ -172,6 +172,17 @@ declare global {
     "primitiv-accordion-trigger": PrimitivAccordionTriggerElement;
     "primitiv-accordion-content": PrimitivAccordionContentElement;
     "primitiv-accordion-trigger-icon": PrimitivAccordionTriggerIconElement;
+    "primitiv-carousel": PrimitivCarouselElement;
+    "primitiv-carousel-viewport": PrimitivCarouselViewportElement;
+    "primitiv-carousel-track": PrimitivCarouselTrackElement;
+    "primitiv-carousel-slide": PrimitivCarouselSlideElement;
+    "primitiv-carousel-previous-trigger": PrimitivCarouselPreviousTriggerElement;
+    "primitiv-carousel-next-trigger": PrimitivCarouselNextTriggerElement;
+    "primitiv-carousel-play-pause-trigger": PrimitivCarouselPlayPauseTriggerElement;
+    "primitiv-carousel-indicator-group": PrimitivCarouselIndicatorGroupElement;
+    "primitiv-carousel-indicators": PrimitivCarouselIndicatorsElement;
+    "primitiv-carousel-indicator": PrimitivCarouselIndicatorElement;
+    "primitiv-carousel-progress-text": PrimitivCarouselProgressTextElement;
     "primitiv-collapsible": PrimitivCollapsibleElement;
     "primitiv-collapsible-trigger": PrimitivCollapsibleTriggerElement;
     "primitiv-collapsible-content": PrimitivCollapsibleContentElement;
@@ -290,4 +301,17 @@ declare global {
   }
 }
 
-export {};
+export {};import {
+  PrimitivCarouselElement,
+  PrimitivCarouselIndicatorElement,
+  PrimitivCarouselIndicatorGroupElement,
+  PrimitivCarouselIndicatorsElement,
+  PrimitivCarouselNextTriggerElement,
+  PrimitivCarouselPlayPauseTriggerElement,
+  PrimitivCarouselPreviousTriggerElement,
+  PrimitivCarouselProgressTextElement,
+  PrimitivCarouselSlideElement,
+  PrimitivCarouselTrackElement,
+  PrimitivCarouselViewportElement,
+} from "./carousel/elements.ts";
+

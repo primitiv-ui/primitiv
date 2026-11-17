@@ -105,3 +105,9 @@ export {
   type TableExpandConformanceFixture,
   type TableExpandMount,
 } from "./table-expand.ts";
+export {
+  CAROUSEL,
+  runCarouselConformance,
+  type CarouselConformanceFixture,
+  type CarouselMount,
+} from "./carousel.ts";

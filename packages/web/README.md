@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper, Miller Columns, Table's expandable rows and Code Block so far. See
+> **Status: published.** Tabs, Accordion, Carousel, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox, Navigation Menu, Tree, Stepper, Miller Columns, Table's expandable rows and Code Block so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -15,6 +15,7 @@ React, Vue, Angular or any other framework.
 |---|---|---|---|
 | Tabs | `primitiv-tabs`, `-list`, `-trigger`, `-content` | `primitiv-tabs-change` | 0.1.42 |
 | Accordion | `primitiv-accordion`, `-item`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-accordion-change` | 0.1.44 |
+| Carousel | `primitiv-carousel`, `-viewport`, `-track`, `-slide`, `-previous-trigger`, `-next-trigger`, `-play-pause-trigger`, `-indicator-group`, `-indicators`, `-indicator`, `-progress-text` | `primitiv-carousel-change`, `-playing-change` (and `-autoplay-status`, `-drag-status`, `-overscroll-status`) | 0.2.16 |
 | Collapsible | `primitiv-collapsible`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-collapsible-change` | 0.1.47 |
 | Modal | `primitiv-modal`, `-trigger`, `-content`, `-title`, `-description`, `-close` | `primitiv-modal-change` | 0.1.54 |
 | Popover | `primitiv-popover`, `-trigger`, `-anchor`, `-content`, `-title`, `-description`, `-close` | `primitiv-popover-change` | 0.1.55 |
@@ -67,9 +68,9 @@ Each `dist/cdn/<component>.js` imports the code components share from
 downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
-The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
+The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/carousel`, `/collapsible`,
 `/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`, `/combobox`, `/navigation-menu`, `/tree`) exports the classes and `defineTabs(registry?)` /
-`defineAccordion(registry?)` / `defineCollapsible(registry?)` /
+`defineAccordion(registry?)` / `defineCarousel(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
@@ -120,6 +121,55 @@ on a panel as it becomes active, for lazy loading.
 - **Listen with `primitiv-accordion-change`** (bubbles, cancelable, `detail: {
   value }`, every item open afterwards) and `primitiv-accordion-show` on a panel
   as its item opens. Render `hidden` on closed panels yourself, as for Tabs.
+
+### Carousel
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/carousel.js"></script>
+
+<primitiv-carousel aria-label="Featured">
+  <primitiv-carousel-viewport>
+    <primitiv-carousel-slide>First slide</primitiv-carousel-slide>
+    <primitiv-carousel-slide>Second slide</primitiv-carousel-slide>
+    <primitiv-carousel-slide>Third slide</primitiv-carousel-slide>
+  </primitiv-carousel-viewport>
+  <primitiv-carousel-previous-trigger><button type="button">Previous</button></primitiv-carousel-previous-trigger>
+  <primitiv-carousel-next-trigger><button type="button">Next</button></primitiv-carousel-next-trigger>
+  <primitiv-carousel-indicators label="Choose slide"></primitiv-carousel-indicators>
+</primitiv-carousel>
+```
+
+- **The WAI-ARIA Carousel pattern over native scroll-snap.** The root is the
+  `region` (name it with `aria-label`); each slide is a `group` named "N of M"
+  (or its own `label`); the viewport is focusable, where the arrows along the
+  axis page and Home / End jump. Swipes, the wheel and (with
+  `allow-mouse-drag`) a mouse drag scroll natively, and the page follows where
+  scroll-snap settles.
+- **`page` is the active page** (zero-based, reflected).
+  `primitiv-carousel-change` (bubbles, cancelable, `detail: { page }`) fires
+  before every change — a trigger, an indicator, a key, a swipe, an autoplay
+  tick. `next()`, `previous()`, `goTo(page, instant?)`, `scrollToIndex()`,
+  `refresh()` and the progress reads are methods on the root, as React's
+  imperative handle has them.
+- **Pages**: `slides-per-page` shows several slides at once (give the styled
+  root `--primitiv-carousel-slides-per-page` too) and `slides-per-move` steps
+  by fewer; the last page always end-aligns. `snap-align`, `snap-type`,
+  `orientation` and `transition` (`slide`, `fade`, `none`) work as on React's.
+- **`loop`** rewinds past either end; `loop="infinite"` glides on through
+  inert copies of the slides, translating a `<primitiv-carousel-track>` you
+  write around them.
+- **Autoplay**: `autoplay` (with `autoplay-delay`) advances while `playing`,
+  paused by hover, focus or a touch — unless the
+  `<primitiv-carousel-play-pause-trigger>` started it (WCAG 2.2.2). Its
+  `<button>` is named for what it will do; children marked
+  `data-play-state="playing"` / `"paused"` show in that state.
+- **`<primitiv-carousel-indicators>` writes one indicator per page**, each a
+  copy of its `<template>` (a bare `<button>` without one); for thumbnails,
+  write `<primitiv-carousel-indicator index="…">` yourself in a
+  `<primitiv-carousel-indicator-group>`.
+- **It writes what React writes**: `--carousel-progress` on the viewport,
+  `--slide-progress` on each slide, a multi-slide page's `scroll-margin`, and
+  the infinite track's transform — measurements the styles read, not state.
 
 ### Collapsible
 

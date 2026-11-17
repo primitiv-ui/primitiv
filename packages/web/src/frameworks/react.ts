@@ -27,6 +27,19 @@ import type {
   PrimitivAccordionTriggerIconElement,
 } from "../accordion/elements.ts";
 import type {
+  PrimitivCarouselElement,
+  PrimitivCarouselIndicatorElement,
+  PrimitivCarouselIndicatorGroupElement,
+  PrimitivCarouselIndicatorsElement,
+  PrimitivCarouselNextTriggerElement,
+  PrimitivCarouselPlayPauseTriggerElement,
+  PrimitivCarouselPreviousTriggerElement,
+  PrimitivCarouselProgressTextElement,
+  PrimitivCarouselSlideElement,
+  PrimitivCarouselTrackElement,
+  PrimitivCarouselViewportElement,
+} from "../carousel/elements.ts";
+import type {
   PrimitivCollapsibleContentElement,
   PrimitivCollapsibleElement,
   PrimitivCollapsibleTriggerElement,
@@ -183,6 +196,11 @@ import type {
   PrimitivDropdownSelectEvent,
   PrimitivDropdownSubChangeEvent,
   PrimitivDropdownValueChangeEvent,
+  PrimitivCarouselChangeEvent,
+  PrimitivCarouselPlayingChangeEvent,
+  PrimitivCarouselAutoplayStatusEvent,
+  PrimitivCarouselDragStatusEvent,
+  PrimitivCarouselOverscrollStatusEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
@@ -227,6 +245,11 @@ export type {
   PrimitivDropdownSelectEvent,
   PrimitivDropdownSubChangeEvent,
   PrimitivDropdownValueChangeEvent,
+  PrimitivCarouselChangeEvent,
+  PrimitivCarouselPlayingChangeEvent,
+  PrimitivCarouselAutoplayStatusEvent,
+  PrimitivCarouselDragStatusEvent,
+  PrimitivCarouselOverscrollStatusEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivNavigationMenuChangeEvent,
@@ -265,6 +288,55 @@ declare module "react" {
         "onprimitiv-accordion-show"?: (event: CustomEvent) => void;
       };
       "primitiv-accordion-trigger-icon": ElementProps<PrimitivAccordionTriggerIconElement>;
+      "primitiv-carousel": ElementProps<PrimitivCarouselElement> & {
+        page?: number;
+        playing?: boolean;
+        autoplay?: boolean;
+        "autoplay-delay"?: number;
+        "slides-per-page"?: number;
+        "slides-per-move"?: number | "auto";
+        transition?: "slide" | "fade" | "none";
+        "snap-align"?: "start" | "center" | "end";
+        "snap-type"?: "mandatory" | "proximity";
+        orientation?: "horizontal" | "vertical";
+        loop?: boolean | "wrap" | "infinite";
+        "allow-mouse-drag"?: boolean;
+        "in-view-threshold"?: string | number;
+        "slide-label"?: string;
+        "indicator-label"?: string;
+        "start-label"?: string;
+        "stop-label"?: string;
+        "progress-label"?: string;
+        "onprimitiv-carousel-change"?: (event: PrimitivCarouselChangeEvent) => void;
+        "onprimitiv-carousel-playing-change"?: (event: PrimitivCarouselPlayingChangeEvent) => void;
+        "onprimitiv-carousel-autoplay-status"?: (event: PrimitivCarouselAutoplayStatusEvent) => void;
+        "onprimitiv-carousel-drag-status"?: (event: PrimitivCarouselDragStatusEvent) => void;
+        "onprimitiv-carousel-overscroll-status"?: (event: PrimitivCarouselOverscrollStatusEvent) => void;
+      };
+      "primitiv-carousel-viewport": ElementProps<PrimitivCarouselViewportElement>;
+      "primitiv-carousel-track": ElementProps<PrimitivCarouselTrackElement>;
+      "primitiv-carousel-slide": ElementProps<PrimitivCarouselSlideElement> & {
+        label?: string;
+        "snap-align"?: "start" | "center" | "end";
+      };
+      "primitiv-carousel-previous-trigger": ElementProps<PrimitivCarouselPreviousTriggerElement> & {
+        disabled?: boolean;
+      };
+      "primitiv-carousel-next-trigger": ElementProps<PrimitivCarouselNextTriggerElement> & {
+        disabled?: boolean;
+      };
+      "primitiv-carousel-play-pause-trigger": ElementProps<PrimitivCarouselPlayPauseTriggerElement>;
+      "primitiv-carousel-indicator-group": ElementProps<PrimitivCarouselIndicatorGroupElement> & {
+        label?: string;
+      };
+      "primitiv-carousel-indicators": ElementProps<PrimitivCarouselIndicatorsElement> & {
+        label?: string;
+      };
+      "primitiv-carousel-indicator": ElementProps<PrimitivCarouselIndicatorElement> & {
+        index?: number;
+        "read-only"?: boolean;
+      };
+      "primitiv-carousel-progress-text": ElementProps<PrimitivCarouselProgressTextElement>;
       "primitiv-collapsible": ElementProps<PrimitivCollapsibleElement> & {
         open?: boolean;
         disabled?: boolean;

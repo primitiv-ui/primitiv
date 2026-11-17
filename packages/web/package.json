@@ -18,6 +18,10 @@
       "types": "./src/checkbox-card/index.ts",
       "default": "./src/checkbox-card/index.ts"
     },
+    "./carousel": {
+      "types": "./src/carousel/index.ts",
+      "default": "./src/carousel/index.ts"
+    },
     "./collapsible": {
       "types": "./src/collapsible/index.ts",
       "default": "./src/collapsible/index.ts"
@@ -113,6 +117,10 @@
     "./define/checkbox-card": {
       "types": "./src/define/checkbox-card.ts",
       "default": "./src/define/checkbox-card.ts"
+    },
+    "./define/carousel": {
+      "types": "./src/define/carousel.ts",
+      "default": "./src/define/carousel.ts"
     },
     "./define/collapsible": {
       "types": "./src/define/collapsible.ts",
@@ -279,6 +287,10 @@
         "types": "./dist/checkbox-card/index.d.ts",
         "default": "./dist/checkbox-card/index.js"
       },
+      "./carousel": {
+        "types": "./dist/carousel/index.d.ts",
+        "default": "./dist/carousel/index.js"
+      },
       "./collapsible": {
         "types": "./dist/collapsible/index.d.ts",
         "default": "./dist/collapsible/index.js"
@@ -374,6 +386,10 @@
       "./define/checkbox-card": {
         "types": "./dist/define/checkbox-card.d.ts",
         "default": "./dist/define/checkbox-card.js"
+      },
+      "./define/carousel": {
+        "types": "./dist/define/carousel.d.ts",
+        "default": "./dist/define/carousel.js"
       },
       "./define/collapsible": {
         "types": "./dist/define/collapsible.d.ts",

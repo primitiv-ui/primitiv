@@ -24,6 +24,27 @@ export type PrimitivStepperChangeEvent = CustomEvent<{ value: string; index: num
 /** The `primitiv-accordion-change` event: bubbles, cancelable, fired before the change applies, with every item open afterwards. */
 export type PrimitivAccordionChangeEvent = CustomEvent<{ value: string[] }>;
 
+/** The `primitiv-carousel-change` event: bubbles, cancelable, fired before a page change applies, with the page afterwards. */
+export type PrimitivCarouselChangeEvent = CustomEvent<{ page: number }>;
+
+/** The `primitiv-carousel-playing-change` event: bubbles, cancelable, fired before autoplay starts or stops. */
+export type PrimitivCarouselPlayingChangeEvent = CustomEvent<{ playing: boolean }>;
+
+/** The `primitiv-carousel-autoplay-status` event: bubbles as an autoplay session starts, ticks and stops. */
+export type PrimitivCarouselAutoplayStatusEvent = CustomEvent<{ type: "autoplay.start" | "autoplay" | "autoplay.stop"; page: number; isPlaying: boolean }>;
+
+/** The `primitiv-carousel-drag-status` event: bubbles as a mouse drag starts, moves and ends. */
+export type PrimitivCarouselDragStatusEvent = CustomEvent<{ type: "dragging.start" | "dragging" | "dragging.end"; page: number; isDragging: boolean }>;
+
+/** The `primitiv-carousel-overscroll-status` event: bubbles when the keys, the wheel or a drag push past an end. */
+export type PrimitivCarouselOverscrollStatusEvent = CustomEvent<{
+  type: "overscroll.start" | "overscroll" | "overscroll.end";
+  edge: "start" | "end";
+  source: "keyboard" | "wheel" | "drag";
+  amount: number;
+  page: number;
+}>;
+
 /** The `primitiv-collapsible-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivCollapsibleChangeEvent = CustomEvent<{ open: boolean }>;
 

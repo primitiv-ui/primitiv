@@ -471,3 +471,20 @@ describe("<primitiv-carousel> misuse", () => {
     expect(error).not.toHaveBeenCalled();
   });
 });
+
+describe("<primitiv-carousel> slides per page", () => {
+  it("publishes slides-per-page as the stylesheet's slide count, and follows it as it changes", async () => {
+    // Arrange
+    await mount(carouselHtml({ slides: 6, attrs: 'slides-per-page="2"' }));
+    const published = () => root().style.getPropertyValue("--primitiv-carousel-slides-per-page");
+    const before = published();
+
+    // Act
+    root().setAttribute("slides-per-page", "3");
+    await settle();
+
+    // Assert
+    expect(before).toBe("2");
+    expect(published()).toBe("3");
+  });
+});

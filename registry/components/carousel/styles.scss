@@ -508,7 +508,8 @@
   /* Prev / next controls. Circular, centred glyph, sized off the control knob;
      the secondary-action fill matches the design's external-context control. */
   .primitiv-carousel__prev,
-  .primitiv-carousel__next {
+  .primitiv-carousel__next,
+  .primitiv-carousel__play-pause {
     display: inline-grid;
     /* Press feedback depth. Set to 1 to switch the press scale off. */
     --primitiv-carousel-control-press-scale: 0.96;
@@ -536,7 +537,8 @@
       scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
   .primitiv-carousel__prev svg,
-  .primitiv-carousel__next svg {
+  .primitiv-carousel__next svg,
+  .primitiv-carousel__play-pause svg {
     /* block kills the inline-SVG baseline gap so the glyph sits dead-centre. */
     display: block;
     inline-size: var(--primitiv-carousel-control-icon-size);
@@ -1125,12 +1127,14 @@
      showing its hover fill instead of its resting one. */
   @media (hover: hover) {
     .primitiv-carousel__prev:hover,
-    .primitiv-carousel__next:hover {
+    .primitiv-carousel__next:hover,
+    .primitiv-carousel__play-pause:hover {
       --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-hover);
     }
   }
   .primitiv-carousel__prev:active,
-  .primitiv-carousel__next:active {
+  .primitiv-carousel__next:active,
+  .primitiv-carousel__play-pause:active {
     --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-active);
   }
 
@@ -2076,6 +2080,7 @@
   .primitiv-carousel__viewport:focus-visible,
   .primitiv-carousel__prev:focus-visible,
   .primitiv-carousel__next:focus-visible,
+  .primitiv-carousel__play-pause:focus-visible,
   .primitiv-carousel__indicator:focus-visible,
   .primitiv-carousel__indicator-group > button:focus-visible {
     outline: none;
@@ -2095,6 +2100,7 @@
     .primitiv-carousel__viewport:focus-visible,
     .primitiv-carousel__prev:focus-visible,
     .primitiv-carousel__next:focus-visible,
+    .primitiv-carousel__play-pause:focus-visible,
     .primitiv-carousel__indicator:focus-visible,
     .primitiv-carousel__indicator-group > button:focus-visible {
       outline: var(--primitiv-focus-ring-width) solid Highlight;
@@ -2113,7 +2119,8 @@
      state, just not a moving one. --primitiv-carousel-control-press-scale to 1 disables it. */
   @media (prefers-reduced-motion: no-preference) {
     .primitiv-carousel__prev:active,
-    .primitiv-carousel__next:active {
+    .primitiv-carousel__next:active,
+    .primitiv-carousel__play-pause:active {
       scale: var(--primitiv-carousel-control-press-scale);
     }
   }

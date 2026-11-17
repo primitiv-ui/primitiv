@@ -374,6 +374,24 @@ child `<button>`s, so both surfaces are styled identically.
   `body-sm-font-size`). It carries no layout of its own — drop it inside
   `<CarouselControls>`, standalone, or wherever the design calls for it.
 
+## Play/pause control
+
+`primitiv-carousel__play-pause` gives an autoplay control the same look as the
+previous and next buttons. On the custom elements it goes on the `<button>`
+inside `<primitiv-carousel-play-pause-trigger>`, which needs `autoplay` on the
+root and swaps the two glyphs you mark with `data-play-state`. Wrap each glyph
+in a `<span>`: the element hides the other with `hidden`, which an `<svg>`
+ignores.
+
+```html
+<primitiv-carousel-play-pause-trigger>
+  <button type="button" class="primitiv-carousel__play-pause">
+    <span data-play-state="paused"><!-- Insert your SVG icon here: play --></span>
+    <span data-play-state="playing" hidden><!-- Insert your SVG icon here: pause --></span>
+  </button>
+</primitiv-carousel-play-pause-trigger>
+```
+
 ## The default theme (`styles.css`)
 
 Structured per RFC 0008 — the per-component API knobs + resting look in

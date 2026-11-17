@@ -153,7 +153,7 @@ const elThumbnails = (count = 4) => [
  */
 const elPlayPause = [
   `<primitiv-carousel-play-pause-trigger>`,
-  `  <button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--md">`,
+  `  <button type="button" class="primitiv-carousel__play-pause">`,
   `    <span data-play-state="paused">${glyph("play")}</span>`,
   `    <span data-play-state="playing" hidden>${glyph("pause")}</span>`,
   `  </button>`,
@@ -700,7 +700,7 @@ export const carouselSpec: ComponentSpec = {
       title: "Loop & autoplay",
       render: () => (
         <InteractiveExample
-          elementsCaption={"`loop` wraps navigation past the ends (`loop=\"infinite\"` glides on instead of rewinding). `autoplay` advances on a timer while the `playing` attribute is present \u2014 `autoplay-delay` sets the interval in milliseconds \u2014 and pauses on hover, focus and touch (WCAG 2.2.2). `<primitiv-carousel-play-pause-trigger>` is the explicit control: it toggles `playing`, names its `<button>` for what pressing it will do, and shows whichever glyph's `data-play-state` matches. Its `<button>` borrows the Button component's classes here, so the styled form wants `primitiv add button` too. This demo starts **paused** \u2014 press play to start the motion."}
+          elementsCaption={"`loop` wraps navigation past the ends (`loop=\"infinite\"` glides on instead of rewinding). `autoplay` advances on a timer while the `playing` attribute is present \u2014 `autoplay-delay` sets the interval in milliseconds \u2014 and pauses on hover, focus and touch (WCAG 2.2.2). `<primitiv-carousel-play-pause-trigger>` is the explicit control: it toggles `playing`, names its `<button>` for what pressing it will do, and shows whichever glyph's `data-play-state` matches. Its `<button>` takes `primitiv-carousel__play-pause`, the same look as the previous and next buttons. This demo starts **paused** \u2014 press play to start the motion."}
           elementsPreview={(_density, code) => painted(code)}
           caption={"`loop` wraps navigation past the ends (`\"wrap\"` rewinds the track; `\"infinite\"` glides on continuously). `autoplay={{ delay }}` advances on a timer — pair it with `loop` for an endless hero. Autoplay pauses on hover and focus (WCAG 2.2.2). Give the reader an explicit control too: the headless primitive ships `Carousel.PlayPauseTrigger`, while a styled consumer wires their own control to the `playing` / `onPlayingChange` state (there is no styled play/pause part). This demo starts **paused** — press play to start the motion."}
           code={(_density, mode) => {

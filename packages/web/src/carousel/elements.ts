@@ -81,7 +81,7 @@ function decoratable(part: HTMLElement): HTMLElement | null {
  * @attr {boolean} playing - Whether autoplay is playing. Reflected.
  * @attr {boolean} autoplay - Turns autoplay on: while `playing`, the page advances on a timer, paused by hover, focus or a touch inside the carousel unless the play control started it (WCAG 2.2.2).
  * @attr {number} autoplay-delay - How long each page stays up while playing, in milliseconds. Default 4000.
- * @attr {number} slides-per-page - Slides shown per page. Default 1. With more than one, give the styled root `--primitiv-carousel-slides-per-page` too.
+ * @attr {number} slides-per-page - Slides shown per page. Default 1. The element publishes it as `--primitiv-carousel-slides-per-page`, which the styled slide width reads; to change the count per breakpoint, change this attribute (a `matchMedia` listener does it).
  * @attr {number | "auto"} slides-per-move - Slides a step advances: `auto` (the default) is a whole page; a number windows the page that many slides at a time.
  * @attr {"slide" | "fade" | "none"} transition - `slide` (the default) scrolls natively; `fade` and `none` scroll nothing and leave the change to CSS on each slide's `data-state`.
  * @attr {"start" | "center" | "end"} snap-align - Where a page rests in the viewport. Default `center`. Each slide's `snap-align` overrides it for that slide.
@@ -338,6 +338,10 @@ export class PrimitivCarouselElement extends PrimitivRootElement {
     write(this, "data-orientation", state.orientation);
     write(this, "data-transition", state.transition);
     write(this, "data-loop", state.loop);
+    // The styled slide width reads the count from this property, so the element
+    // keeps it in step with its attribute: one value to change, by the
+    // attribute (from a `matchMedia` listener, for a count per breakpoint).
+    this.style.setProperty("--primitiv-carousel-slides-per-page", String(state.slidesPerPage));
 
     for (const viewport of this.parts(VIEWPORT)) {
       write(viewport, "data-carousel-viewport", "");

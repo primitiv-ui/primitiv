@@ -66,3 +66,51 @@ describe("Carousel boundary behaviour", () => {
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
   });
 });
+
+describe("Carousel triggers disabled by their own prop", () => {
+  it("disables a trigger whose page could still move", () => {
+    // Arrange & Act
+    render(
+      <Carousel.Root ariaLabel="Featured products" defaultPage={1}>
+        <Carousel.Viewport>
+          <Carousel.Slide />
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+        <Carousel.PreviousTrigger disabled>Previous</Carousel.PreviousTrigger>
+        <Carousel.NextTrigger disabled>Next</Carousel.NextTrigger>
+      </Carousel.Root>,
+    );
+
+    // Assert
+    expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+  });
+
+  it("keeps a disabled asChild trigger from paging, with no native disabled to stop the click", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(
+      <Carousel.Root ariaLabel="Featured products" defaultPage={1}>
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+          <Carousel.Slide data-testid="slide-2" />
+        </Carousel.Viewport>
+        <Carousel.PreviousTrigger asChild disabled>
+          <span>Previous</span>
+        </Carousel.PreviousTrigger>
+        <Carousel.NextTrigger asChild disabled>
+          <span>Next</span>
+        </Carousel.NextTrigger>
+      </Carousel.Root>,
+    );
+
+    // Act
+    await user.click(screen.getByText("Next"));
+    await user.click(screen.getByText("Previous"));
+
+    // Assert
+    expect(screen.getByTestId("slide-1")).toHaveAttribute("data-state", "active");
+  });
+});

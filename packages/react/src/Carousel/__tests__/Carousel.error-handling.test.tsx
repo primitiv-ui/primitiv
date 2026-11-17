@@ -79,3 +79,18 @@ describe("Carousel error handling", () => {
     expect(screen.getByTestId("slide-2")).toHaveAttribute("data-state", "active");
   });
 });
+
+describe("Carousel controlled page bounds", () => {
+  it("throws for a controlled page one past the last", () => {
+    expect(() => {
+      render(
+        <Carousel.Root ariaLabel="Featured products" page={2} onPageChange={() => {}}>
+          <Carousel.Viewport>
+            <Carousel.Slide />
+            <Carousel.Slide />
+          </Carousel.Viewport>
+        </Carousel.Root>,
+      );
+    }).toThrow("Carousel: page index 2 is out of range (totalPages: 2)");
+  });
+});

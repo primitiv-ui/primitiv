@@ -659,3 +659,30 @@ describe("Indicator context errors", () => {
     },
   );
 });
+
+describe("Carousel.Indicator props that change", () => {
+  it("jumps to the page its index names now, not the one it was rendered with", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const ui = (index: number) => (
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+          <Carousel.Slide data-testid="slide-2" />
+        </Carousel.Viewport>
+        <Carousel.IndicatorGroup label="Choose slide">
+          <Carousel.Indicator index={index}>Jump</Carousel.Indicator>
+        </Carousel.IndicatorGroup>
+      </Carousel.Root>
+    );
+    const { rerender } = render(ui(1));
+
+    // Act
+    rerender(ui(2));
+    await user.click(screen.getByText("Jump"));
+
+    // Assert
+    expect(screen.getByTestId("slide-2")).toHaveAttribute("data-state", "active");
+  });
+});

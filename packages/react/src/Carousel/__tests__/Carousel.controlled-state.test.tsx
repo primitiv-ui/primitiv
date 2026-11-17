@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { render, screen } from "@testing-library/react";
+import { createRef, useState } from "react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { Carousel } from "../index.ts";
+import type { CarouselImperativeApi } from "../index.ts";
 
 describe("Carousel controlled page state", () => {
   it("should derive the active slide from the controlled page prop", () => {
@@ -133,5 +134,42 @@ describe("Carousel controlled page state", () => {
       "data-state",
       "active",
     );
+  });
+});
+
+describe("Carousel controlled without a change callback", () => {
+  it("stays on the page it is given, and does not throw, when nothing listens for the change", () => {
+    // Arrange
+    const ref = createRef<CarouselImperativeApi>();
+    render(
+      <Carousel.Root ref={ref} ariaLabel="Featured products" page={0}>
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    // Act & Assert
+    expect(() => act(() => ref.current!.next())).not.toThrow();
+    expect(screen.getByTestId("slide-0")).toHaveAttribute("data-state", "active");
+  });
+
+  it("stays paused, and does not throw, when nothing listens for playing", () => {
+    // Arrange
+    const ref = createRef<CarouselImperativeApi>();
+    render(
+      <Carousel.Root ref={ref} ariaLabel="Featured products" autoplay playing={false}>
+        <Carousel.Viewport>
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+        <Carousel.PlayPauseTrigger />
+      </Carousel.Root>,
+    );
+
+    // Act & Assert
+    expect(() => act(() => ref.current!.play())).not.toThrow();
+    expect(screen.getByRole("button", { name: "Start automatic slide show" })).toHaveAttribute("data-state", "paused");
   });
 });

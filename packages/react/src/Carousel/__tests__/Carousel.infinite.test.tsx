@@ -1451,3 +1451,30 @@ describe("Carousel infinite — drag + fling", () => {
     }
   });
 });
+
+describe("Carousel infinite — the track", () => {
+  it("renders no track for an infinite loop that fades rather than slides", () => {
+    // Arrange & Act
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured products" loop="infinite" transition="fade">
+        <Carousel.Viewport>
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    // Assert
+    expect(container.querySelector("[data-carousel-track]")).toBeNull();
+  });
+
+  it("holds the copies in boxless wrappers, so they lay out as the track's own slides", () => {
+    // Arrange & Act
+    const { track } = renderInfinite({ count: 4 });
+
+    // Assert
+    for (const holder of track!.querySelectorAll<HTMLElement>("[data-carousel-clones]")) {
+      expect(holder.style.display).toBe("contents");
+    }
+  });
+});

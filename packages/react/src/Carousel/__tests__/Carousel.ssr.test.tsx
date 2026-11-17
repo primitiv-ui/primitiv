@@ -26,3 +26,25 @@ describe("Carousel SSR", () => {
     expect(markup).toContain("Second");
   });
 });
+
+describe("Carousel SSR slides", () => {
+  it("names no slide and snaps none before the slides have registered", () => {
+    // Arrange & Act — on the server no slide has a position yet.
+    const markup = renderToStaticMarkup(
+      <Carousel.Root ariaLabel="Featured">
+        <Carousel.Viewport>
+          <Carousel.Slide>First</Carousel.Slide>
+          <Carousel.Slide>Second</Carousel.Slide>
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const slides = markup.match(/<div[^>]*aria-roledescription="slide"[^>]*>/g) ?? [];
+
+    // Assert — not "0 of 0", and no snap point to rest on.
+    expect(slides).toHaveLength(2);
+    for (const slide of slides) {
+      expect(slide).not.toContain("aria-label=");
+      expect(slide).not.toContain("data-snap-align=");
+    }
+  });
+});

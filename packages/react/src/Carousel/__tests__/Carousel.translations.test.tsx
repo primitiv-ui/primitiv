@@ -178,3 +178,27 @@ describe("Carousel translations", () => {
     expect(screen.getByRole("button", { name: "Page 2" })).toBeVisible();
   });
 });
+
+describe("Carousel translations that change", () => {
+  it("renames the slides when its translations change", () => {
+    // Arrange
+    const ui = (word: string) => (
+      <Carousel.Root
+        ariaLabel="Featured products"
+        translations={{ slideLabel: ({ index, total }) => `${word} ${index}/${total}` }}
+      >
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>
+    );
+    const { rerender } = render(ui("Page"));
+
+    // Act
+    rerender(ui("Seite"));
+
+    // Assert
+    expect(screen.getByTestId("slide-0")).toHaveAttribute("aria-label", "Seite 1/2");
+  });
+});

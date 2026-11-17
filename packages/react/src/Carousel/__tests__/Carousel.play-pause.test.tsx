@@ -230,3 +230,30 @@ describe("Carousel.PlayPauseTrigger styling hooks", () => {
     expect(screen.getByRole("button")).toHaveAttribute("data-state", "playing");
   });
 });
+
+describe("Carousel.PlayPauseTrigger props that change", () => {
+  it("calls the onClick it was given last", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const first = vi.fn();
+    const second = vi.fn();
+    const ui = (onClick: () => void) => (
+      <Carousel.Root ariaLabel="Featured products" autoplay>
+        <Carousel.Viewport>
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+        <Carousel.PlayPauseTrigger onClick={onClick} />
+      </Carousel.Root>
+    );
+    const { rerender } = render(ui(first));
+
+    // Act
+    rerender(ui(second));
+    await user.click(screen.getByRole("button", { name: "Start automatic slide show" }));
+
+    // Assert
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
+  });
+});

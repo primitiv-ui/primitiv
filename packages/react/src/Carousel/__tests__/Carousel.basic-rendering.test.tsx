@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
+import { CarouselContext } from "../CarouselContext";
 import { Carousel } from "../index.ts";
 
 describe("Carousel basic rendering tests", () => {
@@ -565,5 +566,24 @@ describe("Carousel basic rendering tests", () => {
         }).toThrow("Component must be rendered as a child of Carousel.Root");
       },
     );
+  });
+});
+
+describe("Carousel displayNames", () => {
+  it("sets a displayName on the compound, each sub-component, and the context", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `Carousel` and `Carousel.Root` are one object (Object.assign compound),
+    // so the compound's alias is the observable Root displayName.
+    expect(Carousel.displayName).toBe("Carousel");
+    expect(Carousel.Viewport.displayName).toBe("CarouselViewport");
+    expect(Carousel.Slide.displayName).toBe("CarouselSlide");
+    expect(Carousel.NextTrigger.displayName).toBe("CarouselNextTrigger");
+    expect(Carousel.PreviousTrigger.displayName).toBe("CarouselPreviousTrigger");
+    expect(Carousel.IndicatorGroup.displayName).toBe("CarouselIndicatorGroup");
+    expect(Carousel.Indicator.displayName).toBe("CarouselIndicator");
+    expect(Carousel.Indicators.displayName).toBe("CarouselIndicators");
+    expect(Carousel.PlayPauseTrigger.displayName).toBe("CarouselPlayPauseTrigger");
+    expect(Carousel.ProgressText.displayName).toBe("CarouselProgressText");
+    expect(CarouselContext.displayName).toBe("CarouselContext");
   });
 });

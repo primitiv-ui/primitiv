@@ -41,6 +41,26 @@ describe("Slider thumb registration", () => {
     expect(screen.getByRole("slider", { name: "High" })).toHaveAttribute("aria-valuenow", "21");
   });
 
+  it("drives a thumb added after mount from the keyboard", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const slider = (both: boolean) => (
+      <Slider.Root defaultValue={[20, 80]}>
+        <Slider.Thumb aria-label="Low" />
+        {both && <Slider.Thumb aria-label="High" />}
+      </Slider.Root>
+    );
+    const { rerender } = render(slider(false));
+    rerender(slider(true));
+
+    // Act
+    screen.getByRole("slider", { name: "High" }).focus();
+    await user.keyboard("{ArrowRight}");
+
+    // Assert
+    expect(screen.getByRole("slider", { name: "High" })).toHaveAttribute("aria-valuenow", "81");
+  });
+
   it("leaves aria-disabled off an enabled thumb", () => {
     // Arrange & Act
     render(

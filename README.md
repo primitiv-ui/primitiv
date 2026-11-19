@@ -5,11 +5,12 @@
   <img src="logo-concepts/primitiv-lockup.svg" alt="Primitiv" width="420">
 </picture>
 
-### Headless, accessible React components — plus design tokens and a CLI to wire them up
+### Headless, accessible components for React and plain HTML — plus design tokens and a CLI to wire them up
 
 A design system you **assemble**, not adopt wholesale. Ship unstyled,
-WAI-ARIA-correct components, bring your own styles (or pull ready-made
-ones), sync design tokens from Figma, and install it all with one command.
+WAI-ARIA-correct components as React or as standard custom elements, bring
+your own styles (or pull ready-made ones), sync design tokens from Figma, and
+install it all with one command.
 
 **[Documentation → primitiv-ui.dev](https://primitiv-ui.dev)**
 
@@ -38,14 +39,25 @@ ones), sync design tokens from Figma, and install it all with one command.
 
 ## Why Primitiv
 
-- **46 headless, accessible components**, plus a small set of
+- **46 headless, accessible React components**, plus a small set of
   framework-agnostic hooks, built on the
   [WAI-ARIA authoring patterns](https://www.w3.org/WAI/ARIA/apg/patterns/) —
   full keyboard support, focus management, and `asChild` composition.
+- **Primitiv Elements: the same components without React.** Standard custom
+  elements in the light DOM, with no framework and no build step: one
+  `<script>` tag per component. They work in plain HTML, HTMX, and
+  server-rendered stacks (Rails, Django, Laravel, Spring), and inside Vue,
+  Angular or Svelte. Both surfaces run on one shared behaviour core and one
+  conformance suite, so they can't disagree about how a component behaves.
 - **63 styled, copy-in registry components** — framed controls, prose, and
-  full composites — ready to drop into your project with the CLI.
+  full composites — ready to drop into your project with the CLI, as React
+  or as Elements markup.
 - **Zero styles ship by default.** Style with whatever you use — CSS,
   Tailwind, CSS-in-JS, or the generated token layer.
+- **Token-backed utility classes.** A small, fixed set (`flex`, `gap-16`,
+  `p-24`, `text-muted` ...) where every class reads one design token, so it
+  follows theme and density like the components do, with no utility framework
+  needed.
 - **Design tokens, end to end.** DTCG-conformant tokens sync from Figma and
   emit to **CSS, SCSS, and Tailwind** (theme + density layers included).
 - **A real CLI.** `primitiv add button` drops a styled component — one of
@@ -60,12 +72,16 @@ ones), sync design tokens from Figma, and install it all with one command.
 | Package                                        | Version                                                                                                                                                                                                                      | What it is                                                    |
 | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | [`@primitiv-ui/react`](packages/react)         | [![npm](https://img.shields.io/npm/v/@primitiv-ui/react?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/react) [![JSR](https://jsr.io/badges/@primitiv-ui/react)](https://jsr.io/@primitiv-ui/react)     | Headless, accessible React components (zero styles)           |
+| [`@primitiv-ui/web`](packages/web)             | [![npm](https://img.shields.io/npm/v/@primitiv-ui/web?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/web) [![JSR](https://jsr.io/badges/@primitiv-ui/web)](https://jsr.io/@primitiv-ui/web)             | Primitiv Elements: the headless components as custom elements |
+| [`@primitiv-ui/core`](packages/core)           | [![npm](https://img.shields.io/npm/v/@primitiv-ui/core?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/core) [![JSR](https://jsr.io/badges/@primitiv-ui/core)](https://jsr.io/@primitiv-ui/core)         | The framework-free behaviour core both surfaces share         |
 | [`@primitiv-ui/icons`](packages/icons)         | [![npm](https://img.shields.io/npm/v/@primitiv-ui/icons?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/icons) [![JSR](https://jsr.io/badges/@primitiv-ui/icons)](https://jsr.io/@primitiv-ui/icons)     | 49 fill-based SVG icons that inherit `currentColor`           |
 | [`@primitiv-ui/tokens`](packages/tokens)       | [![npm](https://img.shields.io/npm/v/@primitiv-ui/tokens?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/tokens) [![JSR](https://jsr.io/badges/@primitiv-ui/tokens)](https://jsr.io/@primitiv-ui/tokens) | DTCG design-token layer + Figma → DTCG transform              |
-| [`primitiv-ui`](npm/cli-wrapper)               | [![npm](https://img.shields.io/npm/v/primitiv-ui?label=npm&color=cb3837)](https://www.npmjs.com/package/primitiv-ui)                                                                                                         | The `primitiv` CLI (`add`, `init`, `tokens`, `theme`, `list`) |
+| [`primitiv-ui`](npm/cli-wrapper)               | [![npm](https://img.shields.io/npm/v/primitiv-ui?label=npm&color=cb3837)](https://www.npmjs.com/package/primitiv-ui)                                                                                                         | The `primitiv` CLI — `init`, `add`, `utilities`, `tokens` ... |
 | [`create-primitiv-ui`](npm/create-primitiv-ui) | [![npm](https://img.shields.io/npm/v/create-primitiv-ui?label=npm&color=cb3837)](https://www.npmjs.com/package/create-primitiv-ui)                                                                                           | `npm create primitiv-ui` project scaffold                     |
 
 ## Quick start
+
+### React
 
 **Set up Primitiv in a Vite or Next.js project:**
 
@@ -94,6 +110,52 @@ export function Save() {
 }
 ```
 
+### Elements (any HTML or server-rendered project)
+
+No `package.json` needed. The CLI prints the script tag and markup for a
+component, and `init --styles` copies Primitiv's styling once:
+
+```sh
+npx primitiv-ui@latest init --styles
+npx primitiv-ui@latest add tabs
+```
+
+Or skip the CLI and load a component straight from a CDN:
+
+```html
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/tabs.js"
+></script>
+
+<primitiv-tabs value="overview">
+  <primitiv-tabs-list label="Account sections">
+    <primitiv-tabs-trigger value="overview"
+      ><button type="button">Overview</button></primitiv-tabs-trigger
+    >
+    <primitiv-tabs-trigger value="billing"
+      ><button type="button">Billing</button></primitiv-tabs-trigger
+    >
+  </primitiv-tabs-list>
+  <primitiv-tabs-content value="overview">…</primitiv-tabs-content>
+  <primitiv-tabs-content value="billing" hidden>…</primitiv-tabs-content>
+</primitiv-tabs>
+```
+
+### Utility classes
+
+For everyday layout and colour in your own markup, without a utility framework:
+
+```sh
+npx primitiv-ui@latest init --utilities   # at setup, recorded in primitiv.json
+npx primitiv-ui@latest utilities          # or any time afterwards
+```
+
+This writes `utilities.css` beside `tokens.css`. It lives in the last cascade
+layer, so `class="primitiv-button p-24"` gets the padding with no `!important`.
+Tailwind projects don't need it: `primitiv tokens --format tailwind` covers that
+case.
+
 > [!NOTE]
 > The CLI runs a small native binary, so it won't work inside StackBlitz /
 > WebContainer (their in-browser Node can't execute native binaries). Use a
@@ -106,18 +168,26 @@ export function Save() {
 See the [**component index**](packages/react/README.md) for the full list
 and per-component docs.
 
+`@primitiv-ui/web` carries 24 of them as custom elements so far, covering
+every component with real behaviour: Tabs, Accordion, Carousel, Select,
+Combobox, Navigation Menu, Tree and more. See the
+[**Elements index**](packages/web/README.md). Components with no behaviour
+(Card, Badge, Alert ...) need no element: their Elements markup is plain HTML
+plus the registry stylesheet.
+
 On top of the headless library, the **registry** ships 63 styled, copy-in
 components — framed controls (Button, Input, Select), prose (Blockquote,
 Figure, Table), and full composites (Card, NavigationMenu, ConfirmDialog,
-Avatar Group) among them. Browse what's installable with:
+Avatar Group) among them. Every one comes in both React and Elements form.
+Browse what's installable with:
 
 ```sh
 npx primitiv list
 ```
 
-or see [`registry/components`](registry/components) directly. Planned
-components and outstanding workbench examples live in
-[`ROADMAP.md`](ROADMAP.md).
+or see [`registry/components`](registry/components) directly, or browse
+them live, in both modes, at [primitiv-ui.dev](https://primitiv-ui.dev).
+Planned components live in [`ROADMAP.md`](ROADMAP.md).
 
 ## What's inside
 
@@ -129,19 +199,25 @@ primitiv/
 ├── crates/
 │   ├── harmoni-core/     # Pure-Rust palette engine + contrast audit
 │   ├── harmoni-wasm/     # wasm-bindgen adapter (browser runtime)
-│   ├── primitiv-cli/     # The `primitiv` CLI (add / init / tokens / theme / list)
-│   └── primitiv-emit/    # Pure DTCG → CSS / SCSS / Tailwind emitter
+│   ├── primitiv-cli/     # The `primitiv` CLI
+│   ├── primitiv-emit/    # Pure DTCG → CSS / SCSS / Tailwind / utilities emitter
+│   └── primitiv-emit-wasm/  # wasm build of the emitter
 ├── packages/
+│   ├── core/             # Framework-free behaviour core (no DOM, no deps)
 │   ├── react/            # Headless React component library
+│   ├── web/              # Primitiv Elements — the custom-element surface
+│   ├── conformance/      # Shared behaviour suites every surface runs (private)
 │   ├── icons/            # Fill-based SVG icon library
 │   └── tokens/           # DTCG token layer + Figma sync transform
+├── registry/             # The styled, copy-in components `primitiv add` installs
 ├── npm/                  # The CLI wrapper, scaffold, and per-platform binaries
 └── apps/
-    ├── workbench/        # React dev surface for iterating on palettes
     ├── docs-site/        # primitiv-ui.dev — the documentation site (Next.js)
-    ├── docs/             # Documentation (VitePress)
-    ├── kitchen-sink/     # Every registry component, installed via the CLI
-    └── primitiv-sync-figma-plugin/  # Back Figma variables up as DTCG JSON
+    ├── interop-lab/      # Elements on plain HTML, HTMX, React, Vue, Angular, Svelte
+    ├── workbench/        # React dev surface for iterating on palettes
+    ├── promo-video/      # Product videos rendered from the real components
+    ├── primitiv-sync-figma-plugin/  # Back Figma variables up as DTCG JSON
+    └── docs/             # Legacy VitePress docs (superseded by docs-site)
 ```
 
 ### Powered by Harmoni
@@ -179,7 +255,10 @@ pnpm run dev
 
 - **Strict TDD.** New behaviour is driven by a failing test first
   (red → green → refactor); existing tests stay green. Coverage is held at
-  100%.
+  100%, and component behaviour is also gated by mutation testing.
+- **One behaviour, every surface.** A component's keyboard and state policy
+  lives in `@primitiv-ui/core`; React and Elements both run it, and both pass
+  the same `@primitiv-ui/conformance` suite.
 - **Small commits.** One per red-green(-refactor) cycle, each leaving the
   tree green.
 - **Push little and often** — short-lived branches via PRs over large

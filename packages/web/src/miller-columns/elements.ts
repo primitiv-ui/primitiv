@@ -22,6 +22,7 @@ const PREVIEW = "primitiv-miller-columns-preview-panel";
 // Stryker restore StringLiteral
 
 /** The values of a space-separated attribute. */
+// Stryker disable next-line ArrowFunction: static — created once at import, so runtime mutant switching never reaches it; every path and selection test pins it.
 const list = (value: string): string[] => value.split(" ").filter(Boolean);
 
 /** A column in the strip, at its depth, with its own items. */

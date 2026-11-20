@@ -14,24 +14,24 @@ design tokens from Figma, and install it all with one command.
 
 **[Documentation → primitiv-ui.dev](https://primitiv-ui.dev)**
 
-[![@primitiv-ui/web on npm](https://img.shields.io/npm/v/@primitiv-ui/web?logo=npm&label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/web)
+[![@primitiv-ui/web on npm](https://img.shields.io/npm/v/@primitiv-ui/web?logo=npm&label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/@primitiv-ui/web)
 [![@primitiv-ui/web on JSR](https://jsr.io/badges/@primitiv-ui/web)](https://jsr.io/@primitiv-ui/web)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 [![Built with Rust](https://img.shields.io/badge/engine-Rust%20%2B%20wasm-dea584?logo=rust&logoColor=white)](crates/harmoni-core)
 
-[![core/web/react/icons/tokens tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/ci.yml?branch=main&label=core%2Fweb%2Freact%2Ficons%2Ftokens%20tests&logo=vitest&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/ci.yml)
+[![core/web/react/icons/tokens tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/ci.yml?branch=main&label=core%2Fweb%2Freact%2Ficons%2Ftokens%20tests&logo=vitest&logoColor=white&cacheSeconds=300)](https://github.com/primitiv-ui/primitiv/actions/workflows/ci.yml)
 
-[![rust tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/rust.yml?branch=main&label=rust%20tests&logo=rust&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/rust.yml)
+[![rust tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/rust.yml?branch=main&label=rust%20tests&logo=rust&logoColor=white&cacheSeconds=300)](https://github.com/primitiv-ui/primitiv/actions/workflows/rust.yml)
 
-[![react coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=react&label=react%20coverage&logo=codecov&logoColor=white)](https://codecov.io/gh/primitiv-ui/primitiv)
+[![react coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=react&label=react%20coverage&logo=codecov&logoColor=white&cacheSeconds=300)](https://codecov.io/gh/primitiv-ui/primitiv)
 
-[![icons coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=icons&label=icons%20coverage&logo=codecov&logoColor=white)](https://codecov.io/gh/primitiv-ui/primitiv)
+[![icons coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=icons&label=icons%20coverage&logo=codecov&logoColor=white&cacheSeconds=300)](https://codecov.io/gh/primitiv-ui/primitiv)
 
-[![tokens coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=tokens&label=tokens%20coverage&logo=codecov&logoColor=white)](https://codecov.io/gh/primitiv-ui/primitiv)
+[![tokens coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=tokens&label=tokens%20coverage&logo=codecov&logoColor=white&cacheSeconds=300)](https://codecov.io/gh/primitiv-ui/primitiv)
 
-[![harmoni-core coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=harmoni-core&label=harmoni-core%20coverage&logo=codecov&logoColor=white)](https://codecov.io/gh/primitiv-ui/primitiv)
+[![harmoni-core coverage](https://img.shields.io/codecov/c/github/primitiv-ui/primitiv/main?flag=harmoni-core&label=harmoni-core%20coverage&logo=codecov&logoColor=white&cacheSeconds=300)](https://codecov.io/gh/primitiv-ui/primitiv)
 
-[![react mutation](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/mutation.yml?branch=main&label=react%20mutation&logo=stryker&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/mutation.yml)
+[![react mutation](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/mutation.yml?branch=main&label=react%20mutation&logo=stryker&logoColor=white&cacheSeconds=300)](https://github.com/primitiv-ui/primitiv/actions/workflows/mutation.yml)
 
 </div>
 
@@ -65,13 +65,13 @@ design tokens from Figma, and install it all with one command.
 
 | Package                                        | Version                                                                                                                                                                                                                      | What it is                                                             |
 | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [`@primitiv-ui/web`](packages/web)             | [![npm](https://img.shields.io/npm/v/@primitiv-ui/web?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/web) [![JSR](https://jsr.io/badges/@primitiv-ui/web)](https://jsr.io/@primitiv-ui/web)             | Primitiv Elements: the headless components as custom elements          |
-| [`@primitiv-ui/core`](packages/core)           | [![npm](https://img.shields.io/npm/v/@primitiv-ui/core?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/core) [![JSR](https://jsr.io/badges/@primitiv-ui/core)](https://jsr.io/@primitiv-ui/core)         | The framework-free behaviour core under every component                |
-| [`@primitiv-ui/icons`](packages/icons)         | [![npm](https://img.shields.io/npm/v/@primitiv-ui/icons?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/icons) [![JSR](https://jsr.io/badges/@primitiv-ui/icons)](https://jsr.io/@primitiv-ui/icons)     | 49 fill-based SVG icons that inherit `currentColor`                    |
-| [`@primitiv-ui/tokens`](packages/tokens)       | [![npm](https://img.shields.io/npm/v/@primitiv-ui/tokens?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/tokens) [![JSR](https://jsr.io/badges/@primitiv-ui/tokens)](https://jsr.io/@primitiv-ui/tokens) | DTCG design-token layer + Figma → DTCG transform                       |
-| [`primitiv-ui`](npm/cli-wrapper)               | [![npm](https://img.shields.io/npm/v/primitiv-ui?label=npm&color=cb3837)](https://www.npmjs.com/package/primitiv-ui)                                                                                                         | The `primitiv` CLI — `init`, `add`, `utilities`, `tokens` ...          |
-| [`@primitiv-ui/react`](packages/react)         | [![npm](https://img.shields.io/npm/v/@primitiv-ui/react?label=npm&color=cb3837)](https://www.npmjs.com/package/@primitiv-ui/react) [![JSR](https://jsr.io/badges/@primitiv-ui/react)](https://jsr.io/@primitiv-ui/react)     | React components with idiomatic React APIs ([see below](#using-react)) |
-| [`create-primitiv-ui`](npm/create-primitiv-ui) | [![npm](https://img.shields.io/npm/v/create-primitiv-ui?label=npm&color=cb3837)](https://www.npmjs.com/package/create-primitiv-ui)                                                                                           | `npm create primitiv-ui` scaffold for React projects                   |
+| [`@primitiv-ui/web`](packages/web)             | [![npm](https://img.shields.io/npm/v/@primitiv-ui/web?label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/@primitiv-ui/web) [![JSR](https://jsr.io/badges/@primitiv-ui/web)](https://jsr.io/@primitiv-ui/web)             | Primitiv Elements: the headless components as custom elements          |
+| [`@primitiv-ui/core`](packages/core)           | [![npm](https://img.shields.io/npm/v/@primitiv-ui/core?label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/@primitiv-ui/core) [![JSR](https://jsr.io/badges/@primitiv-ui/core)](https://jsr.io/@primitiv-ui/core)         | The framework-free behaviour core under every component                |
+| [`@primitiv-ui/icons`](packages/icons)         | [![npm](https://img.shields.io/npm/v/@primitiv-ui/icons?label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/@primitiv-ui/icons) [![JSR](https://jsr.io/badges/@primitiv-ui/icons)](https://jsr.io/@primitiv-ui/icons)     | 49 fill-based SVG icons that inherit `currentColor`                    |
+| [`@primitiv-ui/tokens`](packages/tokens)       | [![npm](https://img.shields.io/npm/v/@primitiv-ui/tokens?label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/@primitiv-ui/tokens) [![JSR](https://jsr.io/badges/@primitiv-ui/tokens)](https://jsr.io/@primitiv-ui/tokens) | DTCG design-token layer + Figma → DTCG transform                       |
+| [`primitiv-ui`](npm/cli-wrapper)               | [![npm](https://img.shields.io/npm/v/primitiv-ui?label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/primitiv-ui)                                                                                                         | The `primitiv` CLI — `init`, `add`, `utilities`, `tokens` ...          |
+| [`@primitiv-ui/react`](packages/react)         | [![npm](https://img.shields.io/npm/v/@primitiv-ui/react?label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/@primitiv-ui/react) [![JSR](https://jsr.io/badges/@primitiv-ui/react)](https://jsr.io/@primitiv-ui/react)     | React components with idiomatic React APIs ([see below](#using-react)) |
+| [`create-primitiv-ui`](npm/create-primitiv-ui) | [![npm](https://img.shields.io/npm/v/create-primitiv-ui?label=npm&color=cb3837&cacheSeconds=300)](https://www.npmjs.com/package/create-primitiv-ui)                                                                                           | `npm create primitiv-ui` scaffold for React projects                   |
 
 ## Quick start
 

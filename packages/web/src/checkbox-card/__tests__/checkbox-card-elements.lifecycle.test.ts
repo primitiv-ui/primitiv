@@ -51,6 +51,44 @@ describe("<primitiv-checkbox-card> lifecycle", () => {
     expect(root().hasAttribute("checked")).toBe(false);
   });
 
+  it("follows its name as it is added, changed and removed, in what its form submits", async () => {
+    // Arrange
+    defineCheckboxCard();
+    document.body.innerHTML = `<form>${checkboxCardHtml({ checked: true, value: "email" })}</form>`;
+    await settle();
+    const submitted = () => [...new FormData(document.querySelector("form") as HTMLFormElement).entries()];
+
+    // Act
+    root().setAttribute("name", "updates");
+    await settle();
+    const added = submitted();
+    root().setAttribute("name", "alerts");
+    await settle();
+    const renamed = submitted();
+    root().removeAttribute("name");
+    await settle();
+
+    // Assert
+    expect(added).toEqual([["updates", "email"]]);
+    expect(renamed).toEqual([["alerts", "email"]]);
+    expect(submitted()).toEqual([]);
+  });
+
+  it("follows its value as it changes, in what its form submits", async () => {
+    // Arrange
+    defineCheckboxCard();
+    document.body.innerHTML = `<form>${checkboxCardHtml({ checked: true, name: "updates" })}</form>`;
+    await settle();
+    const submitted = () => [...new FormData(document.querySelector("form") as HTMLFormElement).entries()];
+
+    // Act
+    root().setAttribute("value", "email");
+    await settle();
+
+    // Assert
+    expect(submitted()).toEqual([["updates", "email"]]);
+  });
+
   it("follows an indicator gaining force-mount", async () => {
     // Arrange
     await mount(checkboxCardHtml());
